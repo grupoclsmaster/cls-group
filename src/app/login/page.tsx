@@ -24,9 +24,9 @@ export default function LoginPage() {
           top: 0,
           width: "100%",
           zIndex: 50,
-          backgroundColor: "rgba(19, 19, 22, 0.7)",
+          backgroundColor: "rgba(19, 19, 22, 0.78)",
           backdropFilter: "blur(20px)",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         <div
@@ -34,8 +34,8 @@ export default function LoginPage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "0 40px",
-            height: "80px",
+            padding: "0 36px",
+            height: "72px",
             maxWidth: "1440px",
             margin: "0 auto",
             width: "100%",
@@ -89,7 +89,7 @@ export default function LoginPage() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: "128px 20px 80px",
+          padding: "100px 20px 80px",
           position: "relative",
           overflow: "hidden",
         }}
@@ -116,8 +116,8 @@ export default function LoginPage() {
           className="glass-panel-dark animate-fadeIn"
           style={{
             width: "100%",
-            maxWidth: "440px",
-            borderRadius: "8px",
+            maxWidth: "500px",
+            borderRadius: "10px",
             padding: "40px",
             position: "relative",
             zIndex: 10,
@@ -157,7 +157,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  style={{ paddingRight: "40px" }}
+                  style={{ paddingRight: "48px" }}
                 />
                 <span
                   className="material-symbols-outlined"
@@ -199,7 +199,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  style={{ paddingRight: "40px" }}
+                  style={{ paddingRight: "48px" }}
                 />
                 <span
                   className="material-symbols-outlined"
@@ -220,7 +220,7 @@ export default function LoginPage() {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="btn-primary" style={{ marginTop: "16px", width: "100%" }}>
+            <button type="submit" className="btn-primary" style={{ marginTop: "16px", width: "100%", padding: "14px 18px" }}>
               ENTRAR
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_forward</span>
             </button>

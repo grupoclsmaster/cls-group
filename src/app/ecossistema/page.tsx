@@ -123,7 +123,7 @@
                         z-index: 1;
                         max-width: 1100px;
                         margin: 0 auto;
-                        padding: 12px 24px 60px 24px;
+                        padding: 24px 32px 80px 32px;
                       }
 
                       .eco-header {
@@ -174,11 +174,11 @@
 
                       .eco-hero-title {
                         font-family: 'Playfair Display', serif;
-                        font-size: 48px;
+                        font-size: 44px;
                         font-weight: 700;
-                        line-height: 1.2;
-                        margin-bottom: 16px;
-                        background: linear-gradient(180deg, #ffffff 30%, rgba(255, 255, 255, 0.7) 100%);
+                        line-height: 1.18;
+                        margin-bottom: 14px;
+                        background: linear-gradient(180deg, #ffffff 36%, rgba(255, 255, 255, 0.85) 100%);
                         -webkit-background-clip: text;
                         -webkit-text-fill-color: transparent;
                       }
@@ -196,19 +196,19 @@
                       .eco-grid {
                         display: grid;
                         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                        gap: 32px;
+                        gap: 28px;
                       }
           
                       .eco-highlight-card {
                         width: 100%;
                         border-radius: 16px;
-                        border: 1px solid rgba(237, 192, 102, 0.2);
-                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.85) 0%, rgba(14, 14, 17, 0.95) 100%);
+                        border: 1px solid rgba(237, 192, 102, 0.18);
+                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.86) 0%, rgba(14, 14, 17, 0.96) 100%);
                         overflow: hidden;
                         margin-bottom: 64px;
-                        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.045);
                         position: relative;
-                        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
                       }
           
                       .eco-highlight-card:hover {
@@ -225,7 +225,7 @@
 
                       .eco-highlight-image-wrapper {
                         position: relative;
-                        min-height: 300px;
+                        min-height: 340px;
                         background-color: var(--color-surface-container-low);
                         overflow: hidden;
                       }
@@ -260,14 +260,14 @@
                       }
 
                       .eco-card {
-                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.6) 0%, rgba(14, 14, 17, 0.8) 100%);
-                        border: 1px solid rgba(255, 255, 255, 0.06);
+                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.62) 0%, rgba(14, 14, 17, 0.86) 100%);
+                        border: 1px solid rgba(255, 255, 255, 0.05);
                         border-radius: 12px;
                         overflow: hidden;
                         display: flex;
                         flex-direction: column;
-                        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+                        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
                       }
           
                       .eco-card:hover {
@@ -302,11 +302,11 @@
                       }
 
                       .eco-card-content {
-                        padding: 24px;
+                        padding: 28px;
                         display: flex;
                         flex-direction: column;
                         flex-grow: 1;
-                        gap: 16px;
+                        gap: 18px;
                       }
 
                       .eco-card-title {
@@ -361,11 +361,11 @@
                         background: rgba(255, 255, 255, 0.04);
                         color: var(--color-on-surface-variant);
                         border: 1px solid rgba(255, 255, 255, 0.08);
-                        font-size: 9px;
+                        font-size: 10px;
                         font-weight: 700;
                         letter-spacing: 0.06em;
-                        padding: 4px 10px;
-                        border-radius: 4px;
+                        padding: 6px 12px;
+                        border-radius: 6px;
                         text-transform: uppercase;
                       }
           
@@ -403,18 +403,18 @@
                         align-items: center;
                         justify-content: center;
                         gap: 8px;
-                        padding: 12px 20px;
+                        padding: 14px 22px;
                         background: transparent;
                         color: var(--color-secondary);
-                        border: 1px solid rgba(237, 192, 102, 0.3);
-                        border-radius: 6px;
+                        border: 1px solid rgba(237, 192, 102, 0.28);
+                        border-radius: 8px;
                         font-family: 'Inter', sans-serif;
-                        font-size: 11px;
+                        font-size: 12px;
                         font-weight: 700;
                         letter-spacing: 0.08em;
                         text-transform: uppercase;
                         cursor: pointer;
-                        transition: all 0.3s ease;
+                        transition: all 0.2s ease;
                       }
                       .eco-card:hover .btn-card-cta {
                         border-color: var(--color-secondary);
