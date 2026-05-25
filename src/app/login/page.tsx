@@ -32,7 +32,7 @@ export default function LoginPage() {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             padding: "0 36px",
             height: "72px",
@@ -50,29 +50,6 @@ export default function LoginPage() {
               CLUB PRO CLS
             </div>
           </div>
-          <nav style={{ display: "flex", alignItems: "center", gap: "32px" }}>
-            <span
-              className="font-title-lg"
-              style={{
-                color: "var(--color-secondary)",
-                borderBottom: "2px solid var(--color-secondary)",
-                paddingBottom: "4px",
-                cursor: "pointer",
-              }}
-            >
-              Entrar
-            </span>
-
-            <span
-              className="font-title-lg hover-gold-dim-text"
-              style={{ color: "var(--color-on-surface-variant)", cursor: "pointer" }}
-            >
-              Suporte
-            </span>
-          </nav>
-          <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "28px", cursor: "pointer" }}>
-            help_outline
-          </span>
         </div>
       </header>
 
