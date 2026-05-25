@@ -62,13 +62,7 @@ export default function LoginPage() {
             >
               Entrar
             </span>
-            <Link
-              href="/cadastro"
-              className="font-title-lg hover-gold-dim-text"
-              style={{ color: "var(--color-on-surface-variant)", textDecoration: "none" }}
-            >
-              Cadastrar
-            </Link>
+
             <span
               className="font-title-lg hover-gold-dim-text"
               style={{ color: "var(--color-on-surface-variant)", cursor: "pointer" }}
@@ -226,24 +220,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div
-            style={{
-              marginTop: "32px",
-              textAlign: "center",
-              borderTop: "1px solid rgba(255,255,255,0.05)",
-              paddingTop: "24px",
-            }}
-          >
-            <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
-              Ainda não tem conta?{" "}
-              <Link
-                href="/cadastro"
-                style={{ color: "var(--color-secondary)", fontWeight: 600, textDecoration: "none", marginLeft: "4px" }}
-              >
-                Cadastre-se
-              </Link>
-            </p>
-          </div>
+
         </div>
       </main>
 

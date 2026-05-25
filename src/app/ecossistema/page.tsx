@@ -173,7 +173,7 @@
                       }
 
                       .eco-hero-title {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'Outfit', sans-serif;
                         font-size: 44px;
                         font-weight: 700;
                         line-height: 1.18;
@@ -310,7 +310,7 @@
                       }
 
                       .eco-card-title {
-                        font-family: 'Playfair Display', serif;
+                        font-family: 'Outfit', sans-serif;
                         font-size: 18px;
                         color: #ffffff;
                         font-weight: 600;
@@ -447,10 +447,12 @@
 
                     {/* Minimal Header */}
                     <header className="eco-header">
-                      <div className="eco-logo-group">
-                        <div className="eco-logo-dot" />
-                        <h1 className="eco-brand-title">GRUPO CLS</h1>
-                      </div>
+                      <Link href="/" style={{ textDecoration: 'none' }}>
+                        <div className="eco-logo-group">
+                          <div className="eco-logo-dot" />
+                          <h1 className="eco-brand-title">GRUPO CLS</h1>
+                        </div>
+                      </Link>
                       {isMember && (
                         <Link href="/dashboard" className="btn-outline" style={{ textDecoration: "none", fontSize: "11px", padding: "10px 20px", display: "inline-flex", alignItems: "center", gap: "8px" }}>
                           <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>dashboard</span>
@@ -469,81 +471,10 @@
                       </p>
                     </section>
 
-                    {/* Highlighted Flagship Product Card (Club Pro CLS) */}
-                    <div className="eco-highlight-card">
-                      <div className="eco-highlight-grid">
-            
-                        {/* Cover image banner */}
-                        <div className="eco-highlight-image-wrapper">
-                          <div className="eco-highlight-image" />
-                          <div className="eco-highlight-overlay" />
-              
-                          {/* Lock watermark overlay for unsubscribed visitors */}
-                          {!isMember && (
-                            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)", zIndex: 2 }}>
-                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", background: "rgba(19,19,22,0.8)", border: "1px solid rgba(255,255,255,0.08)", padding: "20px 24px", borderRadius: "12px" }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "var(--color-secondary)" }}>lock</span>
-                                <span style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.05em", color: "var(--color-on-surface-variant)" }}>ACESSO EXCLUSIVO</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Details column */}
-                        <div className="eco-highlight-details">
-                          <div>
-                            {isMember ? (
-                              <span className="badge-premium">
-                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>verified</span>
-                                SEU PLANO ATIVO
-                              </span>
-                            ) : (
-                              <span className="badge-locked">
-                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>lock</span>
-                                CONVITE EXCLUSIVO
-                              </span>
-                            )}
-                          </div>
-
-                          <h3 style={{ fontSize: "32px", color: "#ffffff", fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
-                            Club Pro CLS
-                          </h3>
-
-                          <p style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", margin: 0, opacity: 0.9 }}>
-                            {isMember 
-                              ? "Sua plataforma executiva de elite na construção civil. Acesso ilimitado a mentorias semanais, biblioteca completa de masterclasses, modelos de dossiês e materiais de apoio exclusivos para acelerar sua captação de recursos e gestão de obras."
-                              : "A plataforma executiva de elite da construção civil. Acesso restrito a mentorias semanais com líderes de mercado, biblioteca de masterclasses avançadas de viabilidade e custos, dossiês técnicos e rodadas fechadas de co-investimento."
-                            }
-                          </p>
-
-                          <button
-                            onClick={() => handleCtaClick("club-pro", isMember)}
-                            disabled={!isMember}
-                            className={isMember ? "btn-primary btn-eco-active" : "btn-primary btn-eco-locked"}
-                            style={{
-                              width: "fit-content",
-                              marginTop: "8px",
-                              padding: "14px 28px",
-                              borderRadius: "6px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px"
-                            }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                              {isMember ? "login" : "lock"}
-                            </span>
-                            {isMember ? "Acessar Conteúdo" : "Exclusivo para Membros"}
-                          </button>
-                        </div>
-
-                      </div>
-                    </div>
-
                     {/* Grid of Other Products */}
                     <h4
                       style={{
-                        fontFamily: "'Playfair Display', serif",
+                        fontFamily: "'Outfit', sans-serif",
                         fontSize: "22px",
                         color: "var(--color-on-surface)",
                         marginBottom: "28px",
@@ -555,7 +486,7 @@
                       Programas e Soluções Adicionais
                     </h4>
 
-                    <div className="eco-grid">
+                    <div className="eco-grid" style={{ marginBottom: "64px" }}>
                       {otherProducts.map((product) => (
                         <div key={product.id} className="eco-card">
               
@@ -597,6 +528,77 @@
                       ))}
                     </div>
 
+                    {/* Highlighted Flagship Product Card (Club Pro CLS) */}
+                    <div className="eco-highlight-card">
+                      <div className="eco-highlight-grid">
+            
+                        {/* Cover image banner */}
+                        <div className="eco-highlight-image-wrapper">
+                          <div className="eco-highlight-image" />
+                          <div className="eco-highlight-overlay" />
+              
+                          {/* Lock watermark overlay for unsubscribed visitors */}
+                          {!isMember && (
+                            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)", zIndex: 2 }}>
+                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", background: "rgba(19,19,22,0.8)", border: "1px solid rgba(255,255,255,0.08)", padding: "20px 24px", borderRadius: "12px" }}>
+                                <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "var(--color-secondary)" }}>lock</span>
+                                <span style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.05em", color: "var(--color-on-surface-variant)" }}>ACESSO EXCLUSIVO</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Details column */}
+                        <div className="eco-highlight-details">
+                          <div>
+                            {isMember ? (
+                              <span className="badge-premium">
+                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>verified</span>
+                                SEU PLANO ATIVO
+                              </span>
+                            ) : (
+                              <span className="badge-locked">
+                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>lock</span>
+                                CONVITE EXCLUSIVO
+                              </span>
+                            )}
+                          </div>
+
+                          <h3 style={{ fontSize: "32px", color: "#ffffff", fontWeight: 700, margin: 0, fontFamily: "'Outfit', sans-serif" }}>
+                            Club Pro CLS
+                          </h3>
+
+                          <p style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", margin: 0, opacity: 0.9 }}>
+                            {isMember 
+                              ? "Sua plataforma executiva de elite na construção civil. Acesso ilimitado a mentorias semanais, biblioteca completa de masterclasses, modelos de dossiês e materiais de apoio exclusivos para acelerar sua captação de recursos e gestão de obras."
+                              : "A plataforma executiva de elite da construção civil. Acesso restrito a mentorias semanais com líderes de mercado, biblioteca de masterclasses avançadas de viabilidade e custos, dossiês técnicos e rodadas fechadas de co-investimento."
+                            }
+                          </p>
+
+                          <button
+                            onClick={() => handleCtaClick("club-pro", isMember)}
+                            disabled={!isMember}
+                            className={isMember ? "btn-primary btn-eco-active" : "btn-primary btn-eco-locked"}
+                            style={{
+                              width: "fit-content",
+                              marginTop: "8px",
+                              padding: "14px 28px",
+                              borderRadius: "6px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px"
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                              {isMember ? "login" : "lock"}
+                            </span>
+                            {isMember ? "Acessar Conteúdo" : "Exclusivo para Membros"}
+                          </button>
+                        </div>
+
+                      </div>
+                    </div>
+
                     {/* Footer */}
                     <footer style={{ marginTop: "100px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
                       <div>
@@ -612,218 +614,3 @@
                 </div>
               );
             }
-
-            margin-top: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background: transparent;
-            color: var(--color-secondary);
-            border: 1px solid rgba(237, 192, 102, 0.3);
-            border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          }
-          .eco-card:hover .btn-card-cta {
-            border-color: var(--color-secondary);
-            background: rgba(237, 192, 102, 0.05);
-            box-shadow: 0 4px 12px rgba(237, 192, 102, 0.15);
-          }
-
-          @media (max-width: 900px) {
-            .eco-highlight-grid {
-              grid-template-columns: 1fr;
-            }
-            .eco-highlight-image-wrapper {
-              min-height: 220px;
-            }
-            .eco-highlight-overlay {
-              background: linear-gradient(to top, rgba(20, 19, 22, 0.95) 0%, rgba(20, 19, 22, 0.3) 100%);
-            }
-            .eco-highlight-details {
-              padding: 32px 24px;
-            }
-            .eco-hero-title {
-              font-size: 36px;
-            }
-            .eco-header {
-              margin-bottom: 36px;
-              padding: 16px 0;
-            }
-          }
-        `}} />
-
-        {/* Minimal Header */}
-        <header className="eco-header">
-          <div className="eco-logo-group">
-            <div className="eco-logo-dot" />
-            <h1 className="eco-brand-title">GRUPO CLS</h1>
-          </div>
-          {isMember && (
-            <Link href="/dashboard" className="btn-outline" style={{ textDecoration: "none", fontSize: "11px", padding: "10px 20px", display: "inline-flex", alignItems: "center", gap: "8px" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>dashboard</span>
-              Ir para o Painel
-            </Link>
-          )}
-        </header>
-
-        {/* Page Titles */}
-        <section className="eco-hero-section">
-          <h2 className="eco-hero-title">
-            Nosso Ecossistema
-          </h2>
-          <p className="eco-hero-subtitle">
-            Conheça todas as soluções de desenvolvimento técnico, mentoria avançada e networking do ecossistema CLS.
-          </p>
-        </section>
-
-        {/* Highlighted Flagship Product Card (Club Pro CLS) */}
-        <div className="eco-highlight-card">
-          <div className="eco-highlight-grid">
-            
-            {/* Cover image banner */}
-            <div className="eco-highlight-image-wrapper">
-              <div className="eco-highlight-image" />
-              <div className="eco-highlight-overlay" />
-              
-              {/* Lock watermark overlay for unsubscribed visitors */}
-              {!isMember && (
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)", zIndex: 2 }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", background: "rgba(19,19,22,0.8)", border: "1px solid rgba(255,255,255,0.08)", padding: "20px 24px", borderRadius: "12px" }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "var(--color-secondary)" }}>lock</span>
-                    <span style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.05em", color: "var(--color-on-surface-variant)" }}>ACESSO EXCLUSIVO</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Details column */}
-            <div className="eco-highlight-details">
-              <div>
-                {isMember ? (
-                  <span className="badge-premium">
-                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>verified</span>
-                    SEU PLANO ATIVO
-                  </span>
-                ) : (
-                  <span className="badge-locked">
-                    <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>lock</span>
-                    CONVITE EXCLUSIVO
-                  </span>
-                )}
-              </div>
-
-              <h3 style={{ fontSize: "32px", color: "#ffffff", fontWeight: 700, margin: 0, fontFamily: "'Playfair Display', serif" }}>
-                Club Pro CLS
-              </h3>
-
-              <p style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", margin: 0, opacity: 0.9 }}>
-                {isMember 
-                  ? "Sua plataforma executiva de elite na construção civil. Acesso ilimitado a mentorias semanais, biblioteca completa de masterclasses, modelos de dossiês e materiais de apoio exclusivos para acelerar sua captação de recursos e gestão de obras."
-                  : "A plataforma executiva de elite da construção civil. Acesso restrito a mentorias semanais com líderes de mercado, biblioteca de masterclasses avançadas de viabilidade e custos, dossiês técnicos e rodadas fechadas de co-investimento."
-                }
-              </p>
-
-              <button
-                onClick={() => handleCtaClick("club-pro", isMember)}
-                disabled={!isMember}
-                className={isMember ? "btn-primary btn-eco-active" : "btn-primary btn-eco-locked"}
-                style={{
-                  width: "fit-content",
-                  marginTop: "8px",
-                  padding: "14px 28px",
-                  borderRadius: "6px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px"
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                  {isMember ? "login" : "lock"}
-                </span>
-                {isMember ? "Acessar Conteúdo" : "Exclusivo para Membros"}
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Grid of Other Products */}
-        <h4
-          style={{
-            fontFamily: "'Playfair Display', serif",
-            fontSize: "22px",
-            color: "var(--color-on-surface)",
-            marginBottom: "28px",
-            fontWeight: 600,
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-            paddingBottom: "12px"
-          }}
-        >
-          Programas e Soluções Adicionais
-        </h4>
-
-        <div className="eco-grid">
-          {otherProducts.map((product) => (
-            <div key={product.id} className="eco-card">
-              
-              {/* Thumbnail */}
-              <div className="eco-card-image-wrapper">
-                <div
-                  className="eco-card-image"
-                  style={{
-                    backgroundImage: `url('${product.image}')`
-                  }}
-                />
-                <div className="eco-card-overlay" />
-                
-                <div style={{ position: "absolute", top: "16px", left: "16px", zIndex: 3 }}>
-                  <span className="badge-other">{product.category}</span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="eco-card-content">
-                <h4 className="eco-card-title">
-                  {product.title}
-                </h4>
-                
-                <p className="eco-card-desc">
-                  {product.description}
-                </p>
-
-                <button
-                  onClick={() => handleCtaClick(product.id, false)}
-                  className="btn-card-cta"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>shopping_bag</span>
-                  {product.ctaText}
-                </button>
-              </div>
-
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <footer style={{ marginTop: "100px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-          <div>
-            &copy; {new Date().getFullYear()} GRUPO CLS. Todos os direitos reservados.
-          </div>
-          <div style={{ display: "flex", gap: "16px" }}>
-            <span style={{ color: "var(--color-secondary)", fontWeight: 600, fontSize: "12px", letterSpacing: "0.05em", textTransform: "uppercase" }}>Construindo o Futuro</span>
-          </div>
-        </footer>
-
-      </div>
-      <div style={{ height: "48px" }} />
-    </div>
-  );
-}
