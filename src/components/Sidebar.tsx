@@ -62,9 +62,9 @@ export default function Sidebar() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "clamp(4px, 1vw, 8px)" }}>
-            <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "clamp(20px, 3vw, 24px)" }}>diamond</span>
+            <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "clamp(16px, 3vw, 24px)" }}>diamond</span>
             {!isCollapsed && (
-              <h1 className="font-headline-sm" style={{ color: "var(--color-secondary-fixed)", letterSpacing: "-0.01em", margin: 0, fontSize: "clamp(14px, 2.5vw, 18px)" }}>
+              <h1 className="font-headline-sm" style={{ color: "var(--color-secondary-fixed)", letterSpacing: "-0.01em", margin: 0, fontSize: "clamp(12px, 2.5vw, 18px)" }}>
                 CLUB PRO CLS
               </h1>
             )}
