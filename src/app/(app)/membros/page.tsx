@@ -90,6 +90,7 @@ const fallbackPosts: Post[] = [
 ];
 
 export default function FeedComunidadePage() {
+  // createClient() is SSR-safe: returns null on server, real client on browser
   const supabase = createClient();
   
   const [members, setMembers] = useState<Member[]>([]);

@@ -222,7 +222,6 @@ const fallbackLessonsMap: Record<string, Lesson> = {
 export default function WatchLessonPage() {
   const params = useParams();
   const router = useRouter();
-  const supabase = createClient();
   const idStr = Array.isArray(params?.id) ? params.id[0] : (params?.id || "2-2");
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
@@ -262,6 +261,8 @@ export default function WatchLessonPage() {
     async function loadLesson() {
       try {
         setLoading(true);
+        // createClient() is instantiated here (client-side only, inside useEffect)
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         // 1. Fetch current lesson
@@ -380,6 +381,8 @@ export default function WatchLessonPage() {
     async function updateProg() {
       if (!isPlaying || !lesson) return;
       try {
+        // createClient() is instantiated here (client-side only, inside useEffect)
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 

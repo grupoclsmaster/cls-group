@@ -154,7 +154,6 @@ const fallbackLessons = [
 
 export default function MasterclassesPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [modules, setModules] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]);
@@ -168,6 +167,8 @@ export default function MasterclassesPage() {
     async function loadData() {
       try {
         setLoading(true);
+        // createClient() is instantiated here (client-side only, inside useEffect)
+        const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
         let dbProgress: any[] = [];
@@ -243,6 +244,8 @@ export default function MasterclassesPage() {
   // Handle resetting progress on the active hero lesson
   const handleResetProgress = async (lessonId: string) => {
     try {
+      // createClient() is instantiated here (client-side only, inside event handler)
+      const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         // Mock fallback reset

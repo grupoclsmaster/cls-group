@@ -46,7 +46,6 @@
 
             export default function StandaloneEcossistemaPage() {
               const router = useRouter();
-              const supabase = createClient();
   
               const [isMember, setIsMember] = useState(false);
               const [loading, setLoading] = useState(true);
@@ -54,6 +53,8 @@
               useEffect(() => {
                 async function checkMembership() {
                   try {
+                    // createClient() is instantiated here (client-side only, inside useEffect)
+                    const supabase = createClient();
                     const { data: { user } } = await supabase.auth.getUser();
                     if (user) {
                       const { data: member } = await supabase
