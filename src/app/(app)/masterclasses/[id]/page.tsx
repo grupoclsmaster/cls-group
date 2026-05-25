@@ -399,8 +399,8 @@ export default function WatchLessonPage() {
             percent_complete: next,
             completed: isCompleted,
             last_watched_at: new Date().toISOString()
-          }, { onConflict: 'user_id,lesson_id' }).then(({ error }) => {
-            if (error) console.error("Erro ao salvar progresso no Supabase:", error);
+          }, { onConflict: 'user_id,lesson_id' }).then((res: { error: any }) => {
+            if (res.error) console.error("Erro ao salvar progresso no Supabase:", res.error);
           });
 
           return next;
