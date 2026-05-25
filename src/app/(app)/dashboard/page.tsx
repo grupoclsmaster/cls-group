@@ -42,7 +42,7 @@ export default function DashboardPage() {
           style={{ color: "var(--color-on-surface)", marginBottom: "8px" }}
         >
           Bem-vindo de volta,{" "}
-          <span style={{ color: "var(--color-secondary)" }}>Alexandre</span>.
+          <span style={{ color: "var(--color-secondary)" }}>Magno Santos</span>.
         </h2>
         <p className="font-body-lg" style={{ color: "var(--color-on-surface-variant)" }}>
           Aqui está o seu resumo executivo para hoje.
