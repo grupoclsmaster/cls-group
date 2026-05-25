@@ -41,11 +41,11 @@ export default function LoginPage() {
             width: "100%",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "28px" }}>diamond</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "clamp(4px, 2vw, 8px)" }}>
+            <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "clamp(20px, 5vw, 28px)" }}>diamond</span>
             <div
               className="font-display-mobile"
-              style={{ color: "var(--color-secondary)", letterSpacing: "0.2em", textTransform: "uppercase" }}
+              style={{ color: "var(--color-secondary)", letterSpacing: "0.15em", textTransform: "uppercase", fontSize: "clamp(18px, 5vw, 32px)" }}
             >
               CLUB PRO CLS
             </div>
