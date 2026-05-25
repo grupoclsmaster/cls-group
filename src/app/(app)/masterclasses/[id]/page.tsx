@@ -327,7 +327,7 @@ export default function WatchLessonPage() {
           .order('sequence_order', { ascending: true });
 
         if (dbSiblings && dbSiblings.length > 0) {
-          siblings = dbSiblings.map(sib => {
+          siblings = dbSiblings.map((sib: any) => {
             const prog = progressList.find(p => p.lesson_id === sib.id);
             return {
               id: sib.id,
