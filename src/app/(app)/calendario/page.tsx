@@ -182,6 +182,16 @@ const monthsList = [
   { name: "Julho 2026", month: 6, year: 2026 },
 ];
 
+export type EventFormData = {
+  title: string;
+  type: "mentoria" | "atualizacao";
+  startTime: string;
+  endTime: string;
+  mentorName: string;
+  topic?: string;
+  zoomLink?: string;
+};
+
 export default function CalendarioPage() {
   const [activeMonth, setActiveMonth] = useState(monthsList[0]);
   const [selectedDay, setSelectedDay] = useState<number>(4);
@@ -207,7 +217,7 @@ export default function CalendarioPage() {
   const [eventMentorName, setEventMentorName] = useState("Eng. Magno Santos");
   const [eventTopic, setEventTopic] = useState("");
   const [eventZoomLink, setEventZoomLink] = useState("https://zoom.us/j/magno-santos-pe");
-  const [pendingEventToSync, setPendingEventToSync] = useState<CalendarEvent | null>(null);
+  const [pendingEventToSync, setPendingEventToSync] = useState<EventFormData | null>(null);
 
   // Custom toast notification state
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -385,15 +395,7 @@ export default function CalendarioPage() {
     triggerEventCreation(eventData, googleUser!);
   };
 
-  type EventFormData = {
-    title: string;
-    type: "mentoria" | "atualizacao";
-    startTime: string;
-    endTime: string;
-    mentorName: string;
-    topic?: string;
-    zoomLink?: string;
-  };
+
 
   const triggerEventCreation = (eventData: EventFormData, user: { email: string; name: string }) => {
     setIsSyncingEvent(true);
