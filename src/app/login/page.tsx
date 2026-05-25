@@ -176,13 +176,6 @@ export default function LoginPage() {
                 <label htmlFor="senha" className="font-label-caps" style={{ color: "var(--color-on-surface-variant)" }}>
                   Senha
                 </label>
-                <Link
-                  href="/recuperar-senha"
-                  className="font-label-caps"
-                  style={{ color: "var(--color-secondary)", textDecoration: "none", transition: "color 0.2s" }}
-                >
-                  Esqueci minha senha
-                </Link>
               </div>
               <div style={{ position: "relative" }}>
                 <input
