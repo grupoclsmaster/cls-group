@@ -21,7 +21,7 @@
                 description: "O treinamento prático de controle físico-financeiro para engenheiros e construtores. Aprenda a estruturar cronogramas precisos e eliminar desvios de orçamento no canteiro de obras de uma vez por todas.",
                 category: "Curso Completo",
                 type: "Adquirir Acesso",
-                image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=600",
+                image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=600",
                 ctaText: "Adquirir Curso"
               },
               {
@@ -30,7 +30,7 @@
                 description: "Domine as teorias fundamentais e o dimensionamento prático de vigas, pilares e lajes de concreto armado. Leitura e interpretação de projetos para garantir máxima segurança executiva.",
                 category: "Treinamento Técnico",
                 type: "Adquirir Acesso",
-                image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=600",
+                image: "https://images.unsplash.com/photo-1503387762-592dedb8c310?auto=format&fit=crop&q=80&w=600",
                 ctaText: "Adquirir Treinamento"
               },
               {
@@ -39,7 +39,7 @@
                 description: "Descubra as principais ConTechs, ferramentas de inteligência artificial aplicadas à engenharia e técnicas de alavancagem profissional e posicionamento no mercado premium.",
                 category: "Material Digital",
                 type: "Download",
-                image: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=600",
+                image: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&q=80&w=600",
                 ctaText: "Fazer Download"
               }
             ];
@@ -234,7 +234,7 @@
                       .eco-highlight-image {
                         position: absolute;
                         inset: 0;
-                        background-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=1200');
+                        background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200');
                         background-size: cover;
                         background-position: center 25%;
                         transition: transform 8s ease;

@@ -14,7 +14,7 @@ async function run() {
 
   const postsData = [
     {
-      author_name: "Arq. Mayara Santos",
+      author_name: "Arq. Mayara Costa",
       author_role: "Mentor Sênior",
       author_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
       content: "Olá pessoal! Acabei de disponibilizar o novo modelo de Dossiê de Apresentação Executiva para captação de recursos com investidores na área de Recursos. Esse material tem sido fundamental para os roadshows de incorporação residencial de luxo. Deixem suas dúvidas aqui nos comentários!",

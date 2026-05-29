@@ -37,7 +37,14 @@ async function seed() {
             img: m.img,
             status: m.status,
             added_at: m.addedAt || new Date().toISOString(),
-            deactivated_at: m.deactivatedAt || null
+            deactivated_at: m.deactivatedAt || null,
+            linkedin_url: m.linkedin_url || null,
+            instagram_url: m.instagram_url || null,
+            facebook_url: m.facebook_url || null,
+            x_url: m.x_url || null,
+            website_url: m.website_url || null,
+            username: m.username || null,
+            bio: m.bio || null
         });
 
         if (memberError) {
@@ -156,12 +163,12 @@ async function seed() {
         event_date: "2026-05-13",
         start_time: "16:00",
         end_time: "17:30",
-        mentor_name: "Arq. Mayara Santos",
+        mentor_name: "Arq. Mayara Costa",
         mentor_role: "Mentor Sênior",
         mentor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
         mentor_bio: "Arquiteta especialista em design conceitual de luxo...",
         topic: "Posicionamento estético como alavanca de valorização e o desenvolvimento conceitual de projetos residenciais e corporativos premium.",
-        zoom_link: "https://zoom.us/j/mayara-santos-design"
+        zoom_link: "https://zoom.us/j/mayara-costa-design"
       },
       {
         title: "Reunião de Alinhamento: Portfólio Q3",
@@ -208,12 +215,12 @@ async function seed() {
         event_date: "2026-06-12",
         start_time: "09:00",
         end_time: "18:00",
-        mentor_name: "Arq. Mayara Santos",
+        mentor_name: "Arq. Mayara Costa",
         mentor_role: "Mentor Sênior",
         mentor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
         mentor_bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth.",
         topic: "Visita técnica presencial a um grande empreendimento corporativo de alto padrão em São Paulo com foco em compatibilização BIM e acabamentos.",
-        zoom_link: "https://zoom.us/j/mayara-santos-design"
+        zoom_link: "https://zoom.us/j/mayara-costa-design"
       },
       {
         title: "Mentoria: Estruturação de SPE e SCP",
@@ -234,12 +241,12 @@ async function seed() {
         event_date: "2026-07-22",
         start_time: "16:00",
         end_time: "17:30",
-        mentor_name: "Arq. Mayara Santos",
+        mentor_name: "Arq. Mayara Costa",
         mentor_role: "Mentor Sênior",
         mentor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
         mentor_bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth.",
         topic: "Implementação da metodologia Lean nos fluxos de projeto arquitetônico e interface direta com o planejamento executivo da obra.",
-        zoom_link: "https://zoom.us/j/mayara-santos-design"
+        zoom_link: "https://zoom.us/j/mayara-costa-design"
       }
     ];
 

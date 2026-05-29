@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { SkeletonMasterclasses } from "@/components/SkeletonLoading";
 
 // Fallback modules matching seeded database structure
 const fallbackModules = [
@@ -36,7 +37,7 @@ const fallbackLessons = [
     title: "Fundamentos do Planejamento Físico-Financeiro",
     description: "Como estruturar um cronograma integrado alinhando metas físicas a desembolsos financeiros.",
     duration: "18:45",
-    thumbnail_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=600",
+    thumbnail_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600",
     instructor_name: "Eng. Magno Santos",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "/magno.jpg",
@@ -51,7 +52,7 @@ const fallbackLessons = [
     title: "Controle de Suprimentos e Logística de Canteiro",
     description: "Planejamento logístico e de suprimentos para evitar gargalos e paralisações nas frentes de trabalho.",
     duration: "15:20",
-    thumbnail_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=1200",
+    thumbnail_url: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
     instructor_name: "Eng. Magno Santos",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "/magno.jpg",
@@ -66,8 +67,8 @@ const fallbackLessons = [
     title: "Lean Construction e Otimização de Processos",
     description: "Adoção dos princípios da construção enxuta para redução de perdas e aumento de eficiência.",
     duration: "22:15",
-    thumbnail_url: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&q=80&w=600",
-    instructor_name: "Arq. Mayara Santos",
+    thumbnail_url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600",
+    instructor_name: "Arq. Mayara Costa",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
     sequence_order: 3,
@@ -81,7 +82,7 @@ const fallbackLessons = [
     title: "Engenharia de Custos Aplicada",
     description: "Desconstruindo a composição de custos e orçamento paramétrico para obras de alto padrão.",
     duration: "18:45",
-    thumbnail_url: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=400",
+    thumbnail_url: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
     instructor_name: "Eng. Magno Santos",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "/magno.jpg",
@@ -96,8 +97,8 @@ const fallbackLessons = [
     title: "Análise de Viabilidade Imobiliária",
     description: "Estratégias avançadas para estruturação financeira de terrenos e incorporação.",
     duration: "24:10",
-    thumbnail_url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Arq. Mayara Santos",
+    thumbnail_url: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400",
+    instructor_name: "Arq. Mayara Costa",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
     sequence_order: 2,
@@ -111,8 +112,8 @@ const fallbackLessons = [
     title: "Gestão de Contratos de Obra (EPC/Turnkey)",
     description: "Como gerir e fechar contratos de execução de obras civis complexas com o máximo controle de riscos.",
     duration: "21:05",
-    thumbnail_url: "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Arq. Mayara Santos",
+    thumbnail_url: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400",
+    instructor_name: "Arq. Mayara Costa",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
     sequence_order: 3,
@@ -126,7 +127,7 @@ const fallbackLessons = [
     title: "BIM e Virtual Design in Construction (VDC)",
     description: "Técnicas de modelagem inteligente e compatibilização 3D de projetos complexos.",
     duration: "15:30",
-    thumbnail_url: "https://images.unsplash.com/photo-1503387762-592dedb8c310?auto=format&fit=crop&q=80&w=400",
+    thumbnail_url: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400",
     instructor_name: "Eng. Magno Santos",
     instructor_role: "Mentor Sênior",
     instructor_avatar: "/magno.jpg",
@@ -291,11 +292,7 @@ export default function MasterclassesPage() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", color: "var(--color-secondary)" }}>
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: "48px" }}>sync</span>
-      </div>
-    );
+    return <SkeletonMasterclasses />;
   }
 
   // Filter lessons if query is provided
@@ -346,7 +343,7 @@ export default function MasterclassesPage() {
           color: white;
           font-size: 32px;
           cursor: pointer;
-          zIndex: 10;
+          z-index: 10;
           display: flex;
           align-items: center;
           justify-content: center;

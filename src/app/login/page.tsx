@@ -1,11 +1,18 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  
+  const router = useRouter();
+  const supabase = createClient();
 
   return (
     <div
@@ -94,7 +101,7 @@ export default function LoginPage() {
             zIndex: 10,
           }}
         >
-          <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
             <h1 className="font-headline-md" style={{ color: "var(--color-on-surface)", marginBottom: "8px" }}>
               Acesso Restrito
             </h1>
@@ -103,28 +110,81 @@ export default function LoginPage() {
             </p>
           </div>
 
+          {error && (
+            <div style={{
+              backgroundColor: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.2)",
+              color: "#f87171",
+              padding: "12px",
+              borderRadius: "6px",
+              fontSize: "13px",
+              marginBottom: "20px",
+              textAlign: "center"
+            }}>
+              {error}
+            </div>
+          )}
+
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              window.location.href = "/dashboard";
+              if (loading) return;
+              setError(null);
+              setLoading(true);
+              try {
+                let loginEmail = email.trim();
+                
+                // If it doesn't look like an email, try resolving it as a username
+                if (!loginEmail.includes("@")) {
+                  const { data: member, error: memberErr } = await supabase
+                    .from("members")
+                    .select("email")
+                    .eq("username", loginEmail.toLowerCase())
+                    .maybeSingle();
+                  
+                  if (memberErr || !member) {
+                    setError("E-mail/Usuário ou senha incorretos.");
+                    setLoading(false);
+                    return;
+                  }
+                  loginEmail = member.email;
+                }
+
+                const { error: authError } = await supabase.auth.signInWithPassword({
+                  email: loginEmail,
+                  password: password,
+                });
+                
+                if (authError) {
+                  setError("E-mail/Usuário ou senha incorretos.");
+                } else {
+                  router.push("/dashboard");
+                }
+              } catch (err: any) {
+                setError("Erro inesperado ao realizar login.");
+                console.error(err);
+              } finally {
+                setLoading(false);
+              }
             }}
+
             style={{ display: "flex", flexDirection: "column", gap: "24px" }}
           >
-            {/* Email */}
+            {/* Email/Username */}
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               <label
                 htmlFor="email"
                 className="font-label-caps"
                 style={{ color: "var(--color-on-surface-variant)" }}
               >
-                E-mail
+                E-mail ou Usuário
               </label>
               <div style={{ position: "relative" }}>
                 <input
                   id="email"
-                  type="email"
+                  type="text"
                   className="input-dark"
-                  placeholder="seu@email.com"
+                  placeholder="seu@email.com ou usuário"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -184,9 +244,20 @@ export default function LoginPage() {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="btn-primary" style={{ marginTop: "16px", width: "100%", padding: "14px 18px" }}>
-              ENTRAR
-              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_forward</span>
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              disabled={loading}
+              style={{ 
+                marginTop: "16px", 
+                width: "100%", 
+                padding: "14px 18px",
+                opacity: loading ? 0.7 : 1,
+                cursor: loading ? "not-allowed" : "pointer"
+              }}
+            >
+              {loading ? "ENTRANDO..." : "ENTRAR"}
+              {!loading && <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_forward</span>}
             </button>
           </form>
 

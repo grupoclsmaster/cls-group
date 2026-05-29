@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { SkeletonGenericGrid } from "@/components/SkeletonLoading";
 
 interface InvestmentAsset {
   id: string;
@@ -61,7 +62,7 @@ const assetsData: InvestmentAsset[] = [
     category: "incorporacao",
     categoryLabel: "Incorporação Residencial de Luxo",
     desc: "Portfólio de incorporação e construção de residências de altíssimo padrão em condomínios fechados costeiros.",
-    longDesc: "Portfólio estruturado de multipropriedade e incorporação residencial de luxo na região litorânea premium. Une engenharia estrutural de ponta para terrenos complexos e projetos arquitetônicos sob medida assinados pela mentora Arq. Mayara Santos. Alta rentabilidade operacional por meio de locação de curta temporada gerida por concierge.",
+    longDesc: "Portfólio estruturado de multipropriedade e incorporação residencial de luxo na região litorânea premium. Une engenharia estrutural de ponta para terrenos complexos e projetos arquitetônicos sob medida assinados pela mentora Arq. Mayara Costa. Alta rentabilidade operacional por meio de locação de curta temporada gerida por concierge.",
     img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
     badge: "Oportunidade Âncora",
     targetIrr: "22.4% a.a. estimada",
@@ -86,9 +87,19 @@ const assetsData: InvestmentAsset[] = [
 export default function OportunidadesPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("todos");
+  const [loading, setLoading] = useState(true);
   
   // Modal for detail view
   const [selectedAsset, setSelectedAsset] = useState<InvestmentAsset | null>(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <SkeletonGenericGrid cols={2} rows={2} />;
+  }
 
   const filteredAssets = assetsData.filter((asset) => {
     const matchesSearch =
@@ -169,7 +180,7 @@ export default function OportunidadesPage() {
             The Horizon Residence Portfolio
           </h3>
           <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "24px", lineHeight: "1.6" }}>
-            Incorporação residencial de alto padrão com projetos assinados pela Arq. Mayara Santos e engenharia estrutural complexa. Rentabilidade projetada em 22.4% a.a. com gestão integrada do ativo.
+            Incorporação residencial de alto padrão com projetos assinados pela Arq. Mayara Costa e engenharia estrutural complexa. Rentabilidade projetada em 22.4% a.a. com gestão integrada do ativo.
           </p>
 
           <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>

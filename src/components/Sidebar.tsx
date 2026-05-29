@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 const navItems = [
   { icon: "dashboard", label: "Painel", href: "/dashboard" },
@@ -15,7 +16,16 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClient();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   // Sync state with localStorage on mount and listen to changes
   useEffect(() => {
@@ -26,9 +36,17 @@ export default function Sidebar() {
       setIsCollapsed(localStorage.getItem("cls_sidebar_collapsed") === "true");
     };
 
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && (user.email === "Magnorjsantos@hotmail.com" || user.email === "mayaracosta00@gmail.com")) {
+        setIsAdmin(true);
+      }
+    };
+    void checkAdmin();
+
     window.addEventListener("cls_sidebar_toggle", handleToggle);
     return () => window.removeEventListener("cls_sidebar_toggle", handleToggle);
-  }, []);
+  }, [supabase]);
 
   const handleToggleClick = () => {
     const nextState = !isCollapsed;
@@ -61,14 +79,23 @@ export default function Sidebar() {
             gap: isCollapsed ? "16px" : "8px"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "clamp(4px, 1vw, 8px)" }}>
+          <Link 
+            href="/dashboard" 
+            style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "clamp(4px, 1vw, 8px)",
+              textDecoration: "none",
+              cursor: "pointer"
+            }}
+          >
             <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "clamp(16px, 3vw, 24px)" }}>diamond</span>
             {!isCollapsed && (
               <h1 className="font-headline-sm" style={{ color: "var(--color-secondary-fixed)", letterSpacing: "-0.01em", margin: 0, fontSize: "clamp(12px, 2.5vw, 18px)" }}>
                 CLUB PRO CLS
               </h1>
             )}
-          </div>
+          </Link>
           
           <button
             onClick={handleToggleClick}
@@ -192,12 +219,13 @@ export default function Sidebar() {
           }}
         >
           {[
-            { icon: "help_outline", label: "Suporte", href: "#" },
-            { icon: "logout", label: "Sair", href: "/login" },
+            { icon: "help_outline", label: "Suporte", href: "#", onClick: undefined },
+            { icon: "logout", label: "Sair", href: "/login", onClick: handleLogout },
           ].map((item) => (
             <Link
               key={item.label}
               href={item.href}
+              onClick={item.onClick}
               className="nav-link"
               style={{ 
                 textDecoration: "none",

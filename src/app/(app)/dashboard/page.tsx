@@ -1,22 +1,26 @@
 "use client";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
+
+import { SkeletonDashboard } from "@/components/SkeletonLoading";
 
 const masterclasses = [
   {
     title: "Engenharia de Custos Aplicada",
     duration: "18 MIN",
     badge: "NOVO",
-    img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "Análise de Viabilidade Imobiliária",
     duration: "24 MIN",
-    img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=800",
   },
   {
     title: "BIM e Virtual Design in Construction (VDC)",
     duration: "15 MIN",
-    img: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=800",
+    img: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=800",
   },
 ];
 
@@ -33,16 +37,74 @@ const feed = [
 ];
 
 export default function DashboardPage() {
+  const [greeting, setGreeting] = useState("Olá");
+  const [userName, setUserName] = useState("Master");
+  const [loading, setLoading] = useState(true);
+
+  const formatName = (name: string) => {
+    if (!name) return "";
+    return name
+      .split(/[\s._-]+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
+  useEffect(() => {
+    // 1. Calculate greeting based on period of the day
+    const hours = new Date().getHours();
+    let greet = "Boa noite";
+    if (hours >= 5 && hours < 12) {
+      greet = "Bom dia";
+    } else if (hours >= 12 && hours < 18) {
+      greet = "Boa tarde";
+    }
+    setGreeting(greet);
+
+    // 2. Fetch logged in user name/username from Supabase
+    const fetchUser = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: member } = await supabase
+            .from("members")
+            .select("name, username")
+            .eq("id", user.id)
+            .single();
+          if (member) {
+            const rawName = member.name || "Master";
+            const firstName = rawName.trim().split(/\s+/)[0];
+            setUserName(firstName);
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar usuário no dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    void fetchUser();
+  }, []);
+
+  if (loading) {
+    return <SkeletonDashboard />;
+  }
+
   return (
     <div className="animate-fadeIn">
       {/* Welcome */}
       <section style={{ marginBottom: "40px" }}>
         <h2
           className="font-display-mobile"
-          style={{ color: "var(--color-on-surface)", marginBottom: "8px" }}
+          style={{ color: "var(--color-on-surface)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}
         >
-          Bem-vindo de volta,{" "}
-          <span style={{ color: "var(--color-secondary)" }}>Magno Santos</span>.
+          {loading ? (
+            <span className="skeleton" style={{ display: "inline-block", width: "240px", height: "36px", borderRadius: "4px" }} />
+          ) : (
+            <>
+              {greeting}, <span style={{ color: "var(--color-secondary)" }}>{formatName(userName)}</span>.
+            </>
+          )}
         </h2>
         <p className="font-body-lg" style={{ color: "var(--color-on-surface-variant)" }}>
           Aqui está o seu resumo executivo para hoje.
@@ -342,7 +404,7 @@ export default function DashboardPage() {
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Pulso da Comunidade</h3>
+            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Atualizações dos membros</h3>
             <span className="material-symbols-outlined" style={{ color: "var(--color-on-surface-variant)" }}>forum</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

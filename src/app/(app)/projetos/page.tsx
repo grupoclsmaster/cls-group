@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { SkeletonGenericGrid } from "@/components/SkeletonLoading";
 
 interface ProjectSpec {
   area: string;
@@ -118,6 +119,12 @@ export default function ProjetosPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("todos");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Toast System
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -272,6 +279,10 @@ export default function ProjetosPage() {
       );
     }, 1500);
   };
+
+  if (loading) {
+    return <SkeletonGenericGrid cols={3} rows={1} />;
+  }
 
   return (
     <div className="animate-fadeIn" style={{ display: "flex", flexDirection: "column", gap: "40px" }}>

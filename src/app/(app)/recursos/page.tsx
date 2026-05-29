@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { SkeletonGenericGrid } from "@/components/SkeletonLoading";
 
 interface ResourceFile {
   id: string;
@@ -70,6 +71,16 @@ const resourcesData: ResourceFile[] = [
 export default function RecursosPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("todos");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <SkeletonGenericGrid cols={2} rows={3} />;
+  }
 
   const filteredResources = resourcesData.filter((file) => {
     const matchesSearch =

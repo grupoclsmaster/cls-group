@@ -3,6 +3,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { SkeletonMasterclassDetail } from "@/components/SkeletonLoading";
 
 interface Lesson {
   id: string;
@@ -19,6 +20,7 @@ interface Lesson {
     img: string;
   };
   longDesc: string;
+  thumbnailUrl?: string;
 }
 
 const fallbackLessonsMap: Record<string, Lesson> = {
@@ -37,7 +39,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Entenda a fundo como construir a curva S e associar tarefas físicas aos fluxos de caixa da obra. Esta aula aborda o planejamento básico que garante a saúde financeira e o ritmo de produção no canteiro."
+    longDesc: "Entenda a fundo como construir a curva S e associar tarefas físicas aos fluxos de caixa da obra. Esta aula aborda o planejamento básico que garante a saúde financeira e o ritmo de produção no canteiro.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600"
   },
   "11111111-1111-1111-1111-111111111112": {
     id: "11111111-1111-1111-1111-111111111112",
@@ -53,7 +56,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "O fluxo logístico do canteiro dita o ritmo da produtividade. Aprenda como dimensionar estoques, planejar compras de longo prazo (Just In Time) e otimizar o fluxo de carga/descarga em obras de alto padrão."
+    longDesc: "O fluxo logístico do canteiro dita o ritmo da produtividade. Aprenda como dimensionar estoques, planejar compras de longo prazo (Just In Time) e otimizar o fluxo de carga/descarga em obras de alto padrão.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200"
   },
   "11111111-1111-1111-1111-111111111113": {
     id: "11111111-1111-1111-1111-111111111113",
@@ -65,11 +69,12 @@ const fallbackLessonsMap: Record<string, Lesson> = {
     duration: "22:15",
     videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
     instructor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
     },
-    longDesc: "Nesta aula, desvendamos como aplicar o Last Planner System para gerenciar compromissos e gargalos semanais, promovendo colaboração direta entre as equipes técnicas e reduzindo tempos ociosos."
+    longDesc: "Nesta aula, desvendamos como aplicar o Last Planner System para gerenciar compromissos e gargalos semanais, promovendo colaboração direta entre as equipes técnicas e reduzindo tempos ociosos.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600"
   },
   "22222222-2222-2222-2222-222222222221": {
     id: "22222222-2222-2222-2222-222222222221",
@@ -85,7 +90,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM."
+    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400"
   },
   "22222222-2222-2222-2222-222222222222": {
     id: "22222222-2222-2222-2222-222222222222",
@@ -97,11 +103,12 @@ const fallbackLessonsMap: Record<string, Lesson> = {
     duration: "24:10",
     videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
     instructor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
     },
-    longDesc: "A Arq. Mayara Santos guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados."
+    longDesc: "A Arq. Mayara Costa guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400"
   },
   "22222222-2222-2222-2222-222222222223": {
     id: "22222222-2222-2222-2222-222222222223",
@@ -113,11 +120,12 @@ const fallbackLessonsMap: Record<string, Lesson> = {
     duration: "21:05",
     videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
     instructor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
     },
-    longDesc: "A Arq. Mayara Santos detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas."
+    longDesc: "A Arq. Mayara Costa detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400"
   },
   "33333333-3333-3333-3333-333333333331": {
     id: "33333333-3333-3333-3333-333333333331",
@@ -133,7 +141,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital."
+    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400"
   },
   "33333333-3333-3333-3333-333333333332": {
     id: "33333333-3333-3333-3333-333333333332",
@@ -149,7 +158,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Explore os caminhos para reduzir prazos de obra em até 50% através da industrialização da construção. Estudaremos desde a concepção arquitetônica voltada à modulação (Design for Manufacturing and Assembly) até o içamento em canteiro."
+    longDesc: "Explore os caminhos para reduzir prazos de obra em até 50% através da industrialização da construção. Estudaremos desde a concepção arquitetônica voltada à modulação (Design for Manufacturing and Assembly) até o içamento em canteiro.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=600"
   },
 
   // Backward compatibility with legacy routes
@@ -167,7 +177,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM."
+    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400"
   },
   "2-2": {
     id: "2-2",
@@ -179,11 +190,12 @@ const fallbackLessonsMap: Record<string, Lesson> = {
     duration: "24:10",
     videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
     instructor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
     },
-    longDesc: "A Arq. Mayara Santos guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados."
+    longDesc: "A Arq. Mayara Costa guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400"
   },
   "2-3": {
     id: "2-3",
@@ -199,7 +211,8 @@ const fallbackLessonsMap: Record<string, Lesson> = {
       role: "Mentor Sênior",
       img: "/magno.jpg"
     },
-    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital."
+    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400"
   },
   "2-4": {
     id: "2-4",
@@ -211,11 +224,12 @@ const fallbackLessonsMap: Record<string, Lesson> = {
     duration: "21:05",
     videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
     instructor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
     },
-    longDesc: "A Arq. Mayara Santos detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas."
+    longDesc: "A Arq. Mayara Costa detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas.",
+    thumbnailUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400"
   }
 };
 
@@ -236,25 +250,11 @@ export default function WatchLessonPage() {
   const [usefulCount, setUsefulCount] = useState(12);
   const [isUseful, setIsUseful] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   // Comments state
   const [newComment, setNewComment] = useState("");
-  const [comments, setComments] = useState([
-    {
-      author: "Camila T.",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      role: "Sócia Plena",
-      time: "Há 2 horas",
-      content: "A explicação sobre a composição de custos diretos e indiretos e a aplicação do BDI aos 14:20 foi incrivelmente clara. A planilha de EVTL disponibilizada nos recursos facilitou muito!"
-    },
-    {
-      author: "Gustavo Rocha",
-      avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
-      role: "Sócio Sênior",
-      time: "Há 4 horas",
-      content: "A desconstrução dos riscos em contratos de obras de grande porte foi o melhor insight. Na área técnica de engenharia, sempre caímos no erro de aceitar cláusulas abusivas sem calcular o impacto financeiro."
-    }
-  ]);
+  const [comments, setComments] = useState<any[]>([]);
 
   // Load lesson details
   useEffect(() => {
@@ -299,7 +299,8 @@ export default function WatchLessonPage() {
               role: dbLesson.instructor_role || "Mentor Sênior",
               img: dbLesson.instructor_avatar || "/magno.jpg"
             },
-            longDesc: dbLesson.long_description || dbLesson.description
+            longDesc: dbLesson.long_description || dbLesson.description,
+            thumbnailUrl: dbLesson.thumbnail_url || fallbackLessonsMap[dbLesson.id]?.thumbnailUrl || fallbackLessonsMap["2-2"].thumbnailUrl
           };
         } else {
           // Fallback to static mapping
@@ -353,8 +354,30 @@ export default function WatchLessonPage() {
         const currentProg = progressList.find(p => p.lesson_id === currentLesson.id);
         if (currentProg) {
           setWatchedPercent(currentProg.percent_complete);
+          setIsCompleted(!!currentProg.completed);
         } else {
           setWatchedPercent(0);
+          setIsCompleted(false);
+        }
+
+        // 4. Fetch real comments
+        const { data: dbComments } = await supabase
+          .from('lesson_comments')
+          .select('id, content, created_at, user_id, members (name, img, role)')
+          .eq('lesson_id', currentLesson.id)
+          .order('created_at', { ascending: false });
+
+        if (dbComments) {
+          setComments(dbComments.map((c: any) => ({
+            id: c.id,
+            author: c.members?.name || "Membro CLS",
+            avatar: c.members?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
+            role: c.members?.role || "Membro",
+            time: new Date(c.created_at).toLocaleDateString(),
+            content: c.content
+          })));
+        } else {
+          setComments([]);
         }
 
       } catch (err) {
@@ -388,8 +411,20 @@ export default function WatchLessonPage() {
 
         setWatchedPercent(prev => {
           const next = Math.min(prev + 4, 100);
-          const isCompleted = next >= 100;
+          const isDone = next >= 100;
           
+          if (isDone) {
+            setIsCompleted(true);
+            setSiblingLessons(siblingsPrev =>
+              siblingsPrev.map(sib => {
+                if (sib.id === lesson.id) {
+                  return { ...sib, status: "completed" };
+                }
+                return sib;
+              })
+            );
+          }
+
           // Save to database
           supabase.from('user_lesson_progress').upsert({
             user_id: user.id,
@@ -397,7 +432,7 @@ export default function WatchLessonPage() {
             watched_seconds: Math.floor(1200 * (next / 100)),
             total_seconds: 1200,
             percent_complete: next,
-            completed: isCompleted,
+            completed: isDone,
             last_watched_at: new Date().toISOString()
           }, { onConflict: 'user_id,lesson_id' }).then((res: { error: any }) => {
             if (res.error) console.error("Erro ao salvar progresso no Supabase:", res.error);
@@ -416,21 +451,47 @@ export default function WatchLessonPage() {
     return () => clearInterval(interval);
   }, [isPlaying, lesson]);
 
-  const handlePostComment = (e: React.FormEvent) => {
+  const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!newComment.trim() || !lesson) return;
 
-    setComments([
-      {
-        author: "Você",
-        avatar: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
-        role: "Membro Executivo",
-        time: "Agora mesmo",
-        content: newComment.trim()
-      },
-      ...comments
-    ]);
-    setNewComment("");
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Você precisa estar logado para comentar.");
+        return;
+      }
+
+      const { data: inserted, error } = await supabase
+        .from('lesson_comments')
+        .insert({
+          lesson_id: lesson.id,
+          user_id: user.id,
+          content: newComment.trim()
+        })
+        .select('id, content, created_at, user_id, members (name, img, role)')
+        .single();
+
+      if (error) throw error;
+
+      if (inserted) {
+        setComments(prev => [
+          {
+            id: inserted.id,
+            author: inserted.members?.name || "Você",
+            avatar: inserted.members?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
+            role: inserted.members?.role || "Membro",
+            time: "Agora mesmo",
+            content: inserted.content
+          },
+          ...prev
+        ]);
+      }
+      setNewComment("");
+    } catch (err: any) {
+      alert("Erro ao postar comentário: " + err.message);
+    }
   };
 
   const handleRate = (stars: number) => {
@@ -448,12 +509,59 @@ export default function WatchLessonPage() {
     }
   };
 
+  const handleToggleCompleted = async () => {
+    if (!lesson) return;
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Você precisa estar logado para salvar seu progresso.");
+        return;
+      }
+
+      const nextCompletedStatus = !isCompleted;
+      const nextPercent = nextCompletedStatus ? 100 : 0;
+
+      // Update local states immediately
+      setIsCompleted(nextCompletedStatus);
+      setWatchedPercent(nextPercent);
+
+      // Update sidebar sibling status
+      setSiblingLessons(prev =>
+        prev.map(sib => {
+          if (sib.id === lesson.id) {
+            return {
+              ...sib,
+              status: nextCompletedStatus ? "completed" : "locked"
+            };
+          }
+          return sib;
+        })
+      );
+
+      // Perform upsert to Supabase
+      const { error } = await supabase
+        .from('user_lesson_progress')
+        .upsert({
+          user_id: user.id,
+          lesson_id: lesson.id,
+          watched_seconds: nextCompletedStatus ? 1200 : 0,
+          total_seconds: 1200,
+          percent_complete: nextPercent,
+          completed: nextCompletedStatus,
+          last_watched_at: new Date().toISOString()
+        }, { onConflict: 'user_id,lesson_id' });
+
+      if (error) {
+        console.error("Erro ao atualizar progresso:", error);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", color: "var(--color-secondary)" }}>
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: "48px" }}>sync</span>
-      </div>
-    );
+    return <SkeletonMasterclassDetail />;
   }
 
   if (!lesson) {
@@ -504,7 +612,7 @@ export default function WatchLessonPage() {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  backgroundImage: `url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1200')`,
+                  backgroundImage: `url('${lesson.thumbnailUrl || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=1200"}')`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   opacity: isPlaying ? 0.25 : 0.6,
@@ -680,23 +788,36 @@ export default function WatchLessonPage() {
 
               {/* Comment Items list */}
               <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                {comments.map((c, i) => (
-                  <div key={i} style={{ display: "flex", gap: "16px" }}>
-                    <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
-                      <img src={c.avatar} alt={c.author} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                    <div className="glass-panel" style={{ flex: 1, borderRadius: "0 8px 8px 8px", padding: "16px 20px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                        <div>
-                          <span style={{ fontWeight: 600, color: "var(--color-on-surface)", fontSize: "14px" }}>{c.author}</span>
-                          <span style={{ color: "var(--color-on-surface-variant)", fontSize: "12px", marginLeft: "8px" }}>{c.role}</span>
-                        </div>
-                        <span style={{ color: "var(--color-outline)", fontSize: "11px" }}>{c.time}</span>
-                      </div>
-                      <p style={{ color: "var(--color-on-surface-variant)", fontSize: "13px", lineHeight: "1.6" }}>{c.content}</p>
-                    </div>
+                {comments.length === 0 ? (
+                  <div style={{
+                    padding: "24px",
+                    textAlign: "center",
+                    color: "var(--color-outline)",
+                    backgroundColor: "rgba(255, 255, 255, 0.02)",
+                    borderRadius: "8px",
+                    border: "1px dashed rgba(255, 255, 255, 0.1)"
+                  }}>
+                    Ainda não tem comentários.
                   </div>
-                ))}
+                ) : (
+                  comments.map((c, i) => (
+                    <div key={i} style={{ display: "flex", gap: "16px" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}>
+                        <img src={c.avatar} alt={c.author} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      </div>
+                      <div className="glass-panel" style={{ flex: 1, borderRadius: "0 8px 8px 8px", padding: "16px 20px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                          <div>
+                            <span style={{ fontWeight: 600, color: "var(--color-on-surface)", fontSize: "14px" }}>{c.author}</span>
+                            <span style={{ color: "var(--color-on-surface-variant)", fontSize: "12px", marginLeft: "8px" }}>{c.role}</span>
+                          </div>
+                          <span style={{ color: "var(--color-outline)", fontSize: "11px" }}>{c.time}</span>
+                        </div>
+                        <p style={{ color: "var(--color-on-surface-variant)", fontSize: "13px", lineHeight: "1.6" }}>{c.content}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -710,6 +831,33 @@ export default function WatchLessonPage() {
               <span className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "8px", fontSize: "10px" }}>
                 INTERAÇÕES DA AULA
               </span>
+
+              {/* Toggle Completed Lesson Button */}
+              <button
+                onClick={handleToggleCompleted}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  backgroundColor: isCompleted ? "var(--color-secondary)" : "rgba(255, 255, 255, 0.05)",
+                  color: isCompleted ? "var(--color-on-secondary)" : "var(--color-on-surface)",
+                  border: isCompleted ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.15)",
+                  padding: "12px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  transition: "all 0.2s"
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: ` 'FILL' ${isCompleted ? 1 : 0} ` }}>
+                  {isCompleted ? "check_circle" : "radio_button_unchecked"}
+                </span>
+                {isCompleted ? "AULA CONCLUÍDA" : "MARCAR COMO CONCLUÍDA"}
+              </button>
 
               {/* Star Rating */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

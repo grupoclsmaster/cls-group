@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { SkeletonCalendario } from "@/components/SkeletonLoading";
 
 interface CalendarEvent {
   id: string;
@@ -52,13 +53,13 @@ const initialEventsList: CalendarEvent[] = [
     startTime: "16:00",
     endTime: "17:30",
     mentor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
       bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
     },
     topic: "Posicionamento estético como alavanca de valorização e o desenvolvimento conceitual de projetos residenciais e corporativos premium.",
-    zoomLink: "https://zoom.us/j/mayara-santos-design"
+    zoomLink: "https://zoom.us/j/mayara-costa-design"
   },
   {
     id: "e3",
@@ -71,10 +72,10 @@ const initialEventsList: CalendarEvent[] = [
     startTime: "11:00",
     endTime: "12:00",
     mentor: {
-      name: "Alexandre de Morais",
+      name: "Eng. Magno Santos",
       role: "CEO & Fundador CLS",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
-      bio: "Managing Director da Holding executiva, focado na expansão de fundos de liquidez e alinhamento estratégico."
+      avatar: "/magno.jpg",
+      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
     },
     topic: "Atualização de desempenho das oportunidades vigentes de co-investimento e cronograma de saídas planejadas.",
     zoomLink: "https://zoom.us/j/cls-portfolio-q3"
@@ -128,13 +129,13 @@ const initialEventsList: CalendarEvent[] = [
     startTime: "09:00",
     endTime: "18:00",
     mentor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
       bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
     },
     topic: "Visita técnica presencial a um grande empreendimento corporativo de alto padrão em São Paulo com foco em compatibilização BIM e acabamentos.",
-    zoomLink: "https://zoom.us/j/mayara-santos-design"
+    zoomLink: "https://zoom.us/j/mayara-costa-design"
   },
   {
     id: "e7",
@@ -166,13 +167,13 @@ const initialEventsList: CalendarEvent[] = [
     startTime: "16:00",
     endTime: "17:30",
     mentor: {
-      name: "Arq. Mayara Santos",
+      name: "Arq. Mayara Costa",
       role: "Mentor Sênior",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
       bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
     },
     topic: "Implementação da metodologia Lean nos fluxos de projeto arquitetônico e interface direta com o planejamento executivo da obra.",
-    zoomLink: "https://zoom.us/j/mayara-santos-design"
+    zoomLink: "https://zoom.us/j/mayara-costa-design"
   }
 ];
 
@@ -197,6 +198,7 @@ export default function CalendarioPage() {
   const [selectedDay, setSelectedDay] = useState<number>(4);
   const [activeFilter, setActiveFilter] = useState<"todos" | "mentoria" | "atualizacao">("todos");
   const [viewMode, setViewMode] = useState<"grade" | "lista">("grade");
+  const [loading, setLoading] = useState(true);
 
   // Dynamic state list for events (loaded from localstorage)
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -217,7 +219,39 @@ export default function CalendarioPage() {
   const [eventMentorName, setEventMentorName] = useState("Eng. Magno Santos");
   const [eventTopic, setEventTopic] = useState("");
   const [eventZoomLink, setEventZoomLink] = useState("https://zoom.us/j/magno-santos-pe");
+  const [eventLinkType, setEventLinkType] = useState<"zoom" | "meet" | "other">("zoom");
   const [pendingEventToSync, setPendingEventToSync] = useState<EventFormData | null>(null);
+
+  // Custom alert/confirm dialog state
+  const [customDialog, setCustomDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "alert" | "confirm";
+    onConfirm?: () => void;
+  } | null>(null);
+
+  const showConfirm = (message: string, onConfirm: () => void, title: string = "Confirmação") => {
+    setCustomDialog({
+      isOpen: true,
+      title,
+      message,
+      type: "confirm",
+      onConfirm
+    });
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    showConfirm(
+      "Deseja realmente excluir este evento do calendário? Esta ação não pode ser desfeita.",
+      () => {
+        const updated = events.filter(e => e.id !== eventId);
+        saveEvents(updated);
+        showToast("Evento excluído com sucesso!", "success");
+      },
+      "Excluir Evento"
+    );
+  };
 
   // Custom toast notification state
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -254,6 +288,7 @@ export default function CalendarioPage() {
           // Safe clear
         }
       }
+      setLoading(false);
     };
 
     void loadFromStorage();
@@ -317,10 +352,7 @@ export default function CalendarioPage() {
       setIsSyncing(false);
       showToast(`Conectado com sucesso como ${email}!`, "success");
 
-      // Check if there was an event creation pending this login
-      if (pendingEventToSync) {
-        triggerEventCreation(pendingEventToSync, user);
-      }
+
     }, 1200);
   };
 
@@ -342,7 +374,7 @@ export default function CalendarioPage() {
     const text = encodeURIComponent(event.title);
     const dates = `${startStr}/${endStr}`;
     const details = encodeURIComponent(
-      `Tópico: ${event.topic}\n\nMentor: ${event.mentor.name} (${event.mentor.role})\n\nLink do Zoom: ${event.zoomLink}`
+      `Tópico: ${event.topic}\n\nMentor: ${event.mentor.name} (${event.mentor.role})\n\nLink da Reunião: ${event.zoomLink}`
     );
     const location = encodeURIComponent(event.zoomLink);
     const ctz = "America/Sao_Paulo";
@@ -360,6 +392,7 @@ export default function CalendarioPage() {
     setEventTitle("");
     setEventTopic("");
     setEventZoomLink("https://zoom.us/j/magno-santos-pe");
+    setEventLinkType("zoom");
     setEventStartTime("14:00");
     setEventEndTime("15:30");
     setEventType("mentoria");
@@ -384,20 +417,12 @@ export default function CalendarioPage() {
       zoomLink: eventZoomLink,
     };
 
-    // If Google Calendar is not synced yet, prompt login first
-    if (!isSynced) {
-      setPendingEventToSync(eventData);
-      showToast("Por favor, integre sua conta do Google para sincronizar o evento.", "error");
-      setShowGoogleLogin(true);
-      return;
-    }
-
-    triggerEventCreation(eventData, googleUser!);
+    triggerEventCreation(eventData);
   };
 
 
 
-  const triggerEventCreation = (eventData: EventFormData, user: { email: string; name: string }) => {
+  const triggerEventCreation = (eventData: EventFormData) => {
     setIsSyncingEvent(true);
 
     setTimeout(() => {
@@ -416,12 +441,12 @@ export default function CalendarioPage() {
           role: eventData.mentorName === "Alexandre de Morais" ? "CEO & Fundador CLS" : "Mentor Sênior",
           avatar: eventData.mentorName === "Eng. Magno Santos"
             ? "/magno.jpg"
-            : eventData.mentorName === "Arq. Mayara Santos"
+            : eventData.mentorName === "Arq. Mayara Costa"
               ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
               : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
           bio: eventData.mentorName === "Eng. Magno Santos"
             ? "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-            : eventData.mentorName === "Arq. Mayara Santos"
+            : eventData.mentorName === "Arq. Mayara Costa"
               ? "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
               : "Managing Director da Holding executiva, focado na expansão de fundos de liquidez e alinhamento estratégico.",
         },
@@ -452,7 +477,7 @@ export default function CalendarioPage() {
             {
               id: "2",
               title: "Nova Masterclass Disponível",
-              description: "Assista a 'Design Premium e Alavancagem de Valor' com Arq. Mayara Santos.",
+              description: "Assista a 'Design Premium e Alavancagem de Valor' com Arq. Mayara Costa.",
               type: "masterclass",
               time: "Há 2 horas",
               read: false,
@@ -500,11 +525,7 @@ export default function CalendarioPage() {
       setShowCreateEventModal(false);
       setPendingEventToSync(null);
 
-      showToast("Evento criado e sincronizado com o Google Calendar!", "success");
-
-      // Auto-open Google Calendar Template in new tab to add it to the user's real Google Calendar
-      const googleCalUrl = getGoogleCalendarUrl(newEvent);
-      window.open(googleCalUrl, "_blank");
+      showToast("Evento criado com sucesso!", "success");
     }, 1500);
   };
 
@@ -749,9 +770,13 @@ export default function CalendarioPage() {
     );
   };
 
+  if (loading) {
+    return <SkeletonCalendario />;
+  }
+
   return (
     <div className="animate-fadeIn">
-      {/* Dynamic Header & Google Calendar Integration Status */}
+      {/* Dynamic Header */}
       <section style={{ marginBottom: "28px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
         <div>
           <h2 className="font-display-mobile" style={{ color: "var(--color-on-surface)", marginBottom: "4px" }}>
@@ -760,59 +785,6 @@ export default function CalendarioPage() {
           <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
             Fuso Horário: Brasília (GMT-3). Agende suas mentorias e adicione-as ao seu dia a dia.
           </p>
-        </div>
-
-        {/* Integration Sync Control panel */}
-        <div
-          className="glass-panel metallic-edge"
-          style={{
-            padding: "12px 20px",
-            borderRadius: "4px",
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            backgroundColor: "rgba(7, 7, 50, 0.3)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span className="material-symbols-outlined" style={{ color: isSynced ? "#a3e635" : "var(--color-on-surface-variant)", fontSize: "24px" }}>
-              {isSynced ? "sync" : "calendar_month"}
-            </span>
-            <div>
-              <p className="font-label-caps" style={{ fontSize: "9px", color: "var(--color-on-surface-variant)", margin: 0 }}>Google Calendar</p>
-              <p style={{ fontSize: "11px", color: isSynced ? "#a3e635" : "var(--color-outline)", fontWeight: 600, margin: 0 }}>
-                {isSynced ? `Conectado: ${googleUser?.email || "Sim"}` : "Não integrado"}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleGoogleSync}
-            disabled={isSyncing}
-            className="btn-primary"
-            style={{
-              padding: "8px 16px",
-              fontSize: "10px",
-              backgroundColor: isSynced ? "rgba(237, 192, 102, 0.1)" : "var(--color-secondary)",
-              color: isSynced ? "var(--color-secondary)" : "var(--color-on-secondary)",
-              border: isSynced ? "1px solid rgba(237, 192, 102, 0.2)" : "none",
-              cursor: "pointer",
-            }}
-          >
-            {isSyncing ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span className="material-symbols-outlined animate-spin" style={{ fontSize: "14px" }}>autorenew</span>
-                Conectando...
-              </div>
-            ) : isSynced ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>power_settings_new</span>
-                Desconectar
-              </div>
-            ) : (
-              "Sincronizar Agenda"
-            )}
-          </button>
         </div>
       </section>
 
@@ -1014,38 +986,56 @@ export default function CalendarioPage() {
                     </p>
                   </div>
 
-                  {/* Action buttons (Zoom Link and Google Calendar Export link) */}
+                  {/* Action buttons (Zoom/Meet Link & Delete) */}
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    <a
-                      href={selectedEvent.zoomLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-primary"
-                      style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px" }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>videocam</span>
-                      ENTRAR NO ZOOM
-                    </a>
+                    {(() => {
+                      const lower = (selectedEvent.zoomLink || "").toLowerCase();
+                      const isZoom = lower.includes("zoom.us");
+                      const isMeet = lower.includes("meet.google.com");
+                      return (
+                        <a
+                          href={selectedEvent.zoomLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-primary"
+                          style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                            {isZoom ? "videocam" : isMeet ? "groups" : "link"}
+                          </span>
+                          {isZoom ? "ENTRAR NO ZOOM" : isMeet ? "ENTRAR NO GOOGLE MEET" : "ACESSAR REUNIÃO"}
+                        </a>
+                      );
+                    })()}
 
-                    <a
-                      href={getGoogleCalendarUrl(selectedEvent)}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDeleteEvent(selectedEvent.id)}
                       className="btn-outline"
                       style={{
-                        textDecoration: "none",
                         width: "100%",
                         fontSize: "10px",
-                        padding: "10px",
+                        padding: "12px",
+                        border: "1px solid var(--color-error)",
+                        color: "var(--color-error)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        gap: "6px",
+                        gap: "8px",
+                        backgroundColor: "transparent",
+                        cursor: "pointer",
+                        borderRadius: "4px",
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(179, 38, 30, 0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
                       }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>event</span>
-                      EXPORTAR PARA GOOGLE AGENDA
-                    </a>
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+                      EXCLUIR EVENTO
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -1079,141 +1069,7 @@ export default function CalendarioPage() {
         </div>
       </div>
 
-      {/* Google Login popup Modal */}
-      {showGoogleLogin && (
-        <div style={{
-          position: "fixed",
-          inset: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.85)",
-          backdropFilter: "blur(8px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 9999,
-        }}>
-          <div style={{
-            width: "440px",
-            backgroundColor: "#ffffff",
-            color: "#202124",
-            borderRadius: "8px",
-            padding: "36px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
-            fontFamily: "system-ui, -apple-system, sans-serif",
-          }}>
-            {/* Google Logo */}
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-              <svg width="74" height="24" viewBox="0 0 74 24">
-                <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.904 0-8.907-4.003-8.907-8.907s4.003-8.907 8.907-8.907c2.203 0 4.256.819 5.845 2.408l3.056-3.056C18.17 1.83 15.347.8 12.24.8 5.67.8.3 6.17.3 12.74s5.37 11.94 11.94 11.94c6.858 0 11.398-4.819 11.398-11.59 0-.78-.07-1.53-.2-2.26H12.24z" fill="#4285F4"/>
-                <path d="M35.632 12.74c0 3.759-2.908 6.47-6.52 6.47s-6.52-2.711-6.52-6.47c0-3.79 2.908-6.47 6.52-6.47s6.52 2.68 6.52 6.47zm-4.32 0c0-2.31-1.636-3.88-2.2-3.88s-2.2 1.57-2.2 3.88c0 2.278 1.636 3.88 2.2 3.88s2.2-1.602 2.2-3.88z" fill="#EA4335"/>
-                <path d="M49.632 12.74c0 3.759-2.908 6.47-6.52 6.47s-6.52-2.711-6.52-6.47c0-3.79 2.908-6.47 6.52-6.47s6.52 2.68 6.52 6.47zm-4.32 0c0-2.31-1.636-3.88-2.2-3.88s-2.2 1.57-2.2 3.88c0 2.278 1.636 3.88 2.2 3.88s2.2-1.602 2.2-3.88z" fill="#FBBC05"/>
-                <path d="M63.13 6.84v16.03c0 6.583-4.225 9.278-8.91 9.278-4.52 0-7.25-3.023-8.29-5.553l3.778-1.57c.677 1.616 2.342 3.523 4.512 3.523 2.94 0 4.772-1.822 4.772-5.234v-1.282h-.15c-.9 1.106-2.632 2.062-4.819 2.062-4.524 0-8.62-3.938-8.62-8.835 0-4.94 4.096-8.907 8.62-8.907 2.187 0 3.919.957 4.819 2.034h.15V6.84h4.13zm-3.957 5.96c0-2.278-1.602-3.88-2.188-3.88s-2.221 1.602-2.221 3.88c0 2.247 1.635 3.847 2.221 3.847s2.188-1.6 2.188-3.847z" fill="#4285F4"/>
-                <path d="M67.33.8v22.74H64V.8h3.33z" fill="#34A853"/>
-                <path d="M72.33 14.88l1.378.92c-.93 1.383-3.153 3.799-6.9 3.799-4.636 0-8.13-3.623-8.13-8.865 0-5.52 3.524-8.907 7.72-8.907 4.256 0 6.33 3.483 7.02 5.56l.462 1.157-11.455 4.743c.877 1.733 2.242 2.61 4.201 2.61 1.959 0 3.292-.967 4.704-3.017zm-6.242-2.348l6.815-2.82c-.37-.923-1.464-1.579-2.695-1.579-1.58 0-2.89 1.4-3.12 4.4z" fill="#EA4335"/>
-              </svg>
-            </div>
 
-            <div style={{ textAlign: "center", marginBottom: "28px" }}>
-              <h3 style={{ fontSize: "22px", fontWeight: 500, color: "#202124", margin: "0 0 8px" }}>Escolha uma conta</h3>
-              <p style={{ fontSize: "14px", color: "#5f6368", margin: 0 }}>para continuar no app CLUB PRO CLS</p>
-            </div>
-
-            {/* List of Simulated Google Accounts */}
-            <div style={{ display: "flex", flexDirection: "column", border: "1px solid #dadce0", borderRadius: "8px", overflow: "hidden", marginBottom: "28px" }}>
-              <button
-                onClick={() => handleGoogleLogin("magno.santos.pe@gmail.com", "Eng. Magno Santos")}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "14px 16px",
-                  backgroundColor: "#ffffff",
-                  border: "none",
-                  borderBottom: "1px solid #dadce0",
-                  width: "100%",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8f9fa"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#ffffff"}
-              >
-                <img src="/magno.jpg" style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} alt="Avatar" />
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "14px", fontWeight: 600, color: "#3c4043" }}>Eng. Magno Santos</div>
-                  <div style={{ fontSize: "12px", color: "#5f6368" }}>magno.santos.pe@gmail.com</div>
-                </div>
-                <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#5f6368" }}>chevron_right</span>
-              </button>
-
-              <button
-                onClick={() => handleGoogleLogin("membro.pro@gmail.com", "Membro Executivo")}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  padding: "14px 16px",
-                  backgroundColor: "#ffffff",
-                  border: "none",
-                  width: "100%",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  outline: "none",
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8f9fa"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#ffffff"}
-              >
-                <div style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "var(--color-secondary)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--color-on-secondary)",
-                  fontWeight: "bold",
-                  fontSize: "14px",
-                }}>
-                  M
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "14px", fontWeight: 600, color: "#3c4043" }}>Membro Executivo</div>
-                  <div style={{ fontSize: "12px", color: "#5f6368" }}>membro.pro@gmail.com</div>
-                </div>
-                <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "#5f6368" }}>chevron_right</span>
-              </button>
-            </div>
-
-            {/* Permission Consent text */}
-            <p style={{ fontSize: "11px", color: "#5f6368", lineHeight: "1.5", marginBottom: "24px", textAlign: "center" }}>
-              Para prosseguir, o Google compartilhará seu nome, endereço de e-mail e foto do perfil com o **CLUB PRO CLS**. O app terá permissão para ler, adicionar e alterar eventos na sua agenda do **Google Calendar**.
-            </p>
-
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <button
-                onClick={() => {
-                  setShowGoogleLogin(false);
-                  setPendingEventToSync(null);
-                }}
-                style={{
-                  padding: "8px 16px",
-                  fontSize: "14px",
-                  color: "#1a73e8",
-                  backgroundColor: "transparent",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(26, 115, 232, 0.04)"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "transparent"}
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Event Creation Modal */}
       {showCreateEventModal && (
@@ -1287,8 +1143,7 @@ export default function CalendarioPage() {
                   style={{ appearance: "none", cursor: "pointer" }}
                 >
                   <option value="Eng. Magno Santos" style={{ backgroundColor: "#131316" }}>Eng. Magno Santos</option>
-                  <option value="Arq. Mayara Santos" style={{ backgroundColor: "#131316" }}>Arq. Mayara Santos</option>
-                  <option value="Alexandre de Morais" style={{ backgroundColor: "#131316" }}>Alexandre de Morais</option>
+                  <option value="Arq. Mayara Costa" style={{ backgroundColor: "#131316" }}>Arq. Mayara Costa</option>
                 </select>
               </div>
             </div>
@@ -1317,16 +1172,49 @@ export default function CalendarioPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Link do Zoom</label>
-              <input
-                type="url"
-                required
-                className="input-dark"
-                value={eventZoomLink}
-                onChange={(e) => setEventZoomLink(e.target.value)}
-                placeholder="https://zoom.us/j/..."
-              />
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 2fr", gap: "16px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Plataforma</label>
+                <div style={{ position: "relative" }}>
+                  <select
+                    className="input-dark"
+                    value={eventLinkType}
+                    onChange={(e) => {
+                      const platform = e.target.value as "zoom" | "meet" | "other";
+                      setEventLinkType(platform);
+                      if (platform === "zoom") {
+                        setEventZoomLink("https://zoom.us/j/magno-santos-pe");
+                      } else if (platform === "meet") {
+                        setEventZoomLink("https://meet.google.com/abc-defg-hij");
+                      } else {
+                        setEventZoomLink("");
+                      }
+                    }}
+                    style={{ appearance: "none", cursor: "pointer", width: "100%", paddingRight: "30px" }}
+                  >
+                    <option value="zoom" style={{ backgroundColor: "#131316" }}>Zoom</option>
+                    <option value="meet" style={{ backgroundColor: "#131316" }}>Google Meet</option>
+                    <option value="other" style={{ backgroundColor: "#131316" }}>Outro</option>
+                  </select>
+                  <span className="material-symbols-outlined" style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-outline)", fontSize: "18px", pointerEvents: "none" }}>
+                    keyboard_arrow_down
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">
+                  {eventLinkType === "zoom" ? "Link do Zoom" : eventLinkType === "meet" ? "Link do Google Meet" : "Link da Reunião"}
+                </label>
+                <input
+                  type="url"
+                  required
+                  className="input-dark"
+                  value={eventZoomLink}
+                  onChange={(e) => setEventZoomLink(e.target.value)}
+                  placeholder={eventLinkType === "zoom" ? "https://zoom.us/j/..." : eventLinkType === "meet" ? "https://meet.google.com/..." : "https://..."}
+                />
+              </div>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
@@ -1355,15 +1243,15 @@ export default function CalendarioPage() {
                 className="btn-primary"
                 style={{ flex: 1.5, padding: "12px", fontSize: "10px" }}
               >
-                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>sync</span>
-                Criar e Sincronizar
+                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
+                Criar Evento
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Sync loader Overlay */}
+      {/* Loader Overlay */}
       {isSyncingEvent && (
         <div style={{
           position: "fixed",
@@ -1378,10 +1266,10 @@ export default function CalendarioPage() {
           gap: "16px",
         }}>
           <span className="material-symbols-outlined animate-spin" style={{ fontSize: "48px", color: "var(--color-secondary)" }}>
-            sync
+            progress_activity
           </span>
           <p style={{ color: "#ffffff", fontSize: "14px", fontWeight: 600 }} className="font-label-caps">
-            Sincronizando evento com Google Calendar...
+            Criando evento...
           </p>
         </div>
       )}
@@ -1413,6 +1301,95 @@ export default function CalendarioPage() {
             {toast.type === "success" ? "check_circle" : "error"}
           </span>
           {toast.message}
+        </div>
+      )}
+
+      {/* Custom Dialog Modal (Alert/Confirm) */}
+      {customDialog && customDialog.isOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(10, 10, 12, 0.8)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10005,
+            animation: "fadeIn 0.2s ease-out"
+          }}
+          onClick={() => {
+            if (customDialog.type === "alert") {
+              setCustomDialog(null);
+            }
+          }}
+        >
+          <div 
+            style={{
+              backgroundColor: "rgba(30, 30, 35, 0.95)",
+              border: "1px solid rgba(237, 192, 102, 0.2)",
+              borderRadius: "8px",
+              padding: "24px",
+              width: "90%",
+              maxWidth: "400px",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#ffffff" }}>
+              {customDialog.title}
+            </h3>
+            <p style={{ margin: 0, fontSize: "13px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
+              {customDialog.message}
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px", marginTop: "12px" }}>
+              {customDialog.type === "confirm" && (
+                <button
+                  type="button"
+                  onClick={() => setCustomDialog(null)}
+                  style={{
+                    backgroundColor: "transparent",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "4px",
+                    color: "var(--color-on-surface-variant)",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    padding: "8px 16px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Cancelar
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  if (customDialog.onConfirm) {
+                    customDialog.onConfirm();
+                  }
+                  setCustomDialog(null);
+                }}
+                style={{
+                  backgroundColor: "var(--color-secondary)",
+                  border: "none",
+                  borderRadius: "4px",
+                  color: "#000000",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  padding: "8px 16px",
+                  cursor: "pointer"
+                }}
+              >
+                {customDialog.type === "confirm" ? "Confirmar" : "OK"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -1,132 +1,45 @@
 {
   "members": [
     {
-      "name": "Alexandre Pontes",
-      "email": "alexandre@ponteseng.com.br",
-      "role": "CEO & Fundador",
-      "company": "Pontes Engenharia",
-      "industry": "Engenharia Civil & Infraestrutura",
+      "name": "Magno Santos",
+      "email": "Magnorjsantos@hotmail.com",
+      "role": "Mentor Sênior",
+      "company": "CLS Private Equity",
+      "industry": "Engenharia & Investimentos",
       "location": "São Paulo, SP",
-      "initials": "AP",
-      "img": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
+      "initials": "MS",
+      "img": "/magno.jpg",
+      "status": "Ativo",
+      "username": "magno",
+      "bio": "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
     },
     {
-      "name": "Beatriz Nogueira",
-      "email": "beatriz@vanguarda.inc.br",
-      "role": "Diretora de Operações",
-      "company": "Vanguarda Incorporações",
-      "industry": "Incorporação Imobiliária",
-      "location": "Rio de Janeiro, RJ",
-      "initials": "BN",
-      "img": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Carlos Eduardo Silva",
-      "email": "carlos@buildtech.com.br",
-      "role": "VP de Expansão",
-      "company": "Construtora BuildTech",
-      "industry": "ConTech & Tecnologia",
-      "location": "Florianópolis, SC",
-      "initials": "CS",
-      "img": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Daniela Kross",
-      "email": "daniela@krossconsultoria.com.br",
-      "role": "Chief Strategy Officer",
-      "company": "Kross Engenharia Consultiva",
-      "industry": "Projetos de Engenharia",
-      "location": "Belo Horizonte, MG",
-      "initials": "DK",
-      "img": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Eduardo Medeiros",
-      "email": "eduardo@medeirosgeo.com.br",
-      "role": "Diretor Técnico",
-      "company": "Medeiros Geotecnia",
-      "industry": "Geotecnia & Fundações",
-      "location": "São Paulo, SP",
-      "initials": "EM",
-      "img": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Fernanda Albuquerque",
-      "email": "fernanda@albuquerque.arq.br",
-      "role": "Head de Projetos",
-      "company": "Albuquerque Arquitetura",
+      "name": "Mayara Costa",
+      "email": "mayaracosta00@gmail.com",
+      "role": "Mentora Sênior",
+      "company": "CLS Design Premium",
       "industry": "Arquitetura & Urbanismo",
-      "location": "Curitiba, PR",
-      "initials": "FA",
-      "img": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Gustavo Rocha",
-      "email": "gustavo@bimsmart.com.br",
-      "role": "Co-Founder & CTO",
-      "company": "BIM Smart Solutions",
-      "industry": "Tecnologia & BIM",
-      "location": "Campinas, SP",
-      "initials": "GR",
-      "img": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Helena Soares",
-      "email": "helena@omniconstrutora.com.br",
-      "role": "Diretora de Suprimentos",
-      "company": "Omni Construtora",
-      "industry": "Gestão de Obras & Compras",
-      "location": "Recife, PE",
-      "initials": "HS",
-      "img": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
-      "status": "Ativo"
-    },
-    {
-      "name": "Gabriel Menezes",
-      "email": "gabriel.menezes@clubpro.com.br",
-      "role": "Membro Executivo",
-      "company": "CLUB PRO CLS",
-      "industry": "Engenharia & Construção",
-      "location": "Brasil",
-      "initials": "GM",
-      "img": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
-      "status": "Inativo",
-      "addedAt": "2026-05-22T16:52:16.391Z",
-      "deactivatedAt": "2026-05-22T16:52:28.896Z"
-    },
-    {
-      "name": "Gabriel Simulado",
-      "email": "gabriel.evan.queiroz@gmail.com",
-      "role": "Membro Executivo",
-      "company": "CLUB PRO CLS",
-      "industry": "Engenharia & Construção",
-      "location": "Brasil",
-      "initials": "GS",
+      "location": "São Paulo, SP",
+      "initials": "MC",
       "img": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
       "status": "Ativo",
-      "addedAt": "2026-05-22T16:54:42.694Z"
+      "username": "mayara",
+      "bio": "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
     }
   ],
   "logs": [
     {
-      "id": "rnc6300j9",
-      "timestamp": "2026-05-22T16:54:42.694Z",
+      "id": "log-magno-1",
+      "timestamp": "2026-05-27T19:12:00.000Z",
       "type": "customer.member_added",
-      "email": "gabriel.evan.queiroz@gmail.com",
+      "email": "Magnorjsantos@hotmail.com",
       "payload": {
         "type": "customer.member_added",
         "version": "1.0.0",
         "user": {
-          "firstName": "Gabriel",
-          "lastName": "Simulado",
-          "email": "gabriel.evan.queiroz@gmail.com"
+          "firstName": "Magno",
+          "lastName": "Santos",
+          "email": "Magnorjsantos@hotmail.com"
         },
         "event": {
           "product": {
@@ -136,37 +49,17 @@
       }
     },
     {
-      "id": "ci0ekohko",
-      "timestamp": "2026-05-22T16:52:28.896Z",
-      "type": "customer.member_removed",
-      "email": "gabriel.menezes@clubpro.com.br",
-      "payload": {
-        "type": "customer.member_removed",
-        "version": "1.0.0",
-        "user": {
-          "firstName": "Gabriel",
-          "lastName": "Menezes",
-          "email": "gabriel.menezes@clubpro.com.br"
-        },
-        "event": {
-          "product": {
-            "name": "CLUB PRO CLS"
-          }
-        }
-      }
-    },
-    {
-      "id": "za0ynyxya",
-      "timestamp": "2026-05-22T16:52:16.391Z",
+      "id": "log-mayara-2",
+      "timestamp": "2026-05-27T19:13:00.000Z",
       "type": "customer.member_added",
-      "email": "gabriel.menezes@clubpro.com.br",
+      "email": "mayaracosta00@gmail.com",
       "payload": {
         "type": "customer.member_added",
         "version": "1.0.0",
         "user": {
-          "firstName": "Gabriel",
-          "lastName": "Menezes",
-          "email": "gabriel.menezes@clubpro.com.br"
+          "firstName": "Mayara",
+          "lastName": "Costa",
+          "email": "mayaracosta00@gmail.com"
         },
         "event": {
           "product": {
