@@ -17,10 +17,12 @@ interface Lesson {
   scheduled_at?: string;
   cover_image_url?: string;
   sequence_order?: number;
+  attached_resources?: any[];
 }
 
 interface Module {
   id: string;
+  course_id: string;
   title: string;
   description?: string;
   sequence_order: number;
@@ -30,33 +32,53 @@ interface Module {
   lessons?: Lesson[];
 }
 
+interface Course {
+  id: string;
+  title: string;
+  description?: string;
+  sequence_order: number;
+  status?: string;
+  cover_image_url?: string;
+  modules?: Module[];
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const supabase = createClient();
 
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<"lessons" | "mentorados" | "comments" | "resources" | "events">("lessons");
+  const [activeTab, setActiveTab] = useState<"lessons" | "mentorados" | "comments" | "resources">("lessons");
 
   // Mentorados state
   const [mentorados, setMentorados] = useState<any[]>([]);
   const [loadingMentorados, setLoadingMentorados] = useState(false);
 
-  // Modules list including lessons
-  const [modules, setModules] = useState<Module[]>([]);
+  // Courses list including modules and lessons
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   // Expanded state of modules
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
 
   // Triggering modal or forms
   const [activeAddLessonModuleId, setActiveAddLessonModuleId] = useState<string | null>(null);
+  const [showAddCourseModal, setShowAddCourseModal] = useState(false);
   const [showAddModuleModal, setShowAddModuleModal] = useState(false);
 
   // Comments state
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
 
-  // Edit states for module/lesson
+  // Edit states for course/module/lesson
+  const [editingCourse, setEditingCourse] = useState<{
+    id: string;
+    title: string;
+    description: string;
+    status: "rascunho" | "agendado" | "publicado";
+    cover_image_url: string;
+  } | null>(null);
+
   const [editingModule, setEditingModule] = useState<{
     id: string;
     title: string;
@@ -79,6 +101,7 @@ export default function AdminPage() {
     status: "rascunho" | "agendado" | "publicado";
     scheduled_at: string;
     cover_image_url: string;
+    attached_resources: any[];
   } | null>(null);
 
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -91,7 +114,8 @@ export default function AdminPage() {
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Form states - Module / Lesson
+  // Form states - Course / Module / Lesson
+  const [newCourseName, setNewCourseName] = useState("");
   const [newModuleName, setNewModuleName] = useState("");
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonDesc, setLessonDesc] = useState("");
@@ -110,18 +134,6 @@ export default function AdminPage() {
   const [resourceSize, setResourceSize] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
 
-  // Form states - Events
-  const [eventTitle, setEventTitle] = useState("");
-  const [eventType, setEventType] = useState<"mentoria" | "atualizacao">("mentoria");
-  const [eventDate, setEventDate] = useState("");
-  const [eventStartTime, setEventStartTime] = useState("");
-  const [eventEndTime, setEventEndTime] = useState("");
-  const [eventMentorName, setEventMentorName] = useState("Eng. Magno Santos");
-  const [eventMentorRole, setEventMentorRole] = useState("CEO & Fundador CLS");
-  const [eventMentorAvatar, setEventMentorAvatar] = useState("/magno.jpg");
-  const [eventMentorBio, setEventMentorBio] = useState("");
-  const [eventTopic, setEventTopic] = useState("");
-  const [eventZoomLink, setEventZoomLink] = useState("");
 
   // Form states - Opportunities
   const [oppTitle, setOppTitle] = useState("");
@@ -132,35 +144,37 @@ export default function AdminPage() {
   const [oppImageUrl, setOppImageUrl] = useState("");
   const [oppStatus, setOppStatus] = useState("Ativa");
 
-  // Refresh modules and lessons together
-  const refreshModules = async () => {
+  // Refresh data together
+  const refreshData = async () => {
     try {
-      const { data: dbModules, error: modErr } = await supabase
-        .from("modules")
-        .select("id, title, description, status, scheduled_at, cover_image_url, sequence_order")
+      const { data: dbCourses, error: courseErr } = await supabase
+        .from("courses")
+        .select("*")
         .order("sequence_order");
-      if (modErr) throw modErr;
-      if (dbModules) {
-        const { data: dbLessons } = await supabase.from("lessons").select("*").order("sequence_order");
-        const combined = dbModules.map((m: any) => ({
-          ...m,
-          lessons: dbLessons ? dbLessons.filter((l: any) => l.module_id === m.id).sort((a: any, b: any) => (a.sequence_order || 0) - (b.sequence_order || 0)) : []
-        }));
-        setModules(combined);
+      if (courseErr) throw courseErr;
 
-        // Auto-expand newly added modules if they aren't tracked yet
-        setExpandedModules(prev => {
-          const next = { ...prev };
-          combined.forEach((m: any) => {
-            if (next[m.id] === undefined) {
-              next[m.id] = true; // Expand by default
-            }
-          });
-          return next;
+      if (dbCourses) {
+        const { data: dbModules } = await supabase.from("modules").select("*").order("sequence_order");
+        const { data: dbLessons } = await supabase.from("lessons").select("*").order("sequence_order");
+
+        const combinedCourses = dbCourses.map((c: any) => {
+          const courseModules = dbModules ? dbModules.filter((m: any) => m.course_id === c.id).sort((a: any, b: any) => (a.sequence_order || 0) - (b.sequence_order || 0)) : [];
+          
+          const modulesWithLessons = courseModules.map((m: any) => ({
+            ...m,
+            lessons: dbLessons ? dbLessons.filter((l: any) => l.module_id === m.id).sort((a: any, b: any) => (a.sequence_order || 0) - (b.sequence_order || 0)) : []
+          }));
+
+          return {
+            ...c,
+            modules: modulesWithLessons
+          };
         });
+
+        setCourses(combinedCourses);
       }
     } catch (err) {
-      console.error("Erro ao carregar os módulos:", err);
+      console.error("Erro ao carregar os cursos:", err);
     }
   };
 
@@ -200,6 +214,33 @@ export default function AdminPage() {
     }
   };
 
+  // Save Course configuration
+  const handleSaveCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCourse) return;
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("courses")
+        .update({
+          title: editingCourse.title,
+          description: editingCourse.description,
+          status: editingCourse.status,
+          cover_image_url: editingCourse.cover_image_url
+        })
+        .eq("id", editingCourse.id);
+
+      if (error) throw error;
+      showStatus("success", "Curso atualizado com sucesso!");
+      setEditingCourse(null);
+      await refreshData();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao salvar curso.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   // Save Module configuration
   const handleSaveModule = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -220,7 +261,7 @@ export default function AdminPage() {
       if (error) throw error;
       showStatus("success", "Módulo atualizado com sucesso!");
       setEditingModule(null);
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao salvar módulo.");
     } finally {
@@ -245,15 +286,16 @@ export default function AdminPage() {
           instructor_role: editingLesson.instructor_role,
           instructor_avatar: editingLesson.instructor_avatar,
           status: editingLesson.status,
-          scheduled_at: editingLesson.scheduled_at ? new Date(editingLesson.scheduled_at).toISOString() : null,
-          cover_image_url: editingLesson.cover_image_url
+          scheduled_at: editingLesson.status === "agendado" ? editingLesson.scheduled_at : null,
+          cover_image_url: editingLesson.cover_image_url,
+          attached_resources: editingLesson.attached_resources
         })
         .eq("id", editingLesson.id);
 
       if (error) throw error;
       showStatus("success", "Aula atualizada com sucesso!");
       setEditingLesson(null);
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao salvar aula.");
     } finally {
@@ -316,10 +358,13 @@ export default function AdminPage() {
     if (!draggedLessonId || draggedLessonId === targetLessonId) return;
 
     // Find the module that contains the lessons
-    const moduleIndex = modules.findIndex(m => m.id === targetModuleId);
+    const courseIndex = courses.findIndex(c => c.id === selectedCourseId);
+    if (courseIndex === -1) return;
+    const courseModules = courses[courseIndex].modules || [];
+    const moduleIndex = courseModules.findIndex(m => m.id === targetModuleId);
     if (moduleIndex === -1) return;
 
-    const targetModule = modules[moduleIndex];
+    const targetModule = courseModules[moduleIndex];
     if (!targetModule.lessons) return;
 
     // Reorder locally first for instant feedback
@@ -333,12 +378,14 @@ export default function AdminPage() {
     lessonsList.splice(targetIndex, 0, removed);
 
     // Update state immediately
-    const updatedModules = [...modules];
+    const updatedCourses = [...courses];
+    const updatedModules = [...courseModules];
     updatedModules[moduleIndex] = {
       ...targetModule,
       lessons: lessonsList.map((l, index) => ({ ...l, sequence_order: index }))
     };
-    setModules(updatedModules);
+    updatedCourses[courseIndex] = { ...updatedCourses[courseIndex], modules: updatedModules };
+    setCourses(updatedCourses);
 
     // Update in database
     try {
@@ -354,7 +401,7 @@ export default function AdminPage() {
     } catch (err) {
       console.error("Erro ao reordenar aulas:", err);
       showStatus("error", "Erro ao salvar ordenação no banco.");
-      await refreshModules();
+      await refreshData();
     } finally {
       setDraggedLessonId(null);
     }
@@ -380,7 +427,7 @@ export default function AdminPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (user && (user.email === "Magnorjsantos@hotmail.com" || user.email === "mayaracosta00@gmail.com")) {
           setIsAdmin(true);
-          await refreshModules();
+          await refreshData();
           await loadMentorados();
         } else {
           setIsAdmin(false);
@@ -405,23 +452,52 @@ export default function AdminPage() {
     setTimeout(() => setStatusMsg(null), 5000);
   };
 
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCourseName.trim()) return;
+    setSubmitting(true);
+    try {
+      const slug = newCourseName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const { error } = await supabase.from("courses").insert([{
+        title: newCourseName,
+        slug,
+        sequence_order: courses.length + 1
+      }]);
+
+      if (error) throw error;
+      setNewCourseName("");
+      setShowAddCourseModal(false);
+      showStatus("success", `Curso "${newCourseName}" criado com sucesso!`);
+      await refreshData();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao criar curso.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleAddModule = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newModuleName.trim()) return;
+    if (!newModuleName.trim() || !selectedCourseId) {
+      if (!selectedCourseId) showStatus("error", "Selecione um curso primeiro.");
+      return;
+    }
     setSubmitting(true);
     try {
       const slug = newModuleName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const courseModules = courses.find(c => c.id === selectedCourseId)?.modules || [];
       const { error } = await supabase.from("modules").insert([{
         title: newModuleName,
         slug,
-        sequence_order: modules.length + 1
+        course_id: selectedCourseId,
+        sequence_order: courseModules.length + 1
       }]);
 
       if (error) throw error;
       setNewModuleName("");
       setShowAddModuleModal(false);
       showStatus("success", `Módulo "${newModuleName}" criado com sucesso!`);
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao criar módulo.");
     } finally {
@@ -458,7 +534,7 @@ export default function AdminPage() {
       setLessonVideoUrl("");
       setActiveAddLessonModuleId(null);
       showStatus("success", "Aula cadastrada com sucesso!");
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao salvar aula.");
     } finally {
@@ -472,7 +548,7 @@ export default function AdminPage() {
       const { error } = await supabase.from("modules").delete().eq("id", moduleId);
       if (error) throw error;
       showStatus("success", "Módulo excluído com sucesso!");
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao deletar módulo.");
     }
@@ -484,7 +560,7 @@ export default function AdminPage() {
       const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
       if (error) throw error;
       showStatus("success", "Aula excluída com sucesso!");
-      await refreshModules();
+      await refreshData();
     } catch (err: any) {
       showStatus("error", err.message || "Erro ao deletar aula.");
     }
@@ -585,43 +661,7 @@ export default function AdminPage() {
     }
   };
 
-  const handleAddEvent = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eventTitle || !eventDate || !eventStartTime || !eventEndTime) {
-      showStatus("error", "Preencha os campos obrigatórios do evento.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const { error } = await supabase.from("calendar_events").insert([{
-        title: eventTitle,
-        event_type: eventType,
-        event_date: eventDate,
-        start_time: eventStartTime,
-        end_time: eventEndTime,
-        mentor_name: eventMentorName,
-        mentor_role: eventMentorRole,
-        mentor_avatar: eventMentorAvatar,
-        mentor_bio: eventMentorBio,
-        topic: eventTopic,
-        zoom_link: eventZoomLink
-      }]);
 
-      if (error) throw error;
-      setEventTitle("");
-      setEventDate("");
-      setEventStartTime("");
-      setEventEndTime("");
-      setEventTopic("");
-      setEventZoomLink("");
-      setEventMentorBio("");
-      showStatus("success", "Evento criado com sucesso!");
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar evento.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleAddOpportunity = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -810,31 +850,8 @@ export default function AdminPage() {
             whiteSpace: "nowrap"
           }}
         >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>table_view</span>
-          PLANILHAS & PDFS
-        </button>
-
-        <button
-          onClick={() => setActiveTab("events")}
-          className="font-label-caps"
-          style={{
-            background: "transparent",
-            border: "none",
-            borderBottom: activeTab === "events" ? "2px solid var(--color-secondary)" : "2px solid transparent",
-            color: activeTab === "events" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-            paddingBottom: "12px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            transition: "all 0.2s ease",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>calendar_today</span>
-          CALENDÁRIO
+          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>folder</span>
+          RECURSOS
         </button>
       </div>
 
@@ -847,83 +864,140 @@ export default function AdminPage() {
           <div>
             {/* Curriculum Header */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px", flexWrap: "wrap", gap: "16px" }}>
-              <h3 style={{ color: "var(--color-on-surface)", margin: 0, fontWeight: 700, fontSize: "20px", fontFamily: "var(--font-display, sans-serif)" }}>
-                Grade Curricular
-              </h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {selectedCourseId && (
+                  <button
+                    onClick={() => setSelectedCourseId(null)}
+                    className="btn-secondary"
+                    style={{ padding: "8px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                  </button>
+                )}
+                <h3 style={{ color: "var(--color-on-surface)", margin: 0, fontWeight: 700, fontSize: "20px", fontFamily: "var(--font-display, sans-serif)" }}>
+                  {selectedCourseId ? "Módulos do Curso" : "Conteúdos (Cursos)"}
+                </h3>
+              </div>
               
               <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                <button 
-                  type="button" 
-                  className="btn-secondary"
-                  style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "40px", height: "40px", borderRadius: "2px", padding: 0 }}
-                  title="Configurações extras"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>more_vert</span>
-                </button>
+                {!selectedCourseId ? (
+                  <button 
+                    type="button" 
+                    className="btn-primary"
+                    style={{ 
+                      display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
+                    }}
+                    onClick={() => setShowAddCourseModal(true)}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
+                    CRIAR CURSO
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      type="button" 
+                      onClick={() => alert("Fazer upload de vídeos em massa ou link direto de hospedagem.")}
+                      className="btn-secondary"
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", fontSize: "13px", fontWeight: 600 }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>cloud_upload</span>
+                      Upload de vídeos
+                    </button>
 
-                <button 
-                  type="button" 
-                  onClick={() => alert("Fazer upload de vídeos em massa ou link direto de hospedagem.")}
-                  className="btn-secondary"
-                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", fontSize: "13px", fontWeight: 600 }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>cloud_upload</span>
-                  Upload de vídeos
-                </button>
+                    <button 
+                      type="button" 
+                      className="btn-secondary"
+                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", fontSize: "13px", fontWeight: 600 }}
+                      onClick={() => {
+                        const courseModules = courses.find(c => c.id === selectedCourseId)?.modules || [];
+                        const allMinimised = Object.values(expandedModules).every(v => !v);
+                        const next = { ...expandedModules };
+                        courseModules.forEach(m => {
+                          next[m.id] = allMinimised;
+                        });
+                        setExpandedModules(next);
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+                        {Object.values(expandedModules).every(v => !v) ? "unfold_more" : "unfold_less"}
+                      </span>
+                      Minimizar
+                    </button>
 
-                <button 
-                  type="button" 
-                  className="btn-secondary"
-                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", fontSize: "13px", fontWeight: 600 }}
-                  onClick={() => {
-                    const allMinimised = Object.values(expandedModules).every(v => !v);
-                    const next = { ...expandedModules };
-                    modules.forEach(m => {
-                      next[m.id] = allMinimised;
-                    });
-                    setExpandedModules(next);
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
-                    {Object.values(expandedModules).every(v => !v) ? "unfold_more" : "unfold_less"}
-                  </span>
-                  Minimizar
-                </button>
-
-                <button 
-                  type="button" 
-                  className="btn-primary"
-                  style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "8px", 
-                    padding: "12px 24px", 
-                    fontSize: "12px", 
-                    fontWeight: 700,
-                    letterSpacing: "0.1em",
-                    borderRadius: "2px"
-                  }}
-                  onClick={() => setShowAddModuleModal(true)}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
-                  CRIAR MÓDULO
-                </button>
+                    <button 
+                      type="button" 
+                      className="btn-primary"
+                      style={{ 
+                        display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
+                      }}
+                      onClick={() => setShowAddModuleModal(true)}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
+                      CRIAR MÓDULO
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Modules List */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              {modules.length === 0 ? (
-                <div style={{ padding: "40px", textAlign: "center", backgroundColor: "rgba(255,255,255,0.01)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.1)" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "48px", color: "var(--color-outline)", marginBottom: "12px" }}>
-                    library_books
-                  </span>
-                  <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>
-                    Nenhum módulo cadastrado. Comece adicionando um módulo.
-                  </p>
-                </div>
-              ) : (
-                modules.map((m) => {
+            {/* Content Body */}
+            {!selectedCourseId ? (
+              // List of Courses
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "20px" }}>
+                {courses.length === 0 ? (
+                  <div style={{ gridColumn: "1 / -1", padding: "40px", textAlign: "center", backgroundColor: "rgba(255,255,255,0.01)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                    <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>
+                      Nenhum curso cadastrado. Comece adicionando um curso.
+                    </p>
+                  </div>
+                ) : (
+                  courses.map((c) => (
+                    <div 
+                      key={c.id} 
+                      className="glass-panel hover-grow"
+                      style={{ padding: "24px", borderRadius: "8px", cursor: "pointer", display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255,255,255,0.1)" }}
+                      onClick={() => setSelectedCourseId(c.id)}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                        <h4 style={{ margin: 0, fontSize: "18px", color: "white", fontWeight: 700 }}>{c.title}</h4>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setEditingCourse(c as any); }}
+                          style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
+                        </button>
+                      </div>
+                      <p style={{ margin: 0, fontSize: "13px", color: "var(--color-outline)", flex: 1, minHeight: "40px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        {c.description || "Sem descrição"}
+                      </p>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "8px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+                        <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 600 }}>{c.modules?.length || 0} módulos</span>
+                        <span style={{ fontSize: "11px", padding: "4px 8px", backgroundColor: "rgba(76, 175, 80, 0.1)", color: "#81C784", borderRadius: "4px", fontWeight: 600 }}>
+                          {c.status || "Publicado"}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ) : (
+              // Modules List for Selected Course
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                {(() => {
+                  const courseModules = courses.find(c => c.id === selectedCourseId)?.modules || [];
+                  if (courseModules.length === 0) {
+                    return (
+                      <div style={{ padding: "40px", textAlign: "center", backgroundColor: "rgba(255,255,255,0.01)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "48px", color: "var(--color-outline)", marginBottom: "12px" }}>
+                          library_books
+                        </span>
+                        <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>
+                          Nenhum módulo cadastrado neste curso. Comece adicionando um módulo.
+                        </p>
+                      </div>
+                    );
+                  }
+                  return courseModules.map((m) => {
                   const isExpanded = !!expandedModules[m.id];
                   const lessonCount = m.lessons?.length || 0;
                   return (
@@ -1105,7 +1179,8 @@ export default function AdminPage() {
                                           instructor_avatar: l.instructor_avatar || "/magno.jpg",
                                           status: (l.status as any) || "publicado",
                                           scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
-                                          cover_image_url: l.cover_image_url || ""
+                                          cover_image_url: l.cover_image_url || "",
+                                          attached_resources: l.attached_resources || []
                                         });
                                       }}
                                       title="Clique para Configurar Aula"
@@ -1167,7 +1242,8 @@ export default function AdminPage() {
                                           instructor_avatar: l.instructor_avatar || "/magno.jpg",
                                           status: (l.status as any) || "publicado",
                                           scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
-                                          cover_image_url: l.cover_image_url || ""
+                                          cover_image_url: l.cover_image_url || "",
+                                          attached_resources: l.attached_resources || []
                                         });
                                       }}
                                       title="Editar Aula"
@@ -1229,9 +1305,75 @@ export default function AdminPage() {
                       )}
                     </div>
                   );
-                })
-              )}
-            </div>
+                });
+              })()}
+              </div>
+            )}
+
+            {/* Modal/Overlay to Add Course */}
+            {showAddCourseModal && (
+              <div 
+                style={{
+                  position: "fixed",
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(10, 10, 12, 0.8)",
+                  backdropFilter: "blur(5px)",
+                  zIndex: 1000,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}
+                onClick={() => setShowAddCourseModal(false)}
+              >
+                <div 
+                  style={{
+                    backgroundColor: "rgba(20, 20, 25, 0.98)",
+                    border: "1px solid rgba(237, 192, 102, 0.3)",
+                    borderRadius: "12px",
+                    width: "100%",
+                    maxWidth: "450px",
+                    padding: "28px",
+                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>Criar Novo Curso (Conteúdo)</h3>
+                  <form onSubmit={handleAddCourse} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME DO CURSO</label>
+                      <input
+                        type="text"
+                        className="input-dark"
+                        placeholder="Ex: Masterclass de Engenharia"
+                        value={newCourseName}
+                        onChange={(e) => setNewCourseName(e.target.value)}
+                        required
+                        autoFocus
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+                      <button 
+                        type="button" 
+                        className="btn-secondary" 
+                        style={{ flex: 1 }}
+                        onClick={() => setShowAddCourseModal(false)}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        type="submit" 
+                        className="btn-primary" 
+                        style={{ flex: 1 }}
+                        disabled={submitting}
+                      >
+                        {submitting ? "Criando..." : "Criar Curso"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
 
             {/* Modal/Overlay to Add Module */}
             {showAddModuleModal && (
@@ -1329,7 +1471,7 @@ export default function AdminPage() {
                     Cadastrar Nova Aula
                   </h3>
                   <p style={{ color: "var(--color-outline)", fontSize: "12px", marginTop: "-12px", marginBottom: "20px" }}>
-                    Adicionando ao módulo: <strong style={{ color: "#ffffff" }}>{modules.find(m => m.id === activeAddLessonModuleId)?.title}</strong>
+                    Adicionando ao módulo: <strong style={{ color: "#ffffff" }}>{courses.find(c => c.id === selectedCourseId)?.modules?.find(m => m.id === activeAddLessonModuleId)?.title}</strong>
                   </p>
                   
                   <form onSubmit={handleAddLesson} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -1741,6 +1883,71 @@ export default function AdminPage() {
                       </div>
                     </div>
 
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "16px", marginTop: "8px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>RECURSOS ANEXADOS (LINKS)</label>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            setEditingLesson({
+                              ...editingLesson,
+                              attached_resources: [...(editingLesson.attached_resources || []), { title: "", url: "" }]
+                            })
+                          }}
+                          style={{ background: "none", border: "1px solid rgba(237, 192, 102, 0.3)", color: "var(--color-secondary)", padding: "4px 8px", borderRadius: "4px", fontSize: "11px", cursor: "pointer" }}
+                        >
+                          + Anexar Recurso
+                        </button>
+                      </div>
+                      
+                      {editingLesson.attached_resources && editingLesson.attached_resources.length > 0 ? (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                          {editingLesson.attached_resources.map((res: any, idx: number) => (
+                            <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                              <input 
+                                type="text" 
+                                className="input-dark" 
+                                placeholder="Título (ex: PDF da Aula)" 
+                                value={res.title || ""} 
+                                onChange={(e) => {
+                                  const newRes = [...editingLesson.attached_resources];
+                                  newRes[idx].title = e.target.value;
+                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
+                                }}
+                                style={{ flex: 1 }}
+                              />
+                              <input 
+                                type="text" 
+                                className="input-dark" 
+                                placeholder="URL do arquivo" 
+                                value={res.url || ""} 
+                                onChange={(e) => {
+                                  const newRes = [...editingLesson.attached_resources];
+                                  newRes[idx].url = e.target.value;
+                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
+                                }}
+                                style={{ flex: 2 }}
+                              />
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  const newRes = editingLesson.attached_resources.filter((_, i) => i !== idx);
+                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
+                                }}
+                                style={{ background: "none", border: "none", color: "var(--color-error)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p style={{ fontSize: "12px", color: "var(--color-outline)", margin: 0, fontStyle: "italic" }}>
+                          Nenhum recurso anexado.
+                        </p>
+                      )}
+                    </div>
+
                     <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
                       <button 
                         type="button" 
@@ -1899,121 +2106,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Tab 3: Calendar Events */}
-        {activeTab === "events" && (
-          <div>
-            <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "24px" }}>Agendar Novo Evento no Calendário</h3>
-            <form onSubmit={handleAddEvent} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DO EVENTO</label>
-                  <input
-                    type="text"
-                    className="input-dark"
-                    placeholder="Ex: Mentoria sobre Avaliação de Landbanks"
-                    value={eventTitle}
-                    onChange={(e) => setEventTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TIPO</label>
-                  <select
-                    className="input-dark"
-                    value={eventType}
-                    onChange={(e) => setEventType(e.target.value as "mentoria" | "atualizacao")}
-                  >
-                    <option value="mentoria" style={{ backgroundColor: "#131316" }}>Mentoria Coletiva</option>
-                    <option value="atualizacao" style={{ backgroundColor: "#131316" }}>Atualização de Mercado</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DATA</label>
-                  <input
-                    type="date"
-                    className="input-dark"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>HORA DE INÍCIO</label>
-                  <input
-                    type="time"
-                    className="input-dark"
-                    value={eventStartTime}
-                    onChange={(e) => setEventStartTime(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>HORA DE TÉRMINO</label>
-                  <input
-                    type="time"
-                    className="input-dark"
-                    value={eventEndTime}
-                    onChange={(e) => setEventEndTime(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>MENTOR RESPONSÁVEL</label>
-                  <select
-                    className="input-dark"
-                    value={eventMentorName}
-                    onChange={(e) => {
-                      setEventMentorName(e.target.value);
-                      if (e.target.value === "Eng. Magno Santos") {
-                        setEventMentorRole("CEO & Fundador CLS");
-                        setEventMentorAvatar("/magno.jpg");
-                        setEventMentorBio("Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias.");
-                      } else {
-                        setEventMentorRole("Sócia CLS / Especialista");
-                        setEventMentorAvatar("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200");
-                        setEventMentorBio("Arquiteta e especialista em concepção e estruturação conceitual de empreendimentos residenciais de alto padrão.");
-                      }
-                    }}
-                  >
-                    <option value="Eng. Magno Santos" style={{ backgroundColor: "#131316" }}>Eng. Magno Santos</option>
-                    <option value="Arq. Mayara Costa" style={{ backgroundColor: "#131316" }}>Arq. Mayara Costa</option>
-                  </select>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO ZOOM / REUNIÃO</label>
-                  <input
-                    type="text"
-                    className="input-dark"
-                    placeholder="https://zoom.us/j/..."
-                    value={eventZoomLink}
-                    onChange={(e) => setEventZoomLink(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÓPICO OU ASSUNTO PRINCIPAL</label>
-                <textarea
-                  className="input-dark"
-                  style={{ minHeight: "80px", resize: "vertical" }}
-                  placeholder="Descreva brevemente o escopo e pauta da mentoria..."
-                  value={eventTopic}
-                  onChange={(e) => setEventTopic(e.target.value)}
-                />
-              </div>
-
-              <button type="submit" className="btn-primary" style={{ marginTop: "12px" }} disabled={submitting}>
-                {submitting ? "Publicando..." : "Agendar Evento"}
-              </button>
-            </form>
-          </div>
-        )}
 
         {/* Tab: Mentorados */}
         {activeTab === "mentorados" && (
