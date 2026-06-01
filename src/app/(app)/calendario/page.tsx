@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { SkeletonCalendario } from "@/components/SkeletonLoading";
+import { createClient } from "@/utils/supabase/client";
 
 interface CalendarEvent {
   id: string;
@@ -199,6 +200,7 @@ export default function CalendarioPage() {
   const [activeFilter, setActiveFilter] = useState<"todos" | "mentoria" | "atualizacao">("todos");
   const [viewMode, setViewMode] = useState<"grade" | "lista">("grade");
   const [loading, setLoading] = useState(true);
+  const [userType, setUserType] = useState<string>("master"); // default to master
 
   // Dynamic state list for events (loaded from localstorage)
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -288,6 +290,21 @@ export default function CalendarioPage() {
           // Safe clear
         }
       }
+
+      // Fetch member_type from Supabase
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: member } = await supabase.from("members").select("member_type").eq("id", user.id).single();
+          if (member) {
+            setUserType(member.member_type);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user role:", err);
+      }
+
       setLoading(false);
     };
 
@@ -1008,47 +1025,51 @@ export default function CalendarioPage() {
                       );
                     })()}
 
-                    <button
-                      onClick={() => handleDeleteEvent(selectedEvent.id)}
-                      className="btn-outline"
-                      style={{
-                        width: "100%",
-                        fontSize: "10px",
-                        padding: "12px",
-                        border: "1px solid var(--color-error)",
-                        color: "var(--color-error)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        backgroundColor: "transparent",
-                        cursor: "pointer",
-                        borderRadius: "4px",
-                        transition: "all 0.2s ease"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "rgba(179, 38, 30, 0.1)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "transparent";
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
-                      EXCLUIR EVENTO
-                    </button>
+                    {(userType === "admin" || userType === "mentor") && (
+                      <button
+                        onClick={() => handleDeleteEvent(selectedEvent.id)}
+                        className="btn-outline"
+                        style={{
+                          width: "100%",
+                          fontSize: "10px",
+                          padding: "12px",
+                          border: "1px solid var(--color-error)",
+                          color: "var(--color-error)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                          backgroundColor: "transparent",
+                          cursor: "pointer",
+                          borderRadius: "4px",
+                          transition: "all 0.2s ease"
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "rgba(179, 38, 30, 0.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "transparent";
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+                        EXCLUIR EVENTO
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
                 <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
                   <p style={{ marginBottom: "16px", lineHeight: "1.5" }}>Nenhum evento agendado para este dia.</p>
-                  <button
-                    onClick={() => handleOpenCreateModal(selectedDay)}
-                    className="btn-primary"
-                    style={{ margin: "0 auto", fontSize: "10px", padding: "10px 16px" }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
-                    CRIAR EVENTO
-                  </button>
+                  {(userType === "admin" || userType === "mentor") && (
+                    <button
+                      onClick={() => handleOpenCreateModal(selectedDay)}
+                      className="btn-primary"
+                      style={{ margin: "0 auto", fontSize: "10px", padding: "10px 16px" }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
+                      CRIAR EVENTO
+                    </button>
+                  )}
                 </div>
               )}
             </div>
