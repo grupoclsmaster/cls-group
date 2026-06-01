@@ -56,6 +56,27 @@ export default function AdminPage() {
   const [mentorados, setMentorados] = useState<any[]>([]);
   const [loadingMentorados, setLoadingMentorados] = useState(false);
 
+  const [editingMember, setEditingMember] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    member_type: "admin" | "master" | "mentor";
+    company: string;
+    role: string;
+  } | null>(null);
+
+  const [viewingMember, setViewingMember] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    member_type: "admin" | "master" | "mentor" | null;
+    company: string;
+    role: string;
+    img?: string | null;
+    initials?: string | null;
+    created_at?: string;
+  } | null>(null);
+
   // Courses list including modules and lessons
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
@@ -551,6 +572,62 @@ export default function AdminPage() {
       console.error("Erro ao carregar mentorados:", err);
     } finally {
       setLoadingMentorados(false);
+    }
+  };
+
+  const handleUpdateMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMember) return;
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/admin/members", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: editingMember.id,
+          name: editingMember.name,
+          email: editingMember.email,
+          member_type: editingMember.member_type,
+          company: editingMember.company,
+          role: editingMember.role,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Erro desconhecido ao editar membro.");
+      }
+
+      showStatus("success", "Membro atualizado com sucesso!");
+      setEditingMember(null);
+      await loadMentorados();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao salvar alterações do membro.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteMember = async (memberId: string) => {
+    setSubmitting(true);
+    try {
+      const response = await fetch(`/api/admin/members?id=${memberId}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Erro desconhecido ao excluir membro.");
+      }
+
+      showStatus("success", "Membro excluído com sucesso!");
+      await loadMentorados();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao excluir membro.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -2539,21 +2616,28 @@ export default function AdminPage() {
                       <button 
                         className="btn-outline" 
                         style={{ padding: "6px 12px", fontSize: "11px", borderColor: "rgba(255,255,255,0.15)", color: "var(--color-on-surface)" }}
-                        onClick={() => alert("Em breve: Visualizar detalhes do membro.")}
+                        onClick={() => setViewingMember(m)}
                       >
                         Ver Detalhes
                       </button>
                       <button 
                         className="btn-outline" 
                         style={{ padding: "6px 12px", fontSize: "11px", borderColor: "rgba(255,255,255,0.15)", color: "var(--color-on-surface)" }}
-                        onClick={() => alert("Em breve: Editar informações do membro.")}
+                        onClick={() => setEditingMember({
+                          id: m.id,
+                          name: m.name,
+                          email: m.email,
+                          member_type: m.member_type || "mentor",
+                          company: m.company || "",
+                          role: m.role || ""
+                        })}
                       >
                         Editar
                       </button>
                       <button 
                         className="btn-outline" 
                         style={{ padding: "6px 12px", fontSize: "11px", borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}
-                        onClick={() => alert("Em breve: Inativar o acesso do membro.")}
+                        onClick={() => alert("Para inativar o acesso do membro, use a opção Excluir para remover a conta permanentemente, ou altere o tipo para Mentor.")}
                       >
                         Inativar
                       </button>
@@ -2561,8 +2645,8 @@ export default function AdminPage() {
                         className="btn-outline" 
                         style={{ padding: "6px 12px", fontSize: "11px", borderColor: "var(--color-error)", color: "var(--color-error)" }}
                         onClick={() => {
-                          if (confirm(`Tem certeza que deseja excluir ${m.name}? Essa ação é irreversível.`)) {
-                            alert("Em breve: Exclusão será implementada na API.");
+                          if (confirm(`Tem certeza que deseja excluir ${m.name}? Essa ação é irreversível e excluirá a conta e perfil do usuário.`)) {
+                            void handleDeleteMember(m.id);
                           }
                         }}
                       >
@@ -2818,6 +2902,195 @@ export default function AdminPage() {
             </form>
           </div>
         )}
+
+      {/* Modal: Ver Detalhes do Membro */}
+      {viewingMember && (
+        <div 
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(10, 10, 12, 0.8)", backdropFilter: "blur(5px)",
+            zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center"
+          }}
+          onClick={() => setViewingMember(null)}
+        >
+          <div 
+            style={{
+              backgroundColor: "rgba(20, 20, 25, 0.98)", border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "12px", width: "100%", maxWidth: "450px", padding: "28px", boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+              <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Detalhes do Membro</h3>
+              <button onClick={() => setViewingMember(null)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", marginBottom: "28px" }}>
+              <MemberBadge
+                name={viewingMember.name}
+                img={viewingMember.img}
+                initials={viewingMember.initials}
+                memberType={viewingMember.member_type}
+                size={80}
+                showLabel={true}
+              />
+              <div style={{ textAlign: "center" }}>
+                <h4 style={{ color: "#ffffff", margin: "8px 0 4px 0", fontWeight: 600, fontSize: "18px" }}>{viewingMember.name}</h4>
+                <p style={{ color: "var(--color-secondary)", margin: 0, fontSize: "14px" }}>
+                  {viewingMember.role || "Membro"} {viewingMember.company ? `na ${viewingMember.company}` : ""}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: "20px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "12px", color: "var(--color-outline)" }}>E-mail</span>
+                <span style={{ fontSize: "13px", color: "#ffffff", fontWeight: 500 }}>{viewingMember.email}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: "12px", color: "var(--color-outline)" }}>Tipo de Membro</span>
+                <span style={{ 
+                  fontSize: "12px", 
+                  fontWeight: 600, 
+                  color: viewingMember.member_type === "admin" 
+                    ? "#4CAF50" 
+                    : viewingMember.member_type === "master" 
+                      ? "#EDC066" 
+                      : "#B388FF"
+                }}>
+                  {viewingMember.member_type ? viewingMember.member_type.toUpperCase() : "MENTORADO"}
+                </span>
+              </div>
+              {viewingMember.created_at && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "12px", color: "var(--color-outline)" }}>Membro desde</span>
+                  <span style={{ fontSize: "13px", color: "#ffffff" }}>
+                    {new Date(viewingMember.created_at).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: "28px" }}>
+              <button 
+                className="btn-primary" 
+                style={{ width: "100%" }}
+                onClick={() => setViewingMember(null)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Editar Membro */}
+      {editingMember && (
+        <div 
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(10, 10, 12, 0.8)", backdropFilter: "blur(5px)",
+            zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center"
+          }}
+          onClick={() => setEditingMember(null)}
+        >
+          <div 
+            style={{
+              backgroundColor: "rgba(20, 20, 25, 0.98)", border: "1px solid rgba(255, 255, 255, 0.1)",
+              borderRadius: "12px", width: "100%", maxWidth: "450px", padding: "28px", boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Editar Membro</h3>
+              <button onClick={() => setEditingMember(null)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateMember} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME COMPLETO</label>
+                <input
+                  type="text"
+                  className="input-dark"
+                  value={editingMember.name}
+                  onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>E-MAIL</label>
+                <input
+                  type="email"
+                  className="input-dark"
+                  value={editingMember.email}
+                  onChange={(e) => setEditingMember({ ...editingMember, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TIPO DE ACESSO</label>
+                <select
+                  className="input-dark"
+                  value={editingMember.member_type}
+                  onChange={(e) => setEditingMember({ ...editingMember, member_type: e.target.value as any })}
+                  required
+                >
+                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentor</option>
+                  <option value="master" style={{ backgroundColor: "#131316" }}>Master</option>
+                  <option value="admin" style={{ backgroundColor: "#131316" }}>Admin</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CARGO / FUNÇÃO</label>
+                <input
+                  type="text"
+                  className="input-dark"
+                  value={editingMember.role}
+                  onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
+                  placeholder="Ex: Diretor de Expansão"
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>EMPRESA</label>
+                <input
+                  type="text"
+                  className="input-dark"
+                  value={editingMember.company}
+                  onChange={(e) => setEditingMember({ ...editingMember, company: e.target.value })}
+                  placeholder="Ex: CLS Empreendimentos"
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  style={{ flex: 1 }}
+                  onClick={() => setEditingMember(null)}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  className="btn-primary" 
+                  style={{ flex: 1 }}
+                  disabled={submitting}
+                >
+                  {submitting ? "Salvando..." : "Salvar Alterações"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       </div>
 
       {/* Bulk Actions Bar */}
