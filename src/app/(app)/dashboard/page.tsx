@@ -85,7 +85,7 @@ export default function DashboardPage() {
           .limit(3);
 
         if (eventsData && !error) {
-          const mapped = eventsData.map(e => {
+          const mapped = eventsData.map((e: any) => {
             const date = new Date(e.event_date);
             const offsetDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
             const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
