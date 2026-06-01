@@ -281,6 +281,7 @@ export default function CalendarioPage() {
           .from("calendar_events")
           .select("*");
           
+        let activeEvents: CalendarEvent[] = initialEventsList;
         if (dbEvents && !error) {
           const mappedEvents: CalendarEvent[] = dbEvents.map((e: any) => {
             const date = new Date(e.event_date);
@@ -307,7 +308,8 @@ export default function CalendarioPage() {
               zoomLink: e.zoom_link || ""
             };
           });
-          setEvents(mappedEvents.length > 0 ? mappedEvents : initialEventsList);
+          activeEvents = mappedEvents.length > 0 ? mappedEvents : initialEventsList;
+          setEvents(activeEvents);
         } else {
           setEvents(initialEventsList);
         }
@@ -326,6 +328,38 @@ export default function CalendarioPage() {
           const { data: member } = await supabase.from("members").select("member_type").eq("id", user.id).single();
           if (member) {
             setUserType(member.member_type || "mentor");
+          }
+        }
+
+        // Direct select event from URL query parameter
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const paramEventId = params.get("event_id");
+          if (paramEventId) {
+            const targetEvent = activeEvents.find(e => e.id === paramEventId);
+            if (targetEvent) {
+              const matchedMonth = monthsList.find(item => item.month === targetEvent.month && item.year === targetEvent.year);
+              if (matchedMonth) {
+                setActiveMonth(matchedMonth);
+                setSelectedDay(targetEvent.day);
+              }
+            }
+          } else {
+            const paramDay = params.get("day");
+            const paramMonth = params.get("month");
+            const paramYear = params.get("year");
+
+            if (paramDay && paramMonth && paramYear) {
+              const d = parseInt(paramDay);
+              const m = parseInt(paramMonth);
+              const y = parseInt(paramYear);
+
+              const matchedMonth = monthsList.find(item => item.month === m && item.year === y);
+              if (matchedMonth) {
+                setActiveMonth(matchedMonth);
+                setSelectedDay(d);
+              }
+            }
           }
         }
       } catch (err) {

@@ -185,7 +185,11 @@ export default function DashboardPage() {
         {/* Next Mentorship Card */}
         <div
           className="premium-gradient-bg metallic-edge"
-          onClick={() => router.push('/calendario')}
+          onClick={() => {
+            if (nextMentorship) {
+              router.push(`/calendario?event_id=${nextMentorship.id}`);
+            }
+          }}
           style={{
             gridColumn: "span 4",
             borderRadius: "4px",
@@ -276,7 +280,7 @@ export default function DashboardPage() {
             {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
               <div
                 key={ev.id}
-                onClick={() => router.push('/calendario')}
+                onClick={() => router.push(`/calendario?event_id=${ev.id}`)}
                 className="hover-bg-transition"
                 style={{
                   display: "flex",
