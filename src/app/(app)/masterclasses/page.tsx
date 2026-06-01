@@ -5,167 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonMasterclasses } from "@/components/SkeletonLoading";
 
-// Fallback courses matching seeded database structure
-const fallbackCourses = [
-  {
-    id: "41f3db50-a051-4940-be6f-7bceffe969b8",
-    title: "Incorporação e Construção Civil",
-    description: "Formação completa cobrindo gestão de projetos, cronogramas físico-financeiros, orçamentação e BIM.",
-    cover_image_url: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=800",
-    sequence_order: 1
-  }
-];
 
-// Fallback modules matching seeded database structure
-const fallbackModules = [
-  {
-    id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    course_id: "41f3db50-a051-4940-be6f-7bceffe969b8",
-    title: "Gestão de Projetos e Planejamento de Obras",
-    description: "Fundamentos essenciais de planejamento de obras, cronogramas físicos e de suprimentos.",
-    sequence_order: 1,
-    slug: "gestao-e-planejamento"
-  },
-  {
-    id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    course_id: "41f3db50-a051-4940-be6f-7bceffe969b8",
-    title: "Engenharia de Custos e Viabilidade de Projetos",
-    description: "Composição de custos diretos e indiretos, orçamentação avançada e análise de EVTL.",
-    sequence_order: 2,
-    slug: "custos-e-viabilidade"
-  },
-  {
-    id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
-    course_id: "41f3db50-a051-4940-be6f-7bceffe969b8",
-    title: "Métodos Construtivos Avançados e BIM",
-    description: "Adoção prática de modelagem BIM 3D/4D/5D, VDC e industrialização da construção.",
-    sequence_order: 3,
-    slug: "metodos-e-bim"
-  }
-];
-
-const fallbackLessons = [
-  {
-    id: "11111111-1111-1111-1111-111111111111",
-    module_id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    title: "Fundamentos do Planejamento Físico-Financeiro",
-    description: "Como estruturar um cronograma integrated alinhando metas físicas a desembolsos financeiros.",
-    duration: "18:45",
-    thumbnail_url: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600",
-    instructor_name: "Eng. Magno Santos",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "/magno.jpg",
-    sequence_order: 1,
-    slug: "planejamento-fisico-financeiro",
-    progress: 53,
-    completed: false
-  },
-  {
-    id: "11111111-1111-1111-1111-111111111112",
-    module_id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    title: "Controle de Suprimentos e Logística de Canteiro",
-    description: "Planejamento logístico e de suprimentos para evitar gargalos e paralisações nas frentes de trabalho.",
-    duration: "15:20",
-    thumbnail_url: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
-    instructor_name: "Eng. Magno Santos",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "/magno.jpg",
-    sequence_order: 2,
-    slug: "suprimentos-e-logistica-canteiro",
-    progress: 0,
-    completed: false
-  },
-  {
-    id: "11111111-1111-1111-1111-111111111113",
-    module_id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    title: "Lean Construction e Otimização de Processos",
-    description: "Adoção dos princípios da construção enxuta para redução de perdas e aumento de eficiência.",
-    duration: "22:15",
-    thumbnail_url: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600",
-    instructor_name: "Arq. Mayara Costa",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-    sequence_order: 3,
-    slug: "lean-construction-otimizacao",
-    progress: 0,
-    completed: false
-  },
-  {
-    id: "22222222-2222-2222-2222-222222222221",
-    module_id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    title: "Engenharia de Custos Aplicada",
-    description: "Desconstruindo a composição de custos e orçamento paramétrico para obras de alto padrão.",
-    duration: "18:45",
-    thumbnail_url: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Eng. Magno Santos",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "/magno.jpg",
-    sequence_order: 1,
-    slug: "engenharia-de-custos-aplicada",
-    progress: 100,
-    completed: true
-  },
-  {
-    id: "22222222-2222-2222-2222-222222222222",
-    module_id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    title: "Análise de Viabilidade Imobiliária",
-    description: "Estratégias avançadas para estruturação financeira de terrenos e incorporação.",
-    duration: "24:10",
-    thumbnail_url: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Eng. Magno Santos",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "/magno.jpg",
-    sequence_order: 2,
-    slug: "analise-viabilidade-imobiliaria",
-    progress: 0,
-    completed: false
-  },
-  {
-    id: "22222222-2222-2222-2222-222222222223",
-    module_id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    title: "Gestão de Contratos de Obra (EPC/Turnkey)",
-    description: "Modelagem contratual, matrizes de riscos e responsabilidades em contratos de construção complexos.",
-    duration: "21:05",
-    thumbnail_url: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Eng. Magno Santos",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "/magno.jpg",
-    sequence_order: 3,
-    slug: "gestao-contratos-obra",
-    progress: 0,
-    completed: false
-  },
-  {
-    id: "33333333-3333-3333-3333-333333333331",
-    module_id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
-    title: "BIM e Virtual Design in Construction (VDC)",
-    description: "Como aplicar fluxos BIM 3D, 4D e 5D para garantir sincronia física e de custos.",
-    duration: "15:30",
-    thumbnail_url: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400",
-    instructor_name: "Arq. Mayara Costa",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-    sequence_order: 1,
-    slug: "bim-vdc-planejamento",
-    progress: 0,
-    completed: false
-  },
-  {
-    id: "33333333-3333-3333-3333-333333333332",
-    module_id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
-    title: "Industrialização e Pré-fabricados na Obra",
-    description: "Estudo comparativo de custos e velocidade executiva com métodos industrializados off-site.",
-    duration: "19:20",
-    thumbnail_url: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=600",
-    instructor_name: "Arq. Mayara Costa",
-    instructor_role: "Mentor Sênior",
-    instructor_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-    sequence_order: 2,
-    slug: "industrializacao-pre-fabricados",
-    progress: 0,
-    completed: false
-  }
-];
 
 export default function MasterclassesPage() {
   const router = useRouter();
@@ -237,29 +77,18 @@ export default function MasterclassesPage() {
           .select('*')
           .order('sequence_order', { ascending: true });
 
-        let finalCourses = fallbackCourses;
-        if (dbCourses && dbCourses.length > 0) {
-          finalCourses = dbCourses;
-        }
-
-        let finalModules = fallbackModules;
-        if (dbModules && dbModules.length > 0) {
-          finalModules = dbModules;
-        }
-
-        let finalLessons = fallbackLessons;
-        if (dbLessons && dbLessons.length > 0) {
-          finalLessons = dbLessons.map((l: any) => {
-            const prog = dbProgress.find((p) => p.lesson_id === l.id);
-            return {
-              ...l,
-              thumbnail_url: l.cover_image_url || l.thumbnail_url || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400",
-              progress: prog ? prog.percent_complete : 0,
-              completed: prog ? prog.completed : false,
-              watched_seconds: prog ? prog.watched_seconds : 0
-            };
-          });
-        }
+        let finalCourses = dbCourses || [];
+        let finalModules = dbModules || [];
+        let finalLessons = (dbLessons || []).map((l: any) => {
+          const prog = dbProgress.find((p) => p.lesson_id === l.id);
+          return {
+            ...l,
+            thumbnail_url: l.cover_image_url || l.thumbnail_url || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400",
+            progress: prog ? prog.percent_complete : 0,
+            completed: prog ? prog.completed : false,
+            watched_seconds: prog ? prog.watched_seconds : 0
+          };
+        });
 
         setCourses(finalCourses);
         setModules(finalModules);
@@ -267,9 +96,9 @@ export default function MasterclassesPage() {
 
       } catch (err) {
         console.error("Erro ao carregar dados do Supabase:", err);
-        setCourses(fallbackCourses);
-        setModules(fallbackModules);
-        setLessons(fallbackLessons);
+        setCourses([]);
+        setModules([]);
+        setLessons([]);
       } finally {
         setLoading(false);
       }
@@ -356,17 +185,7 @@ export default function MasterclassesPage() {
     (l.description || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Top 5 lessons from the active course
-  const rankingIds = [
-    "22222222-2222-2222-2222-222222222222",
-    "22222222-2222-2222-2222-222222222221",
-    "33333333-3333-3333-3333-333333333331",
-    "11111111-1111-1111-1111-111111111111",
-    "22222222-2222-2222-2222-222222222223"
-  ];
-  const top5Lessons = rankingIds
-    .map(id => activeLessons.find(l => l.id === id))
-    .filter(Boolean);
+
 
   // Active Hero Lesson calculation
   const inProgress = activeLessons.find((l) => l.progress > 0 && l.progress < 100);
@@ -813,91 +632,7 @@ export default function MasterclassesPage() {
             </div>
           )}
 
-          {/* Netflix Top 5 Section (strictly NO red, styled with gold outline numbers) */}
-          {top5Lessons.length > 0 && searchQuery === "" && (
-            <section className="carousel-container" style={{ marginBottom: "44px" }}>
-              <h3
-                className="font-title-lg"
-                style={{
-                  fontSize: "18px",
-                  color: "var(--color-on-surface)",
-                  marginBottom: "16px",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px"
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>workspace_premium</span>
-                Top 5 Mais Assistidos
-              </h3>
-              
-              <div className="netflix-carousel" style={{ padding: "0 10px 20px 20px", gap: "24px" }}>
-                {top5Lessons.map((lesson: any, index: number) => (
-                  <div key={lesson.id} style={{ display: "flex", position: "relative", width: "240px", height: "190px", alignItems: "center", flexShrink: 0 }}>
-                    
-                    {/* Huge Netflix outline number on the left */}
-                    <span style={{
-                      position: "absolute",
-                      left: 0,
-                      bottom: "-14px",
-                      fontSize: "170px",
-                      fontWeight: "900",
-                      fontFamily: "'Impact', 'Inter', sans-serif",
-                      lineHeight: "1",
-                      color: "#131316", // Blend fill to bg to appear hollow
-                      WebkitTextStroke: "3px rgba(237, 192, 102, 0.45)", // Gold outline
-                      zIndex: 1,
-                      userSelect: "none"
-                    }}>
-                      {index + 1}
-                    </span>
-                    
-                    {/* Overlapping Poster Card (Soften module, no shadows) */}
-                    <div
-                      className="netflix-card"
-                      onClick={() => router.push(`/masterclasses/${lesson.id}`)}
-                      style={{
-                        position: "absolute",
-                        left: "70px",
-                        width: "135px",
-                        height: "180px",
-                        zIndex: 2,
-                        borderRadius: "8px",
-                        border: "1px solid rgba(255, 255, 255, 0.08)"
-                      }}
-                    >
-                      <div style={{ width: "100%", height: "100%", position: "relative" }}>
-                        <img
-                          src={lesson.thumbnail_url}
-                          alt={lesson.title}
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                        />
-                        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.2) 50%, transparent 100%)" }} />
-                        
-                        {/* Gold Progress line if started */}
-                        {lesson.progress > 0 && (
-                          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "3px", backgroundColor: "rgba(255,255,255,0.2)", zIndex: 4 }}>
-                            <div style={{ height: "100%", backgroundColor: "var(--color-secondary)", width: `${lesson.progress}%` }} />
-                          </div>
-                        )}
 
-                        {/* Title Overlay */}
-                        <div style={{ position: "absolute", bottom: "12px", left: "10px", right: "10px", zIndex: 3 }}>
-                          <span style={{ fontSize: "8px", color: "var(--color-secondary)", fontWeight: 700, display: "block", marginBottom: "2px" }}>
-                            AULA {lesson.sequence_order}
-                          </span>
-                          <h4 style={{ fontSize: "11px", color: "#ffffff", fontWeight: 700, lineHeight: "1.3", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                            {lesson.title}
-                          </h4>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
 
           {/* Modules/Trails Section (Modules do NOT have a cover image) */}
           <h2

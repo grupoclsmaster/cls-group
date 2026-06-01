@@ -6,24 +6,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { SkeletonDashboard } from "@/components/SkeletonLoading";
 
-const masterclasses = [
-  {
-    title: "Engenharia de Custos Aplicada",
-    duration: "18 MIN",
-    badge: "NOVO",
-    img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "Análise de Viabilidade Imobiliária",
-    duration: "24 MIN",
-    img: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    title: "BIM e Virtual Design in Construction (VDC)",
-    duration: "15 MIN",
-    img: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=800",
-  },
-];
+
 
 // We will fetch these from Supabase dynamically
 
@@ -35,6 +18,9 @@ export default function DashboardPage() {
   
   const [nextMentorship, setNextMentorship] = useState<any>(null);
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
+  const [latestCourses, setLatestCourses] = useState<any[]>([]);
+  const [activeModuleName, setActiveModuleName] = useState("Nenhum módulo iniciado");
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const formatName = (name: string) => {
     if (!name) return "";
@@ -63,6 +49,7 @@ export default function DashboardPage() {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (user) {
+          // 1. Fetch user's name
           const { data: member } = await supabase
             .from("members")
             .select("name, username")
@@ -73,8 +60,54 @@ export default function DashboardPage() {
             const firstName = rawName.trim().split(/\s+/)[0];
             setUserName(firstName);
           }
+
+          // 2. Fetch lesson progress
+          const { data: userProgress } = await supabase
+            .from('user_lesson_progress')
+            .select('*')
+            .eq('user_id', user.id);
+
+          const { data: allLessons } = await supabase
+            .from('lessons')
+            .select('id, module_id');
+
+          if (allLessons && allLessons.length > 0) {
+            const completedCount = userProgress 
+              ? userProgress.filter((p: any) => p.completed).length 
+              : 0;
+            const percent = Math.round((completedCount / allLessons.length) * 100);
+            setProgressPercent(percent);
+
+            let lastWatchedModuleId = "";
+            if (userProgress && userProgress.length > 0) {
+              const sortedProgress = [...userProgress].sort((a: any, b: any) => 
+                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+              );
+              const latestLessonId = sortedProgress[0]?.lesson_id;
+              const latestLesson = allLessons.find((l: any) => l.id === latestLessonId);
+              if (latestLesson) lastWatchedModuleId = latestLesson.module_id;
+            }
+
+            if (lastWatchedModuleId) {
+              const { data: moduleData } = await supabase
+                .from('modules')
+                .select('title')
+                .eq('id', lastWatchedModuleId)
+                .single();
+              if (moduleData) setActiveModuleName(moduleData.title);
+            } else {
+              const { data: firstModule } = await supabase
+                .from('modules')
+                .select('title')
+                .order('sequence_order', { ascending: true })
+                .limit(1)
+                .single();
+              if (firstModule) setActiveModuleName(firstModule.title);
+            }
+          }
         }
 
+        // 3. Fetch upcoming events
         const today = new Date().toISOString().split('T')[0];
         
         const { data: eventsData, error } = await supabase
@@ -108,6 +141,18 @@ export default function DashboardPage() {
             setNextMentorship(mapped[0]);
             setUpcomingEvents(mapped);
           }
+        }
+
+        // 4. Fetch latest 3 courses
+        const { data: dbCourses } = await supabase
+          .from("courses")
+          .select("*")
+          .eq("status", "publicado")
+          .order("sequence_order", { ascending: true })
+          .limit(3);
+
+        if (dbCourses) {
+          setLatestCourses(dbCourses);
         }
 
       } catch (err) {
@@ -171,14 +216,14 @@ export default function DashboardPage() {
               <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Módulo Atual</h3>
               <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>trending_up</span>
             </div>
-            <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "4px" }}>Engenharia de Custos e Viabilidade</p>
+            <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "4px" }}>{activeModuleName}</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "24px" }}>
-              <span className="font-headline-md" style={{ color: "var(--color-on-surface)" }}>68%</span>
+              <span className="font-headline-md" style={{ color: "var(--color-on-surface)" }}>{progressPercent}%</span>
               <span className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>Concluído</span>
             </div>
           </div>
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: "68%" }} />
+            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
         </div>
 
@@ -339,75 +384,66 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_forward</span>
             </Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-            {masterclasses.map((mc, i) => (
-              <div
-                key={i}
-                className="card-hover"
-                style={{
-                  backgroundColor: "var(--color-surface-container-low)",
-                  borderRadius: "4px",
-                  border: "1px solid rgba(255,255,255,0.05)",
-                  overflow: "hidden",
-                  cursor: "pointer",
-                }}
-              >
-                <div style={{ aspectRatio: "16/9", position: "relative", backgroundColor: "var(--color-surface-container)" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
+            {latestCourses.length > 0 ? (
+              latestCourses.map((mc) => (
+                <Link
+                  href={`/masterclasses?course_id=${mc.id}`}
+                  key={mc.id}
+                  style={{ textDecoration: "none" }}
+                >
                   <div
-                    className="hover-opacity"
+                    className="card-hover"
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      backgroundImage: `url('${mc.img}')`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                      opacity: 0.6,
+                      backgroundColor: "var(--color-surface-container-low)",
+                      borderRadius: "4px",
+                      border: "1px solid rgba(255,255,255,0.05)",
+                      overflow: "hidden",
+                      cursor: "pointer",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column"
                     }}
-                  />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(14,14,17,1) 0%, transparent 60%)" }} />
-                  <div style={{ position: "absolute", bottom: "16px", left: "16px", right: "16px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-                    {mc.badge && (
-                      <span
-                        className="font-label-caps"
+                  >
+                    <div style={{ aspectRatio: "16/9", position: "relative", backgroundColor: "var(--color-surface-container)" }}>
+                      <div
+                        className="hover-opacity"
                         style={{
-                          backgroundColor: "rgba(7,7,50,0.8)",
-                          color: "var(--color-secondary)",
-                          fontSize: "10px",
-                          padding: "4px 8px",
-                          borderRadius: "2px",
-                          border: "1px solid rgba(237,192,102,0.2)",
-                          backdropFilter: "blur(8px)",
+                          position: "absolute",
+                          inset: 0,
+                          backgroundImage: `url('${mc.cover_image_url || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=800"}')`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          opacity: 0.6,
                         }}
-                      >
-                        {mc.badge}
-                      </span>
-                    )}
-                    <span
-                      className="font-label-caps"
-                      style={{
-                        color: "white",
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                        fontSize: "10px",
-                        padding: "4px 8px",
-                        borderRadius: "2px",
-                        backdropFilter: "blur(4px)",
-                        marginLeft: "auto",
-                      }}
-                    >
-                      {mc.duration}
-                    </span>
+                      />
+                      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(14,14,17,1) 0%, transparent 60%)" }} />
+                    </div>
+                    <div style={{ padding: "20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <h4 className="font-body-lg" style={{ color: "var(--color-on-surface)", fontWeight: 600, marginBottom: "8px" }}>
+                        {mc.title}
+                      </h4>
+                      <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                        {mc.description || "Masterclass exclusiva do ecossistema de engenharia e construção."}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div style={{ padding: "20px" }}>
-                  <h4 className="font-body-lg" style={{ color: "var(--color-on-surface)", fontWeight: 600, marginBottom: "8px" }}>
-                    {mc.title}
-                  </h4>
-                  <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
-                    Masterclass exclusiva do ecossistema de engenharia e construção.
-                  </p>
-                </div>
+                </Link>
+              ))
+            ) : (
+              <div style={{ 
+                gridColumn: "span 12",
+                padding: "48px 24px", 
+                textAlign: "center", 
+                backgroundColor: "rgba(255,255,255,0.02)", 
+                borderRadius: "8px", 
+                border: "1px dashed rgba(255,255,255,0.1)" 
+              }}>
+                <p className="font-body-lg" style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>
+                  Nenhuma masterclass publicada ainda.
+                </p>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

@@ -60,6 +60,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
   size = 40,
   showLabel = false,
 }) => {
+  const [imgError, setImgError] = React.useState(false);
   const config = memberType ? MEMBER_CONFIG[memberType] : null;
   const borderWidth = 2.5;
   const badgeSize = Math.round(size * 0.35);
@@ -170,13 +171,14 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
     <div style={wrapperStyle}>
       <div style={ringStyle}>
         <div style={avatarContainerStyle}>
-          {img ? (
+          {img && !imgError ? (
             <img
               src={img}
               alt={name}
               style={imgStyle}
               loading="lazy"
               draggable={false}
+              onError={() => setImgError(true)}
             />
           ) : (
             <span style={initialsStyle}>{displayInitials}</span>

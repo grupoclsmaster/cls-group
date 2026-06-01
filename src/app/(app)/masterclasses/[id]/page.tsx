@@ -23,216 +23,6 @@ interface Lesson {
   thumbnailUrl?: string;
 }
 
-const fallbackLessonsMap: Record<string, Lesson> = {
-  // New UUID keys (from database seed)
-  "11111111-1111-1111-1111-111111111111": {
-    id: "11111111-1111-1111-1111-111111111111",
-    module: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    moduleTitle: "Gestão de Projetos e Planejamento de Obras",
-    code: "AULA 1.1",
-    title: "Fundamentos do Planejamento Físico-Financeiro",
-    desc: "Como estruturar um cronograma integrado alinhando metas físicas a desembolsos financeiros.",
-    duration: "18:45",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Entenda a fundo como construir a curva S e associar tarefas físicas aos fluxos de caixa da obra. Esta aula aborda o planejamento básico que garante a saúde financeira e o ritmo de produção no canteiro.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&q=80&w=600"
-  },
-  "11111111-1111-1111-1111-111111111112": {
-    id: "11111111-1111-1111-1111-111111111112",
-    module: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    moduleTitle: "Gestão de Projetos e Planejamento de Obras",
-    code: "AULA 1.2",
-    title: "Controle de Suprimentos e Logística de Canteiro",
-    desc: "Planejamento logístico e de suprimentos para evitar gargalos e paralisações nas frentes de trabalho.",
-    duration: "15:20",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "O fluxo logístico do canteiro dita o ritmo da produtividade. Aprenda como dimensionar estoques, planejar compras de longo prazo (Just In Time) e otimizar o fluxo de carga/descarga em obras de alto padrão.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200"
-  },
-  "11111111-1111-1111-1111-111111111113": {
-    id: "11111111-1111-1111-1111-111111111113",
-    module: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
-    moduleTitle: "Gestão de Projetos e Planejamento de Obras",
-    code: "AULA 1.3",
-    title: "Lean Construction e Otimização de Processos",
-    desc: "Adoção dos princípios da construção enxuta para redução de perdas e aumento de eficiência.",
-    duration: "22:15",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-    },
-    longDesc: "Nesta aula, desvendamos como aplicar o Last Planner System para gerenciar compromissos e gargalos semanais, promovendo colaboração direta entre as equipes técnicas e reduzindo tempos ociosos.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=600"
-  },
-  "22222222-2222-2222-2222-222222222221": {
-    id: "22222222-2222-2222-2222-222222222221",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.1",
-    title: "Engenharia de Custos Aplicada",
-    desc: "Desconstruindo a composição de custos e orçamento paramétrico para obras de alto padrão.",
-    duration: "18:45",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400"
-  },
-  "22222222-2222-2222-2222-222222222222": {
-    id: "22222222-2222-2222-2222-222222222222",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.2",
-    title: "Análise de Viabilidade Imobiliária",
-    desc: "Estratégias avançadas para estruturação financeira de terrenos e incorporação.",
-    duration: "24:10",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-    },
-    longDesc: "A Arq. Mayara Costa guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400"
-  },
-  "22222222-2222-2222-2222-222222222223": {
-    id: "22222222-2222-2222-2222-222222222223",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.3",
-    title: "Gestão de Contratos de Obra (EPC/Turnkey)",
-    desc: "Como gerir e fechar contratos de execução de obras civis complexas com o máximo controle de riscos.",
-    duration: "21:05",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-    },
-    longDesc: "A Arq. Mayara Costa detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400"
-  },
-  "33333333-3333-3333-3333-333333333331": {
-    id: "33333333-3333-3333-3333-333333333331",
-    module: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
-    moduleTitle: "Métodos Construtivos Avançados e BIM",
-    code: "AULA 3.1",
-    title: "BIM e Virtual Design in Construction (VDC)",
-    desc: "Técnicas de modelagem inteligente e compatibilização 3D de projetos complexos.",
-    duration: "15:30",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400"
-  },
-  "33333333-3333-3333-3333-333333333332": {
-    id: "33333333-3333-3333-3333-333333333332",
-    module: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
-    moduleTitle: "Métodos Construtivos Avançados e BIM",
-    code: "AULA 3.2",
-    title: "Industrialização e Estruturas Pré-Fabricadas",
-    desc: "Fundamentos de construção modular, pré-moldados e otimização construtiva.",
-    duration: "20:40",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Explore os caminhos para reduzir prazos de obra em até 50% através da industrialização da construção. Estudaremos desde a concepção arquitetônica voltada à modulação (Design for Manufacturing and Assembly) até o içamento em canteiro.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=80&w=600"
-  },
-
-  // Backward compatibility with legacy routes
-  "2-1": {
-    id: "2-1",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.1",
-    title: "Engenharia de Custos Aplicada",
-    desc: "Desconstruindo a composição de custos e orçamento paramétrico para obras de alto padrão.",
-    duration: "18:45",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Nesta aula, o Eng. Magno Santos aborda como ultrapassar os limites tradicionais de precificação. Descubra como estruturar orçamentos de alta complexidade e precificar obras executivas sem entrar na guerra de preços de empreiteiras, utilizando princípios de engenharia de custos avançada e orçamentação por BIM.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=400"
-  },
-  "2-2": {
-    id: "2-2",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.2",
-    title: "Análise de Viabilidade Imobiliária",
-    desc: "Estratégias avançadas para estruturação financeira de terrenos e incorporação.",
-    duration: "24:10",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-    },
-    longDesc: "A Arq. Mayara Costa guiará você na elaboração de Estudos de Viabilidade Técnica e Legal (EVTL) e financeira para empreendimentos de altíssimo padrão. Veja como analisar a viabilidade de landbanks e viabilizar empreendimentos corporativos de grande porte atraindo investidores qualificados.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400"
-  },
-  "2-3": {
-    id: "2-3",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.3",
-    title: "BIM e Virtual Design in Construction (VDC)",
-    desc: "Técnicas de modelagem inteligente e compatibilização 3D de projetos complexos.",
-    duration: "15:30",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      img: "/magno.jpg"
-    },
-    longDesc: "Aprenda com o Eng. Magno Santos como as metodologias de Building Information Modeling (BIM) e VDC reduzem erros de compatibilização e desperdícios no canteiro de obras. Descubra os fluxos de trabalho fundamentais para integrar orçamento, planejamento e projeto executivo em um único modelo digital.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1590674899484-d5640e854abe?auto=format&fit=crop&q=80&w=400"
-  },
-  "2-4": {
-    id: "2-4",
-    module: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
-    moduleTitle: "Engenharia de Custos e Viabilidade de Projetos",
-    code: "AULA 2.4",
-    title: "Gestão de Contratos de Obra (EPC/Turnkey)",
-    desc: "Como gerir e fechar contratos de execução de obras civis complexas com o máximo controle de riscos.",
-    duration: "21:05",
-    videoUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuAf8QRwe3gf1pFcxu20L92dp2HUlE8A82l7fKjDzScmBTrxfFHwpkRnxBekcMm2N1gb0rMVWJWEN51WGe-0X_Bxa13yX4QlwmLABq0DdohaNdMJ1M8vpShyK3aQbZqTNtvqjLFXc7hDjey2ZdBwOyg1yOPhj0BBs_C1SdhSJ0lAuFtn3RfD1r1DWoHgYpoI4KZhDmJHIqqzyr6lAsbIUDaV8I9hBOqt9ai6CaIs6Cz4QJSv0fUH3PDIHyRJWesPpQrqbsvqzW6A0r0H",
-    instructor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-    },
-    longDesc: "A Arq. Mayara Costa detalha a formatação de propostas comerciais de alto padrão, modelagem de contratos EPC (Engineering, Procurement, and Construction), gerenciamento de claims e administração de riscos em contratos Turnkey de obras corporativas.",
-    thumbnailUrl: "https://images.unsplash.com/photo-1560520653-9e0e4c89fd11?auto=format&fit=crop&q=80&w=400"
-  }
-};
-
 export default function WatchLessonPage() {
   const params = useParams();
   const router = useRouter();
@@ -301,18 +91,15 @@ export default function WatchLessonPage() {
             title: dbLesson.title,
             desc: dbLesson.description,
             duration: dbLesson.duration,
-            videoUrl: dbLesson.video_url || fallbackLessonsMap["2-2"].videoUrl,
+            videoUrl: dbLesson.video_url || "",
             instructor: {
               name: dbLesson.instructor_name || "Mentor Sênior",
               role: dbLesson.instructor_role || "Mentor Sênior",
               img: dbLesson.instructor_avatar || "/magno.jpg"
             },
             longDesc: dbLesson.long_description || dbLesson.description,
-            thumbnailUrl: dbLesson.cover_image_url || dbLesson.thumbnail_url || fallbackLessonsMap[dbLesson.id]?.thumbnailUrl || fallbackLessonsMap["2-2"].thumbnailUrl
+            thumbnailUrl: dbLesson.cover_image_url || dbLesson.thumbnail_url || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400"
           };
-        } else {
-          // Fallback to static mapping
-          currentLesson = fallbackLessonsMap[idStr] || fallbackLessonsMap["2-2"];
         }
 
         setLesson(currentLesson);
@@ -321,83 +108,80 @@ export default function WatchLessonPage() {
         let siblings: any[] = [];
         let progressList: any[] = [];
 
-        if (user) {
-          const { data: userProgress } = await supabase
-            .from('user_lesson_progress')
+        if (currentLesson) {
+          if (user) {
+            const { data: userProgress } = await supabase
+              .from('user_lesson_progress')
+              .select('*')
+              .eq('user_id', user.id);
+            if (userProgress) progressList = userProgress;
+          }
+
+          const { data: dbSiblings } = await supabase
+            .from('lessons')
             .select('*')
-            .eq('user_id', user.id);
-          if (userProgress) progressList = userProgress;
-        }
+            .eq('module_id', currentLesson.module)
+            .order('sequence_order', { ascending: true });
 
-        const { data: dbSiblings } = await supabase
-          .from('lessons')
-          .select('*')
-          .eq('module_id', currentLesson.module)
-          .order('sequence_order', { ascending: true });
-
-        if (dbSiblings && dbSiblings.length > 0) {
-          siblings = dbSiblings.map((sib: any) => {
-            const prog = progressList.find(p => p.lesson_id === sib.id);
-            return {
-              id: sib.id,
-              code: `AULA ${sib.sequence_order}`,
-              title: sib.title,
-              duration: sib.duration,
-              status: prog?.completed ? "completed" : (prog?.percent_complete > 0 ? "active" : "locked")
-            };
-          });
-        } else {
-          // Fallback static list (Module 2 siblings)
-          siblings = [
-            { id: "2-1", code: "AULA 2.1", title: "Engenharia de Custos Aplicada", duration: "18:45", status: "completed" },
-            { id: "2-2", code: "AULA 2.2", title: "Análise de Viabilidade Imobiliária", duration: "24:10", status: "active" },
-            { id: "2-3", code: "AULA 2.3", title: "BIM e Virtual Design in Construction (VDC)", duration: "15:30", status: "locked" },
-            { id: "2-4", code: "AULA 2.4", title: "Gestão de Contratos de Obra (EPC/Turnkey)", duration: "21:05", status: "locked" }
-          ];
+          if (dbSiblings && dbSiblings.length > 0) {
+            siblings = dbSiblings.map((sib: any) => {
+              const prog = progressList.find(p => p.lesson_id === sib.id);
+              return {
+                id: sib.id,
+                code: `AULA ${sib.sequence_order}`,
+                title: sib.title,
+                duration: sib.duration,
+                status: prog?.completed ? "completed" : (prog?.percent_complete > 0 ? "active" : "locked")
+              };
+            });
+          }
         }
 
         setSiblingLessons(siblings);
 
         // 3. Set watch percentage if exists in db
-        const currentProg = progressList.find(p => p.lesson_id === currentLesson.id);
-        if (currentProg) {
-          setWatchedPercent(currentProg.percent_complete);
-          setIsCompleted(!!currentProg.completed);
+        if (currentLesson) {
+          const currentProg = progressList.find(p => p.lesson_id === currentLesson.id);
+          if (currentProg) {
+            setWatchedPercent(currentProg.percent_complete);
+            setIsCompleted(!!currentProg.completed);
+          } else {
+            setWatchedPercent(0);
+            setIsCompleted(false);
+          }
         } else {
           setWatchedPercent(0);
           setIsCompleted(false);
         }
 
         // 4. Fetch real comments
-        const { data: dbComments } = await supabase
-          .from('lesson_comments')
-          .select('id, content, created_at, user_id, members (name, img, role)')
-          .eq('lesson_id', currentLesson.id)
-          .order('created_at', { ascending: false });
+        if (currentLesson) {
+          const { data: dbComments } = await supabase
+            .from('lesson_comments')
+            .select('id, content, created_at, user_id, members (name, img, role)')
+            .eq('lesson_id', currentLesson.id)
+            .order('created_at', { ascending: false });
 
-        if (dbComments) {
-          setComments(dbComments.map((c: any) => ({
-            id: c.id,
-            author: c.members?.name || "Membro CLS",
-            avatar: c.members?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
-            role: c.members?.role || "Membro",
-            time: new Date(c.created_at).toLocaleDateString(),
-            content: c.content
-          })));
+          if (dbComments) {
+            setComments(dbComments.map((c: any) => ({
+              id: c.id,
+              author: c.members?.name || "Membro CLS",
+              avatar: c.members?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200",
+              role: c.members?.role || "Membro",
+              time: new Date(c.created_at).toLocaleDateString(),
+              content: c.content
+            })));
+          } else {
+            setComments([]);
+          }
         } else {
           setComments([]);
         }
 
       } catch (err) {
         console.error("Erro ao carregar detalhes da aula:", err);
-        const fallback = fallbackLessonsMap[idStr] || fallbackLessonsMap["2-2"];
-        setLesson(fallback);
-        setSiblingLessons([
-          { id: "2-1", code: "AULA 2.1", title: "Engenharia de Custos Aplicada", duration: "18:45", status: "completed" },
-          { id: "2-2", code: "AULA 2.2", title: "Análise de Viabilidade Imobiliária", duration: "24:10", status: "active" },
-          { id: "2-3", code: "AULA 2.3", title: "BIM e Virtual Design in Construction (VDC)", duration: "15:30", status: "locked" },
-          { id: "2-4", code: "AULA 2.4", title: "Gestão de Contratos de Obra (EPC/Turnkey)", duration: "21:05", status: "locked" }
-        ]);
+        setLesson(null);
+        setSiblingLessons([]);
       } finally {
         setLoading(false);
       }
