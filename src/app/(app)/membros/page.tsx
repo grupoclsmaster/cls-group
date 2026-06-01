@@ -1834,7 +1834,7 @@ export default function FeedComunidadePage() {
                       </div>
                     </div>
                   ) : (
-                    <div onClick={() => { setLightboxPost(post); setLightboxTab("content"); }} style={{ cursor: "pointer" }}>
+                    <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} style={{ cursor: "pointer" }}>
                       <p style={{ fontSize: "14px", color: "var(--color-on-surface)", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "14px" }}>
                         {post.content}
                       </p>
@@ -1857,7 +1857,7 @@ export default function FeedComunidadePage() {
 
                   {/* Likes/Comments Counter statistics */}
                   <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "10px", marginBottom: "4px", fontSize: "11px", color: "var(--color-on-surface-variant)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={() => { setLightboxPost(post); setLightboxTab("likes"); }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("likes"); }}>
                       {/* 3 mini avatars */}
                       <div style={{ display: "flex", marginLeft: "2px", marginRight: "4px" }}>
                         {(post.liked_by_users || []).slice(0, 3).map((userId, i) => {
@@ -1873,10 +1873,10 @@ export default function FeedComunidadePage() {
                         })}
                       </div>
 
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px", color: post.likes_count > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${post.likes_count > 0 ? 1 : 0}` }}>thumb_up</span>
-                      {post.likes_count} curtidas
+                      <span className="material-symbols-outlined" style={{ fontSize: "14px", color: (post.liked_by_users || []).length > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${(post.liked_by_users || []).length > 0 ? 1 : 0}` }}>thumb_up</span>
+                      {(post.liked_by_users || []).length} curtidas
                     </div>
-                    <div style={{ cursor: "pointer" }} onClick={() => { setLightboxPost(post); setLightboxTab("comments"); }} className="hover-gold-text">
+                    <div style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("comments"); }} className="hover-gold-text">
                       {post.comments?.length || 0} comentários
                     </div>
                   </div>
@@ -3534,7 +3534,7 @@ function ReelCard({
                   onClick={() => setLightboxTab("likes")}
                   style={{ flex: 1, padding: "12px", background: "transparent", border: "none", borderBottom: lightboxTab === "likes" ? "2px solid var(--color-secondary)" : "2px solid transparent", color: lightboxTab === "likes" ? "var(--color-secondary)" : "var(--color-outline)", fontWeight: 600, cursor: "pointer", fontSize: "12px" }}
                 >
-                  Curtidas ({lightboxPost.likes_count || 0})
+                  Curtidas ({(lightboxPost.liked_by_users || []).length})
                 </button>
               </div>
 
