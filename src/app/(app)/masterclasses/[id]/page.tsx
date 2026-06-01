@@ -256,6 +256,14 @@ export default function WatchLessonPage() {
   const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState<any[]>([]);
 
+  // Toast state
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   // Load lesson details
   useEffect(() => {
     async function loadLesson() {
@@ -413,7 +421,7 @@ export default function WatchLessonPage() {
           const next = Math.min(prev + 4, 100);
           const isDone = next >= 100;
           
-          if (isDone) {
+          if (isDone && !isCompleted) {
             setIsCompleted(true);
             setSiblingLessons(siblingsPrev =>
               siblingsPrev.map(sib => {
@@ -423,6 +431,9 @@ export default function WatchLessonPage() {
                 return sib;
               })
             );
+            
+            // Show congratulatory toast when completing the lesson automatically
+            showToast("Parabéns! Você completou esta aula.", "success");
           }
 
           // Save to database
@@ -526,6 +537,12 @@ export default function WatchLessonPage() {
       setIsCompleted(nextCompletedStatus);
       setWatchedPercent(nextPercent);
 
+      if (nextCompletedStatus) {
+        showToast("Aula marcada como concluída!", "success");
+      } else {
+        showToast("Progresso da aula desmarcado.", "info");
+      }
+
       // Update sidebar sibling status
       setSiblingLessons(prev =>
         prev.map(sib => {
@@ -575,6 +592,30 @@ export default function WatchLessonPage() {
 
   return (
     <div className="animate-fadeIn">
+      {/* Toast Notification Component */}
+      {toast && (
+        <div style={{
+          position: "fixed",
+          bottom: "24px",
+          right: "24px",
+          backgroundColor: toast.type === "success" ? "var(--color-secondary)" : toast.type === "info" ? "#2196F3" : "#F44336",
+          color: toast.type === "success" ? "#000" : "#fff",
+          padding: "16px 24px",
+          borderRadius: "8px",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          zIndex: 9999,
+          animation: "slideUp 0.3s ease-out"
+        }}>
+          <span className="material-symbols-outlined">
+            {toast.type === "success" ? "check_circle" : toast.type === "info" ? "info" : "error"}
+          </span>
+          <span style={{ fontWeight: 600, fontSize: "14px" }}>{toast.message}</span>
+        </div>
+      )}
+
       {/* Breadcrumb Navigation */}
       <section style={{ marginBottom: "24px", display: "flex", alignItems: "center", gap: "8px" }} className="font-label-caps">
         <Link href="/masterclasses" style={{ color: "var(--color-on-surface-variant)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" }} className="hover-gold-text">

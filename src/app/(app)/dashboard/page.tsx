@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
+import { useRouter } from "next/navigation";
 import { SkeletonDashboard } from "@/components/SkeletonLoading";
 
 const masterclasses = [
@@ -24,16 +25,16 @@ const masterclasses = [
   },
 ];
 
-const events = [
-  { month: "MAI", day: "28", title: "Mentoria: Viabilidade de Landbanks", time: "14:00 - 15:30", icon: "schedule" },
-  { month: "JUN", day: "05", title: "Mastermind: Soluções BIM & ConTech", time: "10:00 - 11:30", icon: "schedule" },
-  { month: "JUN", day: "12", title: "Networking: Visita à Grande Obra SP", time: "São Paulo, BR", icon: "location_on" },
-];
+// We will fetch these from Supabase dynamically
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [greeting, setGreeting] = useState("Olá");
   const [userName, setUserName] = useState("Master");
   const [loading, setLoading] = useState(true);
+  
+  const [nextMentorship, setNextMentorship] = useState<any>(null);
+  const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
 
   const formatName = (name: string) => {
     if (!name) return "";
@@ -55,10 +56,12 @@ export default function DashboardPage() {
     setGreeting(greet);
 
     // 2. Fetch logged in user name/username from Supabase
-    const fetchUser = async () => {
+    // 3. Fetch upcoming events
+    const fetchDashboardData = async () => {
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
+        
         if (user) {
           const { data: member } = await supabase
             .from("members")
@@ -71,13 +74,49 @@ export default function DashboardPage() {
             setUserName(firstName);
           }
         }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: eventsData, error } = await supabase
+          .from("calendar_events")
+          .select("*")
+          .gte("event_date", today)
+          .order("event_date", { ascending: true })
+          .limit(3);
+
+        if (eventsData && !error) {
+          const mapped = eventsData.map(e => {
+            const date = new Date(e.event_date);
+            const offsetDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+            const monthNames = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
+            return {
+              id: e.id,
+              month: monthNames[offsetDate.getMonth()],
+              day: String(offsetDate.getDate()).padStart(2, '0'),
+              title: e.title,
+              time: `${e.start_time.substring(0, 5)} - ${e.end_time.substring(0, 5)} BRT`,
+              icon: e.event_type === "mentoria" ? "schedule" : "location_on",
+              mentor: {
+                name: e.mentor_name,
+                role: e.mentor_role,
+                avatar: e.mentor_avatar || "/magno.jpg"
+              }
+            };
+          });
+          
+          if (mapped.length > 0) {
+            setNextMentorship(mapped[0]);
+            setUpcomingEvents(mapped);
+          }
+        }
+
       } catch (err) {
-        console.error("Erro ao buscar usuário no dashboard:", err);
+        console.error("Erro ao buscar dados do dashboard:", err);
       } finally {
         setLoading(false);
       }
     };
-    void fetchUser();
+    void fetchDashboardData();
   }, []);
 
   if (loading) {
@@ -146,6 +185,7 @@ export default function DashboardPage() {
         {/* Next Mentorship Card */}
         <div
           className="premium-gradient-bg metallic-edge"
+          onClick={() => router.push('/calendario')}
           style={{
             gridColumn: "span 4",
             borderRadius: "4px",
@@ -155,6 +195,7 @@ export default function DashboardPage() {
             justifyContent: "space-between",
             position: "relative",
             overflow: "hidden",
+            cursor: "pointer",
           }}
         >
           <div
@@ -174,31 +215,46 @@ export default function DashboardPage() {
               <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Próxima Mentoria</h3>
               <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>event</span>
             </div>
-            <p className="font-headline-sm" style={{ color: "var(--color-secondary)", marginBottom: "4px" }}>Mai 28, 2026</p>
-            <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>14:00 - 15:30 BRT</p>
+            {nextMentorship ? (
+              <>
+                <p className="font-headline-sm" style={{ color: "var(--color-secondary)", marginBottom: "4px" }}>
+                  {nextMentorship.month} {nextMentorship.day}
+                </p>
+                <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
+                  {nextMentorship.time}
+                </p>
+              </>
+            ) : (
+              <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
+                Nenhum evento agendado.
+              </p>
+            )}
           </div>
-          <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                overflow: "hidden",
-                border: "1px solid rgba(255,255,255,0.1)",
-                flexShrink: 0,
-                backgroundColor: "var(--color-surface-variant)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img src="/magno.jpg" alt="Eng. Magno Santos" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          
+          {nextMentorship && nextMentorship.mentor && (
+            <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "12px" }}>
+              <div
+                style={{
+                  width: "40px",
+                  height: "40px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  flexShrink: 0,
+                  backgroundColor: "var(--color-surface-variant)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <img src={nextMentorship.mentor.avatar} alt={nextMentorship.mentor.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <div>
+                <p className="font-body-md" style={{ color: "var(--color-on-surface)", fontWeight: 600 }}>{nextMentorship.mentor.name}</p>
+                <p className="font-label-caps" style={{ color: "var(--color-on-surface-variant)" }}>{nextMentorship.mentor.role}</p>
+              </div>
             </div>
-            <div>
-              <p className="font-body-md" style={{ color: "var(--color-on-surface)", fontWeight: 600 }}>Eng. Magno Santos</p>
-              <p className="font-label-caps" style={{ color: "var(--color-on-surface-variant)" }}>Mentor Sênior</p>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Events Panel */}
@@ -217,15 +273,19 @@ export default function DashboardPage() {
             </button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {events.map((ev, i) => (
+            {upcomingEvents.length > 0 ? upcomingEvents.map((ev, i) => (
               <div
-                key={i}
+                key={ev.id}
+                onClick={() => router.push('/calendario')}
+                className="hover-bg-transition"
                 style={{
                   display: "flex",
                   gap: "16px",
                   alignItems: "flex-start",
-                  paddingBottom: i < events.length - 1 ? "16px" : 0,
-                  borderBottom: i < events.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                  padding: "8px",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  borderBottom: i < upcomingEvents.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
                 }}
               >
                 <div
@@ -252,8 +312,11 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p style={{ color: "var(--color-on-surface-variant)", fontSize: "13px" }}>Nenhum evento previsto.</p>
+            )}
           </div>
+
         </div>
 
         {/* === Row 2: Latest Masterclasses === */}

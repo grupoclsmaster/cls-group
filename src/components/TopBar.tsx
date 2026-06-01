@@ -153,62 +153,101 @@ export default function TopBar() {
   const sidebarWidth = isCollapsed ? "80px" : "280px";
 
   useEffect(() => {
-    const loadNotifications = () => {
-      const saved = localStorage.getItem("cls_notifications");
-      if (saved) {
-        try {
-          setNotifications(JSON.parse(saved));
-        } catch (e) {
+    const loadNotifications = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        // Let's build the query to fetch user's notifications and global notifications (user_id is null)
+        let query = supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(10);
+        if (user) {
+          query = query.or(`user_id.eq.${user.id},user_id.is.null`);
+        } else {
+          query = query.is("user_id", null);
+        }
+
+        const { data, error } = await query;
+        if (data && !error) {
+          const mapped: Notification[] = data.map((n: any) => {
+            const date = new Date(n.created_at);
+            const now = new Date();
+            const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
+            
+            let timeStr = "";
+            if (diffInMinutes < 60) {
+              timeStr = `Há ${diffInMinutes} min`;
+            } else if (diffInMinutes < 1440) {
+              timeStr = `Há ${Math.floor(diffInMinutes / 60)} horas`;
+            } else {
+              timeStr = `Há ${Math.floor(diffInMinutes / 1440)} dias`;
+            }
+
+            return {
+              id: n.id,
+              title: n.title,
+              description: n.description,
+              type: n.type,
+              time: timeStr,
+              read: n.is_read,
+              link: n.link || "#"
+            };
+          });
+          setNotifications(mapped);
+        } else {
           setNotifications(initialNotifications);
         }
-      } else {
+      } catch (err) {
         setNotifications(initialNotifications);
-        localStorage.setItem("cls_notifications", JSON.stringify(initialNotifications));
       }
     };
 
     loadNotifications();
 
     const handleUpdate = () => {
-      const saved = localStorage.getItem("cls_notifications");
-      if (saved) {
-        try {
-          setNotifications(JSON.parse(saved));
-        } catch (e) {
-          // ignore parsing issues
-        }
-      }
+      loadNotifications();
     };
 
-    window.addEventListener("storage", handleUpdate);
     window.addEventListener("cls_notifications_changed", handleUpdate);
-
     return () => {
-      window.removeEventListener("storage", handleUpdate);
       window.removeEventListener("cls_notifications_changed", handleUpdate);
     };
   }, []);
 
-  const saveNotifications = (newItems: Notification[]) => {
-    setNotifications(newItems);
-    localStorage.setItem("cls_notifications", JSON.stringify(newItems));
-    window.dispatchEvent(new Event("cls_notifications_changed"));
+  const handleMarkAllAsRead = async () => {
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('notifications').update({ is_read: true }).or(`user_id.eq.${user.id},user_id.is.null`);
+      }
+      
+      const updated = notifications.map((n) => ({ ...n, read: true }));
+      setNotifications(updated);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleMarkAllAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, read: true }));
-    saveNotifications(updated);
+  const handleClearAll = async () => {
+    // Actually deleting notifications might be dangerous for global ones, so we just clear them locally or let's not touch DB for clear all
+    setNotifications([]);
   };
 
-  const handleClearAll = () => {
-    saveNotifications([]);
-  };
-
-  const handleNotificationClick = (item: Notification) => {
-    const updated = notifications.map((n) => (n.id === item.id ? { ...n, read: true } : n));
-    saveNotifications(updated);
+  const handleNotificationClick = async (item: Notification) => {
+    try {
+      const supabase = createClient();
+      await supabase.from('notifications').update({ is_read: true }).eq('id', item.id);
+      
+      const updated = notifications.map((n) => (n.id === item.id ? { ...n, read: true } : n));
+      setNotifications(updated);
+    } catch (err) {
+      console.error(err);
+    }
+    
     setIsOpen(false);
-    router.push(item.link);
+    if (item.link && item.link !== "#") {
+      router.push(item.link);
+    }
   };
 
   const hasUnread = notifications.some((n) => !n.read);

@@ -243,13 +243,20 @@ export default function CalendarioPage() {
     });
   };
 
-  const handleDeleteEvent = (eventId: string) => {
+  const handleDeleteEvent = async (eventId: string) => {
     showConfirm(
       "Deseja realmente excluir este evento do calendário? Esta ação não pode ser desfeita.",
-      () => {
-        const updated = events.filter(e => e.id !== eventId);
-        saveEvents(updated);
-        showToast("Evento excluído com sucesso!", "success");
+      async () => {
+        try {
+          const supabase = createClient();
+          const { error } = await supabase.from('calendar_events').delete().eq('id', eventId);
+          if (error) throw error;
+          const updated = events.filter(e => e.id !== eventId);
+          setEvents(updated);
+          showToast("Evento excluído com sucesso!", "success");
+        } catch (err: any) {
+          showToast("Erro ao excluir evento: " + err.message, "error");
+        }
       },
       "Excluir Evento"
     );
@@ -265,50 +272,69 @@ export default function CalendarioPage() {
   const totalDays = new Date(year, month + 1, 0).getDate();
   const firstDayOfWeek = new Date(year, month, 1).getDay();
 
-  // Load events and google login from localStorage
+  // Load events and google login from localStorage/Supabase
   useEffect(() => {
     const loadFromStorage = async () => {
-      const savedEvents = localStorage.getItem("cls_calendar_events");
-      if (savedEvents) {
-        try {
-          setEvents(JSON.parse(savedEvents));
-        } catch (e) {
-          setEvents(initialEventsList);
-        }
-      } else {
-        setEvents(initialEventsList);
-        localStorage.setItem("cls_calendar_events", JSON.stringify(initialEventsList));
-      }
-
-      const savedUser = localStorage.getItem("cls_google_user");
-      if (savedUser) {
-        try {
-          const user = JSON.parse(savedUser);
-          setGoogleUser(user);
-          setIsSynced(true);
-        } catch (e) {
-          // Safe clear
-        }
-      }
-
-      // Fetch member_type from Supabase
       try {
         const supabase = createClient();
+        const { data: dbEvents, error } = await supabase
+          .from("calendar_events")
+          .select("*");
+          
+        if (dbEvents && !error) {
+          const mappedEvents: CalendarEvent[] = dbEvents.map((e: any) => {
+            const date = new Date(e.event_date);
+            // Adjust timezone offset since we get a UTC date string for a DATE column (e.g. "2026-05-04")
+            const offsetDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+            
+            return {
+              id: e.id,
+              year: offsetDate.getFullYear(),
+              month: offsetDate.getMonth(),
+              day: offsetDate.getDate(),
+              title: e.title,
+              type: e.event_type,
+              time: `${e.start_time.substring(0, 5)} - ${e.end_time.substring(0, 5)} BRT`,
+              startTime: e.start_time.substring(0, 5),
+              endTime: e.end_time.substring(0, 5),
+              mentor: {
+                name: e.mentor_name,
+                role: e.mentor_role,
+                avatar: e.mentor_avatar || "/magno.jpg",
+                bio: e.mentor_bio || ""
+              },
+              topic: e.topic || "",
+              zoomLink: e.zoom_link || ""
+            };
+          });
+          setEvents(mappedEvents.length > 0 ? mappedEvents : initialEventsList);
+        } else {
+          setEvents(initialEventsList);
+        }
+
+        const savedUser = localStorage.getItem("cls_google_user");
+        if (savedUser) {
+          try {
+            const user = JSON.parse(savedUser);
+            setGoogleUser(user);
+            setIsSynced(true);
+          } catch (e) {}
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const { data: member } = await supabase.from("members").select("member_type").eq("id", user.id).single();
           if (member) {
-            setUserType(member.member_type);
+            setUserType(member.member_type || "mentor");
           }
         }
       } catch (err) {
-        console.error("Error fetching user role:", err);
+        setEvents(initialEventsList);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
-
-    void loadFromStorage();
+    loadFromStorage();
   }, []);
 
   const saveEvents = (newEvents: CalendarEvent[]) => {
@@ -368,8 +394,6 @@ export default function CalendarioPage() {
       localStorage.setItem("cls_google_user", JSON.stringify(user));
       setIsSyncing(false);
       showToast(`Conectado com sucesso como ${email}!`, "success");
-
-
     }, 1200);
   };
 
@@ -437,14 +461,32 @@ export default function CalendarioPage() {
     triggerEventCreation(eventData);
   };
 
-
-
-  const triggerEventCreation = (eventData: EventFormData) => {
+  const triggerEventCreation = async (eventData: EventFormData) => {
     setIsSyncingEvent(true);
+    
+    try {
+      const supabase = createClient();
+      const eventDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+      
+      const { data: insertedEvent, error } = await supabase.from('calendar_events').insert({
+        title: eventData.title,
+        event_type: eventData.type,
+        event_date: eventDate,
+        start_time: eventData.startTime,
+        end_time: eventData.endTime,
+        mentor_name: eventData.mentorName,
+        mentor_role: "Mentor Sênior",
+        mentor_avatar: "/magno.jpg",
+        mentor_bio: "Membro da comunidade.",
+        topic: eventData.topic || "",
+        zoom_link: eventData.zoomLink || ""
+      }).select().single();
 
-    setTimeout(() => {
+      if (error) throw error;
+
+      // Map back to UI
       const newEvent: CalendarEvent = {
-        id: `e-${Date.now()}`,
+        id: insertedEvent.id,
         year: year,
         month: month,
         day: selectedDay,
@@ -455,95 +497,37 @@ export default function CalendarioPage() {
         endTime: eventData.endTime,
         mentor: {
           name: eventData.mentorName,
-          role: eventData.mentorName === "Alexandre de Morais" ? "CEO & Fundador CLS" : "Mentor Sênior",
-          avatar: eventData.mentorName === "Eng. Magno Santos"
-            ? "/magno.jpg"
-            : eventData.mentorName === "Arq. Mayara Costa"
-              ? "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200"
-              : "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=200",
-          bio: eventData.mentorName === "Eng. Magno Santos"
-            ? "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-            : eventData.mentorName === "Arq. Mayara Costa"
-              ? "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
-              : "Managing Director da Holding executiva, focado na expansão de fundos de liquidez e alinhamento estratégico.",
+          role: "Mentor Sênior",
+          avatar: "/magno.jpg",
+          bio: ""
         },
-        topic: eventData.topic || "Nenhum tópico fornecido.",
-        zoomLink: eventData.zoomLink || "https://zoom.us/j/default",
+        topic: eventData.topic || "",
+        zoomLink: eventData.zoomLink || ""
       };
 
       const updated = [...events, newEvent];
-      saveEvents(updated);
+      setEvents(updated);
+      
+      // Also emit a global notification for this new event
+      await supabase.from('notifications').insert({
+        title: `Novo Evento: ${eventData.title}`,
+        description: `Um novo evento de ${eventData.type} foi agendado para o dia ${selectedDay}/${String(month + 1).padStart(2, '0')}.`,
+        type: eventData.type,
+        link: '/calendario'
+        // user_id is left NULL to be a global notification
+      });
 
-      // Save notification to cls_notifications
-      try {
-        const savedNotifs = localStorage.getItem("cls_notifications");
-        let notificationsList = [];
-        if (savedNotifs) {
-          notificationsList = JSON.parse(savedNotifs);
-        } else {
-          notificationsList = [
-            {
-              id: "1",
-              title: "Nova Mentoria Agendada",
-              description: "Valuation técnico com Eng. Magno Santos em 28 de Maio às 14:00.",
-              type: "mentoria",
-              time: "Há 10 min",
-              read: false,
-              link: "/calendario",
-            },
-            {
-              id: "2",
-              title: "Nova Masterclass Disponível",
-              description: "Assista a 'Design Premium e Alavancagem de Valor' com Arq. Mayara Costa.",
-              type: "masterclass",
-              time: "Há 2 horas",
-              read: false,
-              link: "/masterclasses",
-            },
-            {
-              id: "3",
-              title: "Oportunidade Exclusiva",
-              description: "Rodada de co-investimento aberta para o Residencial Studio Pinheiros.",
-              type: "oportunidade",
-              time: "Há 1 dia",
-              read: true,
-              link: "/oportunidades",
-            },
-            {
-              id: "4",
-              title: "Novo Material de Apoio",
-              description: "Modelo de Estudo de Viabilidade (EVTL) já disponível para download.",
-              type: "recurso",
-              time: "Há 2 dias",
-              read: true,
-              link: "/recursos",
-            },
-          ];
-        }
-
-        const newNotification = {
-          id: `notif-${Date.now()}`,
-          title: newEvent.type === "mentoria" ? "Nova Mentoria Criada" : "Nova Atualização Criada",
-          description: `${newEvent.title} com ${newEvent.mentor.name} em ${newEvent.day}/${newEvent.month + 1} às ${newEvent.startTime}.`,
-          type: newEvent.type === "atualizacao" ? "mentoria" : newEvent.type,
-          time: "Agora mesmo",
-          read: false,
-          link: "/calendario",
-        };
-
-        const updatedNotifs = [newNotification, ...notificationsList];
-        localStorage.setItem("cls_notifications", JSON.stringify(updatedNotifs));
-        window.dispatchEvent(new Event("cls_notifications_changed"));
-      } catch (err) {
-        console.error("Erro ao salvar notificação:", err);
+      if (isSynced && eventLinkType === "meet") {
+        setPendingEventToSync(eventData);
+      } else {
+        showToast("Evento adicionado com sucesso!", "success");
       }
-
+    } catch (err: any) {
+      showToast("Erro ao criar evento: " + err.message, "error");
+    } finally {
       setIsSyncingEvent(false);
       setShowCreateEventModal(false);
-      setPendingEventToSync(null);
-
-      showToast("Evento criado com sucesso!", "success");
-    }, 1500);
+    }
   };
 
   const renderDays = () => {
