@@ -424,9 +424,16 @@ async function run() {
     }
   ];
 
+  const lessonsWithMagno = lessonsData.map(l => ({
+    ...l,
+    instructor_name: "Magno Santos",
+    instructor_role: "CLS Founder & Mentor",
+    instructor_avatar: "/magno.jpg"
+  }));
+
   const { data: insertedLessons, error: lessonsError } = await supabase
     .from('lessons')
-    .insert(lessonsData)
+    .insert(lessonsWithMagno)
     .select();
 
   if (lessonsError) {
