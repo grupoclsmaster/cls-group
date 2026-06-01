@@ -1834,21 +1834,27 @@ export default function FeedComunidadePage() {
                       </div>
                     </div>
                   ) : (
-                    <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} style={{ cursor: "pointer" }}>
+                    <div>
                       <p style={{ fontSize: "14px", color: "var(--color-on-surface)", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "14px" }}>
                         {post.content}
                       </p>
 
                       {/* Post Image */}
                       {post.image_url && (
-                        <div style={{ width: "100%", maxHeight: "380px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} 
+                          style={{ width: "100%", maxHeight: "380px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
+                        >
                           <img src={post.image_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Publicação Imagem" />
                         </div>
                       )}
 
                       {/* Post Video */}
                       {post.video_url && (
-                        <div style={{ width: "100%", maxHeight: "420px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000" }}>
+                        <div 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} 
+                          style={{ width: "100%", maxHeight: "420px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
+                        >
                           <video src={post.video_url} controls playsInline style={{ width: "100%", maxHeight: "420px", objectFit: "contain", display: "block" }} />
                         </div>
                       )}
