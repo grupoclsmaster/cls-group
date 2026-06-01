@@ -179,9 +179,30 @@ const initialEventsList: CalendarEvent[] = [
 ];
 
 const monthsList = [
+  { name: "Janeiro 2026", month: 0, year: 2026 },
+  { name: "Fevereiro 2026", month: 1, year: 2026 },
+  { name: "Março 2026", month: 2, year: 2026 },
+  { name: "Abril 2026", month: 3, year: 2026 },
   { name: "Maio 2026", month: 4, year: 2026 },
   { name: "Junho 2026", month: 5, year: 2026 },
   { name: "Julho 2026", month: 6, year: 2026 },
+  { name: "Agosto 2026", month: 7, year: 2026 },
+  { name: "Setembro 2026", month: 8, year: 2026 },
+  { name: "Outubro 2026", month: 9, year: 2026 },
+  { name: "Novembro 2026", month: 10, year: 2026 },
+  { name: "Dezembro 2026", month: 11, year: 2026 },
+  { name: "Janeiro 2027", month: 0, year: 2027 },
+  { name: "Fevereiro 2027", month: 1, year: 2027 },
+  { name: "Março 2027", month: 2, year: 2027 },
+  { name: "Abril 2027", month: 3, year: 2027 },
+  { name: "Maio 2027", month: 4, year: 2027 },
+  { name: "Junho 2027", month: 5, year: 2027 },
+  { name: "Julho 2027", month: 6, year: 2027 },
+  { name: "Agosto 2027", month: 7, year: 2027 },
+  { name: "Setembro 2027", month: 8, year: 2027 },
+  { name: "Outubro 2027", month: 9, year: 2027 },
+  { name: "Novembro 2027", month: 10, year: 2027 },
+  { name: "Dezembro 2027", month: 11, year: 2027 },
 ];
 
 export type EventFormData = {
@@ -195,7 +216,7 @@ export type EventFormData = {
 };
 
 export default function CalendarioPage() {
-  const [activeMonth, setActiveMonth] = useState(monthsList[1]);
+  const [activeMonth, setActiveMonth] = useState(monthsList[5]);
   const [selectedDay, setSelectedDay] = useState<number>(1);
   const [activeFilter, setActiveFilter] = useState<"todos" | "mentoria" | "atualizacao">("todos");
   const [viewMode, setViewMode] = useState<"grade" | "lista">("grade");
@@ -393,7 +414,7 @@ export default function CalendarioPage() {
 
   // Month change logic with self-selecting appropriate event or first day
   const handleMonthChange = (direction: "prev" | "next") => {
-    const currentIdx = monthsList.findIndex(m => m.month === month);
+    const currentIdx = monthsList.findIndex(m => m.month === month && m.year === year);
     let nextIdx = currentIdx;
     if (direction === "prev" && currentIdx > 0) {
       nextIdx = currentIdx - 1;
