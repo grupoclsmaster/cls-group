@@ -29,11 +29,15 @@ interface Member {
 
 interface Comment {
   id: string;
+  user_id?: string | null;
   author_name: string;
   author_avatar: string;
   author_role: string;
   content: string;
   created_at: string;
+  replies?: Comment[];
+  likes_count?: number;
+  liked_by_users?: string[];
 }
 
 interface Post {
@@ -47,6 +51,8 @@ interface Post {
   video_url?: string | null;
   post_type?: string;
   likes_count: number;
+  liked_by_users?: string[];
+  saved_by_users?: string[];
   comments: Comment[];
   created_at: string;
 }
@@ -105,6 +111,63 @@ export default function PerfilPage() {
 
   // Toast Notification state
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+
+  // Lightbox State
+  const [lightboxPostId, setLightboxPostId] = useState<string | null>(null);
+  const [lightboxTab, setLightboxTab] = useState<"content" | "comments" | "likes">("content");
+  const lightboxPost = userPosts.find(p => p.id === lightboxPostId) || null;
+  const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
+
+  const formatPostTime = (isoString: string) => {
+    const diffMs = Date.now() - new Date(isoString).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `Há ${Math.max(1, diffMins)} min`;
+    if (diffHours < 24) return `Há ${diffHours} h`;
+    return `Há ${diffDays} dias`;
+  };
+
+  const handleAddComment = async (postId: string) => {
+    const commentText = commentTexts[postId] || "";
+    if (!commentText.trim()) return;
+
+    const currentPost = userPosts.find(p => p.id === postId);
+    if (!currentPost) return;
+
+    const authorName = memberInfo?.name || "Membro Executivo";
+    const authorAvatar = memberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200";
+    const authorRole = memberInfo?.role || "Membro CLS";
+
+    const newCommentObj: Comment = {
+      id: `comment-${Math.random()}`,
+      user_id: currentUser?.id || null,
+      author_name: authorName,
+      author_avatar: authorAvatar,
+      author_role: authorRole,
+      content: commentText.trim(),
+      created_at: new Date().toISOString(),
+      replies: []
+    };
+
+    const updatedComments = [...(currentPost.comments || []), newCommentObj];
+
+    // Optimistic Update
+    setUserPosts(prev => prev.map(p => p.id === postId ? { ...p, comments: updatedComments } : p));
+    setCommentTexts(prev => ({ ...prev, [postId]: "" }));
+
+    try {
+      const { error } = await supabase
+        .from('community_posts')
+        .update({ comments: updatedComments })
+        .eq('id', postId);
+      if (error) throw error;
+    } catch (err) {
+      console.error("Erro ao salvar comentário:", err);
+      showToast("Erro ao salvar comentário.", "error");
+    }
+  };
 
   const showToast = (message: string, type: "success" | "error") => {
     setToast({ message, type });
@@ -1632,29 +1695,51 @@ export default function PerfilPage() {
 
                         {/* Post Image */}
                         {post.image_url && (
-                          <div style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                            <img src={post.image_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Imagem da publicação" />
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
+                          >
+                            <img 
+                              src={post.image_url} 
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "pointer" }} 
+                              alt="Imagem da publicação" 
+                            />
                           </div>
                         )}
 
                         {/* Post Video */}
                         {post.video_url && (
-                          <div style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000" }}>
-                            <video src={post.video_url} controls playsInline style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
+                          >
+                            <video src={post.video_url} controls playsInline style={{ width: "100%", height: "100%", objectFit: "contain", cursor: "pointer" }} />
                           </div>
                         )}
 
                         {/* Likes count info */}
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: "var(--color-on-surface-variant)" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: "13px", color: post.likes_count > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${post.likes_count > 0 ? 1 : 0}` }}>
-                            thumb_up
-                          </span>
-                          {post.likes_count} curtidas
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("likes"); }}
+                            style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "13px", color: (post.liked_by_users || []).length > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${(post.liked_by_users || []).length > 0 ? 1 : 0}` }}>
+                              thumb_up
+                            </span>
+                            {(post.liked_by_users || []).length} curtidas
+                          </div>
                           <span style={{ margin: "0 4px" }}>•</span>
-                          <span className="material-symbols-outlined" style={{ fontSize: "13px", color: "var(--color-primary)" }}>
-                            forum
-                          </span>
-                          {post.comments?.length || 0} comentários
+                          <div 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }}
+                            style={{ display: "flex", alignItems: "center", gap: "4px", cursor: "pointer" }}
+                            className="hover-gold-text"
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "13px", color: "var(--color-primary)" }}>
+                              forum
+                            </span>
+                            {post.comments?.length || 0} comentários
+                          </div>
                         </div>
 
                       </article>
@@ -1666,6 +1751,200 @@ export default function PerfilPage() {
 
           </div>
 
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {lightboxPost && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.9)",
+            backdropFilter: "blur(10px)",
+            zIndex: 10000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            animation: "fadeIn 0.2s ease-out"
+          }}
+          onClick={() => setLightboxPostId(null)}
+        >
+          <div 
+            style={{
+              width: "90%",
+              maxWidth: "1000px",
+              height: "90vh",
+              backgroundColor: "var(--color-surface)",
+              borderRadius: "12px",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "row",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
+              border: "1px solid rgba(255,255,255,0.05)",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Left side: Media/Content */}
+            <div style={{ flex: 1.5, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+              <button
+                onClick={() => setLightboxPostId(null)}
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  left: "16px",
+                  background: "rgba(0,0,0,0.5)",
+                  border: "none",
+                  color: "#fff",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10
+                }}
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+
+              {lightboxPost.image_url ? (
+                <img src={lightboxPost.image_url} alt="Post" style={{ width: "100%", maxHeight: "100%", objectFit: "contain" }} />
+              ) : lightboxPost.video_url ? (
+                <video src={lightboxPost.video_url} controls autoPlay style={{ width: "100%", maxHeight: "100%" }} />
+              ) : (
+                <div style={{ padding: "40px", color: "#fff", fontSize: "18px", textAlign: "center", whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
+                  {lightboxPost.content}
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Comments & Likes */}
+            <div style={{ flex: 1, backgroundColor: "var(--color-surface)", display: "flex", flexDirection: "column", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
+              {/* Header */}
+              <div style={{ padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <MemberBadge
+                  name={lightboxPost.author_name}
+                  img={lightboxPost.author_avatar}
+                  memberType={allMembers.find(m => m.id === lightboxPost.user_id)?.member_type}
+                  size={40}
+                />
+              </div>
+
+              {/* Tabs */}
+              <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                <button
+                  onClick={() => setLightboxTab("comments")}
+                  style={{ flex: 1, padding: "12px", background: "transparent", border: "none", borderBottom: lightboxTab === "comments" ? "2px solid var(--color-secondary)" : "2px solid transparent", color: lightboxTab === "comments" ? "var(--color-secondary)" : "var(--color-outline)", fontWeight: 600, cursor: "pointer", fontSize: "12px" }}
+                >
+                  Comentários ({lightboxPost.comments?.length || 0})
+                </button>
+                <button
+                  onClick={() => setLightboxTab("likes")}
+                  style={{ flex: 1, padding: "12px", background: "transparent", border: "none", borderBottom: lightboxTab === "likes" ? "2px solid var(--color-secondary)" : "2px solid transparent", color: lightboxTab === "likes" ? "var(--color-secondary)" : "var(--color-outline)", fontWeight: 600, cursor: "pointer", fontSize: "12px" }}
+                >
+                  Curtidas ({(lightboxPost.liked_by_users || []).length})
+                </button>
+              </div>
+
+              {/* Body */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "16px" }} className="hide-scroll">
+                {lightboxTab === "comments" ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    {lightboxPost.content && (lightboxPost.image_url || lightboxPost.video_url) && (
+                      <div style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                        <MemberBadge
+                          name={lightboxPost.author_name}
+                          img={lightboxPost.author_avatar}
+                          memberType={allMembers.find(m => m.id === lightboxPost.user_id)?.member_type}
+                          size={30}
+                        />
+                        <p style={{ fontSize: "13px", color: "var(--color-on-surface)", marginTop: "8px", lineHeight: "1.5", whiteSpace: "pre-wrap" }}>
+                          {lightboxPost.content}
+                        </p>
+                      </div>
+                    )}
+                    {(lightboxPost.comments || []).length > 0 ? (
+                      (lightboxPost.comments || []).map(comment => {
+                        return (
+                          <div key={comment.id} style={{ display: "flex", gap: "10px" }}>
+                            <img src={comment.author_avatar} alt={comment.author_name} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
+                            <div>
+                              <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff" }}>{comment.author_name}</span>
+                              <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", marginTop: "2px", lineHeight: "1.4" }}>
+                                {comment.content}
+                              </p>
+                              <div style={{ display: "flex", gap: "12px", marginTop: "4px", fontSize: "10px", color: "var(--color-outline)", fontWeight: 600 }}>
+                                <span>{formatPostTime(comment.created_at)}</span>
+                                <span style={{ color: (comment.liked_by_users || []).includes(currentUser?.id || "mock") ? "var(--color-secondary)" : "var(--color-outline)" }}>
+                                  {comment.likes_count || 0} curtidas
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p style={{ textAlign: "center", color: "var(--color-outline)", fontSize: "12px", marginTop: "20px" }}>Nenhum comentário ainda.</p>
+                    )}
+                  </div>
+                ) : lightboxTab === "likes" ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {(lightboxPost.liked_by_users || []).length > 0 ? (
+                      (lightboxPost.liked_by_users || []).map((userId, idx) => {
+                        const liker = allMembers.find(m => m.id === userId);
+                        return (
+                          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                            <img src={liker?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} alt="Avatar" style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }} />
+                            <div>
+                              <span style={{ fontSize: "13px", fontWeight: 600, color: "#fff" }}>{liker?.name || "Usuário"}</span>
+                              <p style={{ fontSize: "11px", color: "var(--color-outline)", margin: 0 }}>{liker?.role || "Membro"}</p>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p style={{ textAlign: "center", color: "var(--color-outline)", fontSize: "12px", marginTop: "20px" }}>Nenhuma curtida ainda.</p>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Input for new comment */}
+              <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: "10px", alignItems: "center" }}>
+                <img 
+                  src={memberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} 
+                  alt="Você" 
+                  style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} 
+                />
+                <input
+                  type="text"
+                  placeholder="Adicione um comentário..."
+                  value={commentTexts[lightboxPost.id] || ""}
+                  onChange={(e) => setCommentTexts(prev => ({ ...prev, [lightboxPost.id]: e.target.value }))}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAddComment(lightboxPost.id);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: "10px 14px",
+                    fontSize: "12px",
+                    borderRadius: "100px",
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                    border: "none",
+                    color: "#ffffff",
+                    outline: "none"
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

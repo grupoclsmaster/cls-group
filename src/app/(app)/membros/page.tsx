@@ -142,8 +142,9 @@ export default function FeedComunidadePage() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   // Lightbox State
-  const [lightboxPost, setLightboxPost] = useState<Post | null>(null);
+  const [lightboxPostId, setLightboxPostId] = useState<string | null>(null);
   const [lightboxTab, setLightboxTab] = useState<"content" | "comments" | "likes">("content");
+  const lightboxPost = posts.find(p => p.id === lightboxPostId) || null;
 
   const showToast = (message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -1842,17 +1843,22 @@ export default function FeedComunidadePage() {
                       {/* Post Image */}
                       {post.image_url && (
                         <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }} 
                           style={{ width: "100%", maxHeight: "380px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
                         >
-                          <img src={post.image_url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Publicação Imagem" />
+                          <img 
+                            src={post.image_url} 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "pointer" }} 
+                            alt="Publicação Imagem" 
+                          />
                         </div>
                       )}
 
                       {/* Post Video */}
                       {post.video_url && (
                         <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("content"); }} 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }} 
                           style={{ width: "100%", maxHeight: "420px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
                         >
                           <video src={post.video_url} controls playsInline style={{ width: "100%", maxHeight: "420px", objectFit: "contain", display: "block" }} />
@@ -1863,7 +1869,7 @@ export default function FeedComunidadePage() {
 
                   {/* Likes/Comments Counter statistics */}
                   <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "10px", marginBottom: "4px", fontSize: "11px", color: "var(--color-on-surface-variant)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("likes"); }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("likes"); }}>
                       {/* 3 mini avatars */}
                       <div style={{ display: "flex", marginLeft: "2px", marginRight: "4px" }}>
                         {(post.liked_by_users || []).slice(0, 3).map((userId, i) => {
@@ -1882,7 +1888,7 @@ export default function FeedComunidadePage() {
                       <span className="material-symbols-outlined" style={{ fontSize: "14px", color: (post.liked_by_users || []).length > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${(post.liked_by_users || []).length > 0 ? 1 : 0}` }}>thumb_up</span>
                       {(post.liked_by_users || []).length} curtidas
                     </div>
-                    <div style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("comments"); }} className="hover-gold-text">
+                    <div style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }} className="hover-gold-text">
                       {post.comments?.length || 0} comentários
                     </div>
                   </div>
@@ -1900,7 +1906,7 @@ export default function FeedComunidadePage() {
                     </button>
                     
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("comments"); }}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }}
                       className={`post-action-btn`}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
@@ -3455,7 +3461,10 @@ function ReelCard({
         <div 
           style={{
             position: "fixed",
-            inset: 0,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             backgroundColor: "rgba(0, 0, 0, 0.9)",
             backdropFilter: "blur(10px)",
             zIndex: 10000,
@@ -3464,7 +3473,7 @@ function ReelCard({
             justifyContent: "center",
             animation: "fadeIn 0.2s ease-out"
           }}
-          onClick={() => setLightboxPost(null)}
+          onClick={() => setLightboxPostId(null)}
         >
           <div 
             style={{
@@ -3484,7 +3493,7 @@ function ReelCard({
             {/* Left side: Media/Content */}
             <div style={{ flex: 1.5, backgroundColor: "#000", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
               <button
-                onClick={() => setLightboxPost(null)}
+                onClick={() => setLightboxPostId(null)}
                 style={{
                   position: "absolute",
                   top: "16px",
@@ -3621,11 +3630,7 @@ function ReelCard({
                   onChange={(e) => setCommentTexts(prev => ({ ...prev, [lightboxPost.id]: e.target.value }))}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      onAddComment(lightboxPost.id);
-                      // Update lightboxpost locally
-                      const newComment = { id: `c-${Date.now()}`, author_name: currentMemberInfo?.name || "Você", author_avatar: currentMemberInfo?.img || "", content: commentTexts[lightboxPost.id], created_at: new Date().toISOString(), likes_count: 0, liked_by_users: [] };
-                      setLightboxPost({ ...lightboxPost, comments: [...(lightboxPost.comments || []), newComment] as any });
-                      setCommentTexts(prev => ({ ...prev, [lightboxPost.id]: "" }));
+                      handleAddComment(lightboxPost.id);
                     }
                   }}
                   style={{
