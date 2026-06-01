@@ -30,12 +30,6 @@ const events = [
   { month: "JUN", day: "12", title: "Networking: Visita à Grande Obra SP", time: "São Paulo, BR", icon: "location_on" },
 ];
 
-const feed = [
-  { initials: "MR", name: "Marcos Ribeiro", action: "compartilhou o", highlight: "ConTech Template", time: "há 2 horas" },
-  { initials: "JL", name: "Julia Lima", action: "alcançou a", highlight: "Green Building Certification", time: "há 5 horas" },
-  { initials: "PS", name: "Pedro Souza", action: "publicou em", highlight: "Gestão de Obras & BIM", time: "há 8 horas" },
-];
-
 export default function DashboardPage() {
   const [greeting, setGreeting] = useState("Olá");
   const [userName, setUserName] = useState("Master");
@@ -350,55 +344,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* === Row 3: Club Notice + Community === */}
-        <div
-          style={{
-            gridColumn: "span 12",
-            backgroundColor: "var(--color-surface-container-low)",
-            border: "1px solid rgba(255,255,255,0.05)",
-            borderRadius: "4px",
-            padding: "24px",
-            marginTop: "16px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Atualizações dos membros</h3>
-            <span className="material-symbols-outlined" style={{ color: "var(--color-on-surface-variant)" }}>forum</span>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {feed.map((item, i) => (
-              <div key={i} style={{ display: "flex", gap: "12px" }}>
-                <div
-                  style={{
-                    width: "32px",
-                    height: "32px",
-                    borderRadius: "50%",
-                    backgroundColor: "var(--color-surface-variant)",
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    letterSpacing: "0.05em",
-                    color: "var(--color-on-surface)",
-                  }}
-                >
-                  {item.initials}
-                </div>
-                <div>
-                  <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-                    <span style={{ color: "var(--color-on-surface)", fontWeight: 600 }}>{item.name}</span>{" "}
-                    {item.action}{" "}
-                    <span style={{ color: "var(--color-secondary)", cursor: "pointer" }}>{item.highlight}</span>
-                  </p>
-                  <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", opacity: 0.7, fontSize: "11px", marginTop: "4px" }}>
-                    {item.time}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
