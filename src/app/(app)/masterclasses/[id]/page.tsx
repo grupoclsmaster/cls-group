@@ -538,37 +538,12 @@ export default function WatchLessonPage() {
                   borderTop: "1px solid rgba(255, 255, 255, 0.1)",
                   paddingTop: "24px",
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent: "flex-end",
                   alignItems: "center",
                   flexWrap: "wrap",
                   gap: "24px"
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  <div
-                    style={{
-                      width: "56px",
-                      height: "56px",
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      border: "1px solid var(--color-secondary)"
-                    }}
-                  >
-                    <img src={lesson.instructor.img} alt={lesson.instructor.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  </div>
-                  <div>
-                    <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px", display: "block", marginBottom: "2px" }}>
-                      MENTOR DESIGNADO
-                    </span>
-                    <h4 className="font-title-lg" style={{ fontSize: "16px", color: "var(--color-on-surface)" }}>
-                      {lesson.instructor.name}
-                    </h4>
-                    <p style={{ color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-                      {lesson.instructor.role}
-                    </p>
-                  </div>
-                </div>
-
                 {/* Dossier Download Action */}
                 <button
                   className="btn-outline"
