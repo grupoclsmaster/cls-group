@@ -353,7 +353,7 @@ export default function AdminPage() {
   };
 
   // Upload cover image
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "module" | "lesson") => {
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: "course" | "lesson") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -378,8 +378,8 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro ao fazer upload");
 
-      if (type === "module" && editingModule) {
-        setEditingModule({ ...editingModule, cover_image_url: data.url });
+      if (type === "course" && editingCourse) {
+        setEditingCourse({ ...editingCourse, cover_image_url: data.url });
       } else if (type === "lesson" && editingLesson) {
         setEditingLesson({ ...editingLesson, cover_image_url: data.url });
       }
@@ -1710,7 +1710,60 @@ export default function AdminPage() {
                         <option value="agendado">Agendado</option>
                       </select>
                     </div>
-                    <button className="btn-primary" style={{ marginTop: "8px" }} onClick={handleUpdateCourse} disabled={submitting}>
+                    
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CAPA DA MASTERCLASS</label>
+                      
+                      {editingCourse.cover_image_url && (
+                        <div style={{ position: "relative", width: "100%", height: "120px", borderRadius: "6px", overflow: "hidden", marginBottom: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
+                          <img src={editingCourse.cover_image_url} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          <button 
+                            type="button"
+                            onClick={() => setEditingCourse({ ...editingCourse, cover_image_url: "" })}
+                            style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-error)" }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
+                          </button>
+                        </div>
+                      )}
+
+                      <div 
+                        style={{ 
+                          border: "1px dashed rgba(237, 192, 102, 0.3)", 
+                          borderRadius: "6px", 
+                          padding: "16px", 
+                          textAlign: "center",
+                          backgroundColor: "rgba(0, 0, 0, 0.2)",
+                          cursor: "pointer",
+                          position: "relative"
+                        }}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleCoverUpload(e, "course")}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            opacity: 0,
+                            cursor: "pointer",
+                            zIndex: 10
+                          }}
+                          disabled={uploadingCover}
+                        />
+                        <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "var(--color-secondary)", marginBottom: "4px" }}>
+                          cloud_upload
+                        </span>
+                        <p style={{ color: "#ffffff", margin: 0, fontSize: "12px", fontWeight: 600 }}>
+                          {uploadingCover ? "Enviando..." : "Subir capa da masterclass"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <button className="btn-primary" style={{ marginTop: "8px" }} onClick={handleSaveCourse} disabled={submitting || uploadingCover}>
                       {submitting ? "Salvando..." : "Salvar Alterações"}
                     </button>
                   </div>
@@ -1992,57 +2045,7 @@ export default function AdminPage() {
                       )}
                     </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CAPA DO MÓDULO</label>
-                      
-                      {editingModule.cover_image_url && (
-                        <div style={{ position: "relative", width: "100%", height: "120px", borderRadius: "6px", overflow: "hidden", marginBottom: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                          <img src={editingModule.cover_image_url} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          <button 
-                            type="button"
-                            onClick={() => setEditingModule({ ...editingModule, cover_image_url: "" })}
-                            style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-error)" }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
-                          </button>
-                        </div>
-                      )}
 
-                      <div 
-                        style={{ 
-                          border: "1px dashed rgba(237, 192, 102, 0.3)", 
-                          borderRadius: "6px", 
-                          padding: "16px", 
-                          textAlign: "center",
-                          backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          cursor: "pointer",
-                          position: "relative"
-                        }}
-                      >
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleCoverUpload(e, "module")}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            opacity: 0,
-                            cursor: "pointer",
-                            zIndex: 10
-                          }}
-                          disabled={uploadingCover}
-                        />
-                        <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "var(--color-secondary)", marginBottom: "4px" }}>
-                          cloud_upload
-                        </span>
-                        <p style={{ color: "#ffffff", margin: 0, fontSize: "12px", fontWeight: 600 }}>
-                          {uploadingCover ? "Enviando..." : "Subir capa do módulo"}
-                        </p>
-                      </div>
-                    </div>
 
                     <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
                       <button 

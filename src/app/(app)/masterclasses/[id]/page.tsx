@@ -308,7 +308,7 @@ export default function WatchLessonPage() {
               img: dbLesson.instructor_avatar || "/magno.jpg"
             },
             longDesc: dbLesson.long_description || dbLesson.description,
-            thumbnailUrl: dbLesson.thumbnail_url || fallbackLessonsMap[dbLesson.id]?.thumbnailUrl || fallbackLessonsMap["2-2"].thumbnailUrl
+            thumbnailUrl: dbLesson.cover_image_url || dbLesson.thumbnail_url || fallbackLessonsMap[dbLesson.id]?.thumbnailUrl || fallbackLessonsMap["2-2"].thumbnailUrl
           };
         } else {
           // Fallback to static mapping
