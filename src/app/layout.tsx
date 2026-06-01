@@ -4,6 +4,28 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "CLUB PRO CLS",
   description: "Plataforma exclusiva de educação e mentoria para membros CLS",
+  openGraph: {
+    title: "CLUB PRO CLS",
+    description: "Plataforma exclusiva de educação e mentoria para membros CLS",
+    url: "https://grupocls.com.br",
+    siteName: "CLUB PRO CLS",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "CLUB PRO CLS Share Card",
+      },
+    ],
+    locale: "pt-BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CLUB PRO CLS",
+    description: "Plataforma exclusiva de educação e mentoria para membros CLS",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
@@ -24,7 +46,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23edc066'%3E%3Cpath d='M6 2h12l4 6-10 14L2 8z'/%3E%3C/svg%3E" />
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23edc066'%3E%3Cpath d='M12 2L2 9l10 13 10-13z'/%3E%3C/svg%3E" />
       </head>
       <body>{children}</body>
     </html>
