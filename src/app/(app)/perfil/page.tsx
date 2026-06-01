@@ -1869,7 +1869,7 @@ export default function PerfilPage() {
                       </div>
                     )}
                     {(lightboxPost.comments || []).length > 0 ? (
-                      (lightboxPost.comments || []).map(comment => {
+                      (lightboxPost.comments || []).map((comment: any) => {
                         return (
                           <div key={comment.id} style={{ display: "flex", gap: "10px" }}>
                             <img src={comment.author_avatar} alt={comment.author_name} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
@@ -1895,7 +1895,7 @@ export default function PerfilPage() {
                 ) : lightboxTab === "likes" ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                     {(lightboxPost.liked_by_users || []).length > 0 ? (
-                      (lightboxPost.liked_by_users || []).map((userId, idx) => {
+                      (lightboxPost.liked_by_users || []).map((userId: string, idx: number) => {
                         const liker = allMembers.find(m => m.id === userId);
                         return (
                           <div key={idx} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
