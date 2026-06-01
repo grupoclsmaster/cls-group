@@ -1900,8 +1900,8 @@ export default function FeedComunidadePage() {
                     </button>
                     
                     <button
-                      onClick={() => setActiveCommentPostId(isCommentsOpen ? null : post.id)}
-                      className={`post-action-btn ${isCommentsOpen ? 'active' : ''}`}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPost(post); setLightboxTab("comments"); }}
+                      className={`post-action-btn`}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
                         forum
@@ -2016,7 +2016,7 @@ export default function FeedComunidadePage() {
                                               }
                                               return p;
                                             }));
-                                            showToast("Opção de curtir comentário integrada ao Supabase será ativada com os scripts do plano.", "success");
+                                            showToast("Curtiu comentário", "success");
                                           }}
                                           style={{
                                             background: "transparent",
