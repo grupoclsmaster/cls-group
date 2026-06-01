@@ -195,8 +195,8 @@ export type EventFormData = {
 };
 
 export default function CalendarioPage() {
-  const [activeMonth, setActiveMonth] = useState(monthsList[0]);
-  const [selectedDay, setSelectedDay] = useState<number>(4);
+  const [activeMonth, setActiveMonth] = useState(monthsList[1]);
+  const [selectedDay, setSelectedDay] = useState<number>(1);
   const [activeFilter, setActiveFilter] = useState<"todos" | "mentoria" | "atualizacao">("todos");
   const [viewMode, setViewMode] = useState<"grade" | "lista">("grade");
   const [loading, setLoading] = useState(true);
@@ -314,23 +314,6 @@ export default function CalendarioPage() {
           setEvents(initialEventsList);
         }
 
-        const savedUser = localStorage.getItem("cls_google_user");
-        if (savedUser) {
-          try {
-            const user = JSON.parse(savedUser);
-            setGoogleUser(user);
-            setIsSynced(true);
-          } catch (e) {}
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: member } = await supabase.from("members").select("member_type").eq("id", user.id).single();
-          if (member) {
-            setUserType(member.member_type || "mentor");
-          }
-        }
-
         // Direct select event from URL query parameter
         if (typeof window !== "undefined") {
           const params = new URLSearchParams(window.location.search);
@@ -359,7 +342,34 @@ export default function CalendarioPage() {
                 setActiveMonth(matchedMonth);
                 setSelectedDay(d);
               }
+            } else {
+              // Default to current local month and day if no params are present
+              const now = new Date();
+              const currentMonth = now.getMonth();
+              const currentYear = now.getFullYear();
+              const matchedMonth = monthsList.find(item => item.month === currentMonth && item.year === currentYear);
+              if (matchedMonth) {
+                setActiveMonth(matchedMonth);
+                setSelectedDay(now.getDate());
+              }
             }
+          }
+        }
+
+        const savedUser = localStorage.getItem("cls_google_user");
+        if (savedUser) {
+          try {
+            const user = JSON.parse(savedUser);
+            setGoogleUser(user);
+            setIsSynced(true);
+          } catch (e) {}
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: member } = await supabase.from("members").select("member_type").eq("id", user.id).single();
+          if (member) {
+            setUserType(member.member_type || "mentor");
           }
         }
       } catch (err) {
