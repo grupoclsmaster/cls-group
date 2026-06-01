@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 import { SkeletonGenericGrid } from "@/components/SkeletonLoading";
 
 interface ProjectSpec {
@@ -116,15 +118,37 @@ const projectsData: Project[] = [
 ];
 
 export default function ProjetosPage() {
+  const router = useRouter();
+  const supabase = createClient();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("todos");
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    const checkAccess = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/sem-permissao");
+        return;
+      }
+      
+      const { data: member } = await supabase
+        .from("members")
+        .select("member_type")
+        .eq("id", user.id)
+        .single();
+        
+      if (!member || member.member_type !== "admin") {
+        router.push("/sem-permissao");
+        return;
+      }
+      
+      setLoading(false);
+    };
+    
+    checkAccess();
+  }, [router, supabase]);
 
   // Toast System
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);

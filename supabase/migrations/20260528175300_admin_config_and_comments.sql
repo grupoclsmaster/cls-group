@@ -28,7 +28,7 @@ BEGIN
   ) THEN
     CREATE POLICY "Allow delete for authenticated owner or admin" ON public.lesson_comments FOR DELETE TO authenticated USING (
       auth.uid() = user_id OR
-      (SELECT email FROM auth.users WHERE id = auth.uid()) IN ('Magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com')
+      (SELECT email FROM auth.users WHERE id = auth.uid()) IN ('magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com')
     );
   END IF;
 END $$;

@@ -3,6 +3,7 @@
             import { useState, useEffect } from "react";
             import { useRouter } from "next/navigation";
             import { createClient } from "@/utils/supabase/client";
+            import { SkeletonDashboard } from "@/components/SkeletonLoading";
 
             interface Product {
               id: string;
@@ -89,11 +90,7 @@
               };
 
               if (loading) {
-                return (
-                  <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: "#0c0c0e", color: "var(--color-secondary)" }}>
-                    <span className="material-symbols-outlined animate-spin" style={{ fontSize: "48px" }}>sync</span>
-                  </div>
-                );
+                return <SkeletonDashboard />;
               }
 
               return (

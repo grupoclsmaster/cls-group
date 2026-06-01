@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { SkeletonManutencao } from "@/components/SkeletonLoading";
 
 interface Member {
   name: string;
@@ -74,30 +75,7 @@ export default function ManutencaoPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "400px", gap: "16px" }}>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-          .custom-spinner {
-            animation: spin 1s linear infinite;
-            border-top: 2px solid var(--color-secondary);
-            border-right: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-            border-left: 2px solid transparent;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-          }
-        `}</style>
-        <div className="custom-spinner" />
-        <p style={{ color: "var(--color-on-surface-variant)" }} className="font-body-md">
-          Carregando dados do painel de manutenção...
-        </p>
-      </div>
-    );
+    return <SkeletonManutencao />;
   }
 
   return (

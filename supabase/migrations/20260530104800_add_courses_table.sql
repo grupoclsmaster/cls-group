@@ -31,5 +31,5 @@ CREATE POLICY "Allow authenticated read on courses"
 CREATE POLICY "Allow admin all operations on courses"
     ON public.courses FOR ALL
     TO authenticated
-    USING (auth.jwt() ->> 'email' IN ('Magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com'))
-    WITH CHECK (auth.jwt() ->> 'email' IN ('Magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com'));
+    USING (auth.jwt() ->> 'email' IN ('magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com'))
+    WITH CHECK (auth.jwt() ->> 'email' IN ('magnorjsantos@hotmail.com', 'mayaracosta00@gmail.com'));

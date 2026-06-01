@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonFeed } from "@/components/SkeletonLoading";
+import MemberBadge from "@/components/MemberBadge";
 
 interface Member {
   id: string;
@@ -14,6 +15,7 @@ interface Member {
   initials: string;
   img: string;
   status: "Ativo" | "Inativo";
+  member_type?: 'admin' | 'master' | 'mentor' | null;
 }
 
 interface Comment {
@@ -232,10 +234,19 @@ export default function FeedComunidadePage() {
           .order('created_at', { ascending: false });
 
         if (dbPosts && dbPosts.length > 0) {
-          setPosts(dbPosts);
+          const now = Date.now();
+          const validPosts = dbPosts.filter((p: any) => {
+            if (p.post_type === "status") {
+              const ageMs = now - new Date(p.created_at).getTime();
+              return ageMs < 24 * 60 * 60 * 1000; // 24h limit
+            }
+            return true;
+          });
+          setPosts(validPosts);
         } else {
           setPosts(fallbackPosts);
         }
+
       } catch (err) {
         console.error("Erro ao carregar dados do feed:", err);
         setPosts(fallbackPosts);
@@ -1475,19 +1486,13 @@ export default function FeedComunidadePage() {
               <div className="feed-post-card" style={{ border: "1px solid rgba(237, 192, 102, 0.2)" }}>
             <form onSubmit={handleCreatePost}>
               <div style={{ display: "flex", gap: "16px" }}>
-                <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(237, 192, 102, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  {currentMemberInfo?.img ? (
-                    <img 
-                      src={currentMemberInfo.img} 
-                      alt="Sua Foto" 
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                    />
-                  ) : (
-                    <span style={{ color: "var(--color-secondary)", fontSize: "14px", fontWeight: "bold" }}>
-                      {currentMemberInfo?.initials || "VC"}
-                    </span>
-                  )}
-                </div>
+                <MemberBadge
+                  name={currentMemberInfo?.name || "Você"}
+                  img={currentMemberInfo?.img}
+                  initials={currentMemberInfo?.initials}
+                  memberType={currentMemberInfo?.member_type}
+                  size={40}
+                />
                 
                 <div style={{ flex: 1 }}>
                   <textarea
@@ -1692,15 +1697,13 @@ export default function FeedComunidadePage() {
                   {/* Post Header */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
                     <div style={{ display: "flex", gap: "12px" }}>
-                      <div style={{ width: "42px", height: "42px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(237, 192, 102, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        {postAuthor?.img ? (
-                          <img src={postAuthor.img} alt={authorName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        ) : (
-                          <span style={{ color: "var(--color-secondary)", fontSize: "14px", fontWeight: "bold" }}>
-                            {postAuthor?.initials || authorName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "CLS"}
-                          </span>
-                        )}
-                      </div>
+                      <MemberBadge
+                        name={authorName}
+                        img={authorAvatar}
+                        initials={postAuthor?.initials}
+                        memberType={postAuthor?.member_type}
+                        size={42}
+                      />
                       <div>
                         <h4 style={{ fontSize: "14px", color: "#ffffff", fontWeight: 600 }}>{authorName}</h4>
                         <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 600, display: "block" }}>{authorRole}</span>
@@ -1898,14 +1901,19 @@ export default function FeedComunidadePage() {
                           const isPostOwner = currentUser && post.user_id === currentUser.id;
                           const isEditingComment = editingCommentId === comment.id;
                           const isReplying = replyingCommentId === comment.id;
+                          const commentAuthor = members.find(m => m.id === comment.user_id);
 
                           return (
                             <div key={comment.id} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                               {/* Main Comment Row */}
                               <div className="comment-item" style={{ marginBottom: 0 }}>
-                                <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-                                  <img src={comment.author_avatar} alt={comment.author_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                </div>
+                                <MemberBadge
+                                  name={comment.author_name}
+                                  img={comment.author_avatar}
+                                  initials={commentAuthor?.initials}
+                                  memberType={commentAuthor?.member_type}
+                                  size={30}
+                                />
                                 <div style={{ flex: 1 }}>
                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
                                     <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff" }}>{comment.author_name}</span>
@@ -2035,12 +2043,17 @@ export default function FeedComunidadePage() {
                                   {comment.replies.map((reply: any) => {
                                     const isReplyOwner = currentUser && (reply.user_id === currentUser.id || (!reply.user_id && reply.author_name === currentMemberInfo?.name));
                                     const isEditingReply = editingCommentId === reply.id;
+                                    const replyAuthor = members.find(m => m.id === reply.user_id);
 
                                     return (
                                       <div key={reply.id} className="comment-item" style={{ margin: 0, padding: "8px", backgroundColor: "rgba(255, 255, 255, 0.01)" }}>
-                                        <div style={{ width: "24px", height: "24px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-                                          <img src={reply.author_avatar} alt={reply.author_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                        </div>
+                                        <MemberBadge
+                                          name={reply.author_name}
+                                          img={reply.author_avatar}
+                                          initials={replyAuthor?.initials}
+                                          memberType={replyAuthor?.member_type}
+                                          size={24}
+                                        />
                                         <div style={{ flex: 1 }}>
                                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
                                             <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>{reply.author_name}</span>
@@ -2331,9 +2344,13 @@ export default function FeedComunidadePage() {
               {filteredSidebarMembers.map((member) => (
                 <div key={member.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "10px" }}>
                   <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                    <div style={{ width: "32px", height: "32px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
-                      <img src={member.img || "/magno.jpg"} alt={member.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
+                    <MemberBadge
+                      name={member.name}
+                      img={member.img}
+                      initials={member.initials}
+                      memberType={member.member_type}
+                      size={32}
+                    />
                     <div>
                       <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff", display: "block" }}>{member.name}</span>
                       <span style={{ fontSize: "9px", color: "var(--color-outline)", display: "block" }}>{member.role} na {member.company}</span>
@@ -2977,7 +2994,13 @@ function ReelCard({
       {/* Bottom Info Overlay */}
       <div className="reel-bottom-details">
         <div className="reel-author-row">
-          <img src={authorAvatar} alt={authorName} style={{ width: "32px", height: "32px", borderRadius: "50%", border: "1px solid rgba(255,255,255,0.2)", objectFit: "cover" }} />
+          <MemberBadge
+            name={authorName}
+            img={authorAvatar}
+            initials={postAuthor?.initials}
+            memberType={postAuthor?.member_type}
+            size={32}
+          />
           <span className="reel-author-name">{authorName}</span>
           <span className="reel-author-role">{authorRole}</span>
         </div>
@@ -3034,12 +3057,19 @@ function ReelCard({
 
                 return (
                   <div key={comment.id} style={{ display: "flex", flexDirection: "column", gap: "4px", marginBottom: "12px" }}>
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <img 
-                        src={comment.author_avatar} 
-                        alt={comment.author_name} 
-                        style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }} 
-                      />
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                      {(() => {
+                        const commentAuthor = members.find(m => m.id === comment.user_id);
+                        return (
+                          <MemberBadge
+                            name={comment.author_name}
+                            img={comment.author_avatar}
+                            initials={commentAuthor?.initials}
+                            memberType={commentAuthor?.member_type}
+                            size={28}
+                          />
+                        );
+                      })()}
                       <div style={{ flex: 1 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                           <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>{comment.author_name}</span>
@@ -3159,12 +3189,19 @@ function ReelCard({
                           const isEditingReply = editingCommentId === reply.id;
 
                           return (
-                            <div key={reply.id} style={{ display: "flex", gap: "8px" }}>
-                              <img 
-                                src={reply.author_avatar} 
-                                alt={reply.author_name} 
-                                style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover" }} 
-                              />
+                            <div key={reply.id} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                              {(() => {
+                                const replyAuthor = members.find(m => m.id === reply.user_id);
+                                return (
+                                  <MemberBadge
+                                    name={reply.author_name}
+                                    img={reply.author_avatar}
+                                    initials={replyAuthor?.initials}
+                                    memberType={replyAuthor?.member_type}
+                                    size={22}
+                                  />
+                                );
+                              })()}
                               <div style={{ flex: 1 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                                   <span style={{ fontSize: "10px", fontWeight: 700, color: "#ffffff" }}>{reply.author_name}</span>

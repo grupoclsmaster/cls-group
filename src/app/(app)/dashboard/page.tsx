@@ -352,50 +352,8 @@ export default function DashboardPage() {
 
         {/* === Row 3: Club Notice + Community === */}
         <div
-          className="glass-panel metallic-edge accent-top"
           style={{
-            gridColumn: "span 6",
-            borderRadius: "4px",
-            padding: "24px",
-            position: "relative",
-            overflow: "hidden",
-            marginTop: "16px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(237,192,102,0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "var(--color-secondary)",
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>campaign</span>
-            </div>
-            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Avisos</h3>
-          </div>
-          <h4 className="font-headline-sm" style={{ color: "var(--color-on-surface)", marginBottom: "8px" }}>
-            Inscrições para a Missão Técnica Dubai Abrem Amanhã
-          </h4>
-          <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "24px" }}>
-            Acesso exclusivo para Membros do ecossistema começa 24 horas antes da disponibilidade geral. Certifique-se de que os detalhes do seu perfil estejam atualizados para acelerar o processo de reserva.
-          </p>
-          <button
-            className="btn-primary"
-            style={{ backgroundColor: "var(--color-secondary)", color: "var(--color-primary-container)" }}
-          >
-            VER DETALHES
-          </button>
-        </div>
-
-        <div
-          style={{
-            gridColumn: "span 6",
+            gridColumn: "span 12",
             backgroundColor: "var(--color-surface-container-low)",
             border: "1px solid rgba(255,255,255,0.05)",
             borderRadius: "4px",

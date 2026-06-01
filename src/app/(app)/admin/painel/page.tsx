@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { SkeletonDashboard } from "@/components/SkeletonLoading";
+import MemberBadge from "@/components/MemberBadge";
 
 interface Lesson {
   id: string;
@@ -48,7 +50,7 @@ export default function AdminPage() {
 
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [activeTab, setActiveTab] = useState<"lessons" | "mentorados" | "comments" | "resources">("lessons");
+  const [activeTab, setActiveTab] = useState<"lessons" | "mentorados" | "comments" | "resources" | "cadastrar-usuario">("lessons");
 
   // Mentorados state
   const [mentorados, setMentorados] = useState<any[]>([]);
@@ -108,7 +110,12 @@ export default function AdminPage() {
 
   // Drag and Drop ordering state
   const [draggedLessonId, setDraggedLessonId] = useState<string | null>(null);
+  const [draggedModuleId, setDraggedModuleId] = useState<string | null>(null);
 
+  // Bulk Selection States
+  const [selectedModules, setSelectedModules] = useState<string[]>([]);
+  const [selectedLessons, setSelectedLessons] = useState<string[]>([]);
+  const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
   // Status message
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -133,6 +140,22 @@ export default function AdminPage() {
   const [resourceFormat, setResourceFormat] = useState("XLSX");
   const [resourceSize, setResourceSize] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
+
+  // Form states - User Registration
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regRole, setRegRole] = useState("");
+  const [regCompany, setRegCompany] = useState("");
+  const [regMemberType, setRegMemberType] = useState<"master" | "mentor">("mentor");
+  const [regPasswordType, setRegPasswordType] = useState<"default" | "custom">("default");
+  const [regPassword, setRegPassword] = useState("");
+  const [regSuccessMsg, setRegSuccessMsg] = useState<string | null>(null);
+  const [regErrorMsg, setRegErrorMsg] = useState<string | null>(null);
+  const [regSubmitting, setRegSubmitting] = useState(false);
+
+  // Current logged in member role
+  const [memberType, setMemberType] = useState<"admin" | "master" | "mentor" | null>(null);
+  const [memberName, setMemberName] = useState<string>("");
 
 
   // Form states - Opportunities
@@ -231,11 +254,37 @@ export default function AdminPage() {
         .eq("id", editingCourse.id);
 
       if (error) throw error;
-      showStatus("success", "Curso atualizado com sucesso!");
+      showStatus("success", "Masterclass atualizada com sucesso!");
       setEditingCourse(null);
       await refreshData();
     } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar curso.");
+      showStatus("error", err.message || "Erro ao salvar masterclass.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Save Course configuration
+  const handleUpdateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCourse) return;
+    setSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("courses")
+        .update({
+          title: editingCourse.title,
+          description: editingCourse.description,
+          status: editingCourse.status
+        })
+        .eq("id", editingCourse.id);
+
+      if (error) throw error;
+      showStatus("success", "Masterclass atualizada com sucesso!");
+      setEditingCourse(null);
+      await refreshData();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao salvar masterclass.");
     } finally {
       setSubmitting(false);
     }
@@ -344,13 +393,97 @@ export default function AdminPage() {
   };
 
   // Drag and drop ordering handlers
-  const handleDragStart = (e: React.DragEvent, lessonId: string) => {
-    setDraggedLessonId(lessonId);
-    e.dataTransfer.effectAllowed = "move";
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("lessonId", id);
+    setDraggedLessonId(id);
+  };
+
+  const handleDragStartModule = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("moduleId", id);
+    setDraggedModuleId(id);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+  };
+
+  const handleDragOverModule = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleBulkAction = async (type: 'delete' | 'publish' | 'draft') => {
+    if (selectedModules.length === 0 && selectedLessons.length === 0) return;
+    if (type === 'delete' && !confirm("Deseja realmente excluir os itens selecionados? Essa ação não pode ser desfeita.")) return;
+    
+    setBulkActionLoading(true);
+    try {
+      if (selectedModules.length > 0) {
+        if (type === 'delete') {
+          await supabase.from("modules").delete().in("id", selectedModules);
+        } else {
+          await supabase.from("modules").update({ status: type === 'publish' ? 'publicado' : 'rascunho' }).in("id", selectedModules);
+        }
+      }
+      if (selectedLessons.length > 0) {
+        if (type === 'delete') {
+          await supabase.from("lessons").delete().in("id", selectedLessons);
+        } else {
+          await supabase.from("lessons").update({ status: type === 'publish' ? 'publicado' : 'rascunho' }).in("id", selectedLessons);
+        }
+      }
+      
+      showStatus("success", `Ação em massa concluída com sucesso!`);
+      setSelectedModules([]);
+      setSelectedLessons([]);
+      await refreshData();
+    } catch (err) {
+      console.error(err);
+      showStatus("error", "Erro ao executar ação em massa.");
+    } finally {
+      setBulkActionLoading(false);
+    }
+  };
+
+  const handleDropModule = async (e: React.DragEvent, targetModuleId: string, courseId: string) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData("moduleId");
+    if (!draggedId || draggedId === targetModuleId) {
+      setDraggedModuleId(null);
+      return;
+    }
+    
+    const courseIndex = courses.findIndex(c => c.id === courseId);
+    if (courseIndex === -1) return;
+    
+    const courseModulesList = courses[courseIndex].modules || [];
+    const draggedIndex = courseModulesList.findIndex(m => m.id === draggedId);
+    const targetIndex = courseModulesList.findIndex(m => m.id === targetModuleId);
+    
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    
+    const newList = [...courseModulesList];
+    const [removed] = newList.splice(draggedIndex, 1);
+    newList.splice(targetIndex, 0, removed);
+    
+    const updatedCourses = [...courses];
+    updatedCourses[courseIndex] = {
+      ...updatedCourses[courseIndex],
+      modules: newList.map((m, index) => ({ ...m, sequence_order: index }))
+    };
+    setCourses(updatedCourses);
+    
+    try {
+      const updates = newList.map((m, index) => {
+        return supabase.from("modules").update({ sequence_order: index }).eq("id", m.id);
+      });
+      await Promise.all(updates);
+      showStatus("success", "Ordem dos módulos atualizada!");
+    } catch (err) {
+      showStatus("error", "Erro ao salvar ordenação dos módulos.");
+      await refreshData();
+    } finally {
+      setDraggedModuleId(null);
+    }
   };
 
   const handleDrop = async (e: React.DragEvent, targetLessonId: string, targetModuleId: string) => {
@@ -425,10 +558,25 @@ export default function AdminPage() {
     const checkAdmin = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user && (user.email === "Magnorjsantos@hotmail.com" || user.email === "mayaracosta00@gmail.com")) {
-          setIsAdmin(true);
-          await refreshData();
-          await loadMentorados();
+        if (user) {
+          const emailLower = user.email?.toLowerCase();
+          const isEmailAdmin = emailLower === "magnorjsantos@hotmail.com" || emailLower === "mayaracosta00@gmail.com";
+          
+          const { data: member } = await supabase
+            .from("members")
+            .select("member_type, name, role, img")
+            .eq("id", user.id)
+            .single();
+          
+          if ((member && member.member_type === "admin") || isEmailAdmin) {
+            setIsAdmin(true);
+            setMemberType("admin");
+            setMemberName(member?.name || (emailLower === "magnorjsantos@hotmail.com" ? "Magno Santos" : "Mayara Costa"));
+            await refreshData();
+            await loadMentorados();
+          } else {
+            setIsAdmin(false);
+          }
         } else {
           setIsAdmin(false);
         }
@@ -440,6 +588,7 @@ export default function AdminPage() {
     };
     void checkAdmin();
   }, [supabase]);
+
 
   useEffect(() => {
     if (isAdmin && activeTab === "comments") {
@@ -470,7 +619,7 @@ export default function AdminPage() {
       showStatus("success", `Curso "${newCourseName}" criado com sucesso!`);
       await refreshData();
     } catch (err: any) {
-      showStatus("error", err.message || "Erro ao criar curso.");
+      showStatus("error", err.message || "Erro ao criar masterclass.");
     } finally {
       setSubmitting(false);
     }
@@ -479,7 +628,7 @@ export default function AdminPage() {
   const handleAddModule = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newModuleName.trim() || !selectedCourseId) {
-      if (!selectedCourseId) showStatus("error", "Selecione um curso primeiro.");
+      if (!selectedCourseId) showStatus("error", "Selecione uma masterclass primeiro.");
       return;
     }
     setSubmitting(true);
@@ -539,6 +688,54 @@ export default function AdminPage() {
       showStatus("error", err.message || "Erro ao salvar aula.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleRegisterUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegSuccessMsg(null);
+    setRegErrorMsg(null);
+    setRegSubmitting(true);
+
+    try {
+      const finalPassword = regPasswordType === "default" ? "CLS@2026" : regPassword;
+      if (!finalPassword || finalPassword.length < 6) {
+        throw new Error("A senha deve ter no mínimo 6 caracteres.");
+      }
+
+      const response = await fetch("/api/admin/create-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: regName,
+          email: regEmail,
+          password: finalPassword,
+          member_type: regMemberType,
+          role: regRole,
+          company: regCompany,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Erro desconhecido ao criar usuário.");
+      }
+
+      setRegSuccessMsg(`Usuário ${regName} cadastrado com sucesso! E-mail: ${regEmail} | Senha: ${finalPassword}`);
+      setRegName("");
+      setRegEmail("");
+      setRegRole("");
+      setRegCompany("");
+      setRegPassword("");
+      setRegPasswordType("default");
+      
+      await loadMentorados();
+    } catch (err: any) {
+      setRegErrorMsg(err.message || "Ocorreu um erro ao criar o usuário.");
+    } finally {
+      setRegSubmitting(false);
     }
   };
 
@@ -699,11 +896,7 @@ export default function AdminPage() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <div className="skeleton" style={{ width: "100%", maxWidth: "800px", height: "400px", borderRadius: "8px" }} />
-      </div>
-    );
+    return <SkeletonDashboard />;
   }
 
   if (!isAdmin) {
@@ -782,55 +975,59 @@ export default function AdminPage() {
           MASTERCLASSES
         </button>
 
-        {/* Mentorados Tab */}
-        <button
-          onClick={() => setActiveTab("mentorados")}
-          className="font-label-caps"
-          style={{
-            background: "transparent",
-            border: "none",
-            borderBottom: activeTab === "mentorados" ? "2px solid var(--color-secondary)" : "2px solid transparent",
-            color: activeTab === "mentorados" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-            paddingBottom: "12px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            transition: "all 0.2s ease",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>group</span>
-          MENTORADOS
-        </button>
+        {/* Mentorados Tab (Admin Only) */}
+        {(memberType === "admin" || memberType === null) && (
+          <button
+            onClick={() => setActiveTab("mentorados")}
+            className="font-label-caps"
+            style={{
+              background: "transparent",
+              border: "none",
+              borderBottom: activeTab === "mentorados" ? "2px solid var(--color-secondary)" : "2px solid transparent",
+              color: activeTab === "mentorados" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+              paddingBottom: "12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "11px",
+              letterSpacing: "0.1em",
+              transition: "all 0.2s ease",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>group</span>
+            MENTORADOS
+          </button>
+        )}
 
-        {/* Comentários Tab */}
-        <button
-          onClick={() => setActiveTab("comments")}
-          className="font-label-caps"
-          style={{
-            background: "transparent",
-            border: "none",
-            borderBottom: activeTab === "comments" ? "2px solid var(--color-secondary)" : "2px solid transparent",
-            color: activeTab === "comments" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-            paddingBottom: "12px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            transition: "all 0.2s ease",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chat</span>
-          COMENTÁRIOS
-        </button>
+        {/* Comentários Tab (Admin Only) */}
+        {(memberType === "admin" || memberType === null) && (
+          <button
+            onClick={() => setActiveTab("comments")}
+            className="font-label-caps"
+            style={{
+              background: "transparent",
+              border: "none",
+              borderBottom: activeTab === "comments" ? "2px solid var(--color-secondary)" : "2px solid transparent",
+              color: activeTab === "comments" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+              paddingBottom: "12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "11px",
+              letterSpacing: "0.1em",
+              transition: "all 0.2s ease",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>chat</span>
+            COMENTÁRIOS
+          </button>
+        )}
 
-        {/* Functional Tabs from Admin panel */}
+        {/* Resources Tab (Always visible) */}
         <button
           onClick={() => setActiveTab("resources")}
           className="font-label-caps"
@@ -853,6 +1050,32 @@ export default function AdminPage() {
           <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>folder</span>
           RECURSOS
         </button>
+
+        {/* Cadastrar Usuário Tab (Admin Only) */}
+        {(memberType === "admin" || memberType === null) && (
+          <button
+            onClick={() => setActiveTab("cadastrar-usuario")}
+            className="font-label-caps"
+            style={{
+              background: "transparent",
+              border: "none",
+              borderBottom: activeTab === "cadastrar-usuario" ? "2px solid var(--color-secondary)" : "2px solid transparent",
+              color: activeTab === "cadastrar-usuario" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+              paddingBottom: "12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "11px",
+              letterSpacing: "0.1em",
+              transition: "all 0.2s ease",
+              whiteSpace: "nowrap"
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>person_add</span>
+            CADASTRAR USUÁRIO
+          </button>
+        )}
       </div>
 
       <div className="glass-panel metallic-edge" style={{
@@ -875,12 +1098,12 @@ export default function AdminPage() {
                   </button>
                 )}
                 <h3 style={{ color: "var(--color-on-surface)", margin: 0, fontWeight: 700, fontSize: "20px", fontFamily: "var(--font-display, sans-serif)" }}>
-                  {selectedCourseId ? "Módulos do Curso" : "Conteúdos (Cursos)"}
+                  {selectedCourseId ? "Módulos da Masterclass" : "Conteúdos (Masterclasses)"}
                 </h3>
               </div>
               
               <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                {!selectedCourseId ? (
+                {(!selectedCourseId && (memberType === "admin" || memberType === null)) ? (
                   <button 
                     type="button" 
                     className="btn-primary"
@@ -890,9 +1113,9 @@ export default function AdminPage() {
                     onClick={() => setShowAddCourseModal(true)}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
-                    CRIAR CURSO
+                    CRIAR MASTERCLASS
                   </button>
-                ) : (
+                ) : selectedCourseId ? (
                   <>
                     <button 
                       type="button" 
@@ -924,19 +1147,21 @@ export default function AdminPage() {
                       Minimizar
                     </button>
 
-                    <button 
-                      type="button" 
-                      className="btn-primary"
-                      style={{ 
-                        display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
-                      }}
-                      onClick={() => setShowAddModuleModal(true)}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
-                      CRIAR MÓDULO
-                    </button>
+                    {(memberType === "admin" || memberType === null) && (
+                      <button 
+                        type="button" 
+                        className="btn-primary"
+                        style={{ 
+                          display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
+                        }}
+                        onClick={() => setShowAddModuleModal(true)}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
+                        CRIAR MÓDULO
+                      </button>
+                    )}
                   </>
-                )}
+                ) : null}
               </div>
             </div>
 
@@ -947,7 +1172,7 @@ export default function AdminPage() {
                 {courses.length === 0 ? (
                   <div style={{ gridColumn: "1 / -1", padding: "40px", textAlign: "center", backgroundColor: "rgba(255,255,255,0.01)", borderRadius: "8px", border: "1px dashed rgba(255,255,255,0.1)" }}>
                     <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", margin: 0 }}>
-                      Nenhum curso cadastrado. Comece adicionando um curso.
+                      Nenhuma masterclass cadastrada. Comece adicionando uma masterclass.
                     </p>
                   </div>
                 ) : (
@@ -960,12 +1185,14 @@ export default function AdminPage() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                         <h4 style={{ margin: 0, fontSize: "18px", color: "white", fontWeight: 700 }}>{c.title}</h4>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setEditingCourse(c as any); }}
-                          style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
-                        </button>
+                        {(memberType === "admin" || memberType === null) && (
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setEditingCourse(c as any); }}
+                            style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
+                          </button>
+                        )}
                       </div>
                       <p style={{ margin: 0, fontSize: "13px", color: "var(--color-outline)", flex: 1, minHeight: "40px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                         {c.description || "Sem descrição"}
@@ -1003,11 +1230,16 @@ export default function AdminPage() {
                   return (
                     <div 
                       key={m.id} 
+                      draggable
+                      onDragStart={(e) => handleDragStartModule(e, m.id)}
+                      onDragOver={handleDragOverModule}
+                      onDrop={(e) => handleDropModule(e, m.id, selectedCourseId!)}
                       style={{ 
                         backgroundColor: "rgba(7, 7, 50, 0.25)", 
                         border: "1px solid rgba(255, 255, 255, 0.08)",
                         borderRadius: "4px",
-                        overflow: "hidden"
+                        overflow: "hidden",
+                        opacity: draggedModuleId === m.id ? 0.5 : 1
                       }}
                     >
                       {/* Module Header Row */}
@@ -1032,17 +1264,40 @@ export default function AdminPage() {
                           <span className="material-symbols-outlined" style={{ color: "var(--color-outline)", fontSize: "20px" }}>
                             menu
                           </span>
-                          <span style={{ 
-                            width: "16px", 
-                            height: "16px", 
-                            border: "1.5px solid var(--color-primary)", 
-                            borderRadius: "2px",
-                            display: "inline-block"
-                          }} />
-                          <h4 
-                            style={{ color: "var(--color-on-surface)", margin: 0, fontWeight: 600, fontSize: "16px", cursor: "pointer" }}
+                          <span 
+                            style={{ 
+                              width: "18px", 
+                              height: "18px", 
+                              border: selectedModules.includes(m.id) ? "none" : "1.5px solid var(--color-primary)", 
+                              backgroundColor: selectedModules.includes(m.id) ? "var(--color-primary)" : "transparent",
+                              borderRadius: "4px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer"
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
+                              if (selectedModules.includes(m.id)) {
+                                setSelectedModules(selectedModules.filter(id => id !== m.id));
+                              } else {
+                                setSelectedModules([...selectedModules, m.id]);
+                              }
+                            }}
+                          >
+                            {selectedModules.includes(m.id) && <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#0c0c0e", fontWeight: "bold" }}>check</span>}
+                          </span>
+                          <h4 
+                            style={{ 
+                              color: "var(--color-on-surface)", 
+                              margin: 0, 
+                              fontWeight: 600, 
+                              fontSize: "16px", 
+                              cursor: (memberType === "admin" || memberType === null) ? "pointer" : "default" 
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (memberType !== "admin" && memberType !== null) return;
                               setEditingModule({
                                 id: m.id,
                                 title: m.title,
@@ -1052,7 +1307,7 @@ export default function AdminPage() {
                                 cover_image_url: m.cover_image_url || ""
                               });
                             }}
-                            title="Clique para Configurar Módulo"
+                            title={(memberType === "admin" || memberType === null) ? "Clique para Configurar Módulo" : ""}
                           >
                             {m.title}
                           </h4>
@@ -1085,22 +1340,24 @@ export default function AdminPage() {
                             {lessonCount} {lessonCount === 1 ? "conteúdo" : "conteúdos"}
                           </span>
                           
-                          <button 
-                            style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
-                            onClick={() => {
-                              setEditingModule({
-                                id: m.id,
-                                title: m.title,
-                                description: m.description || "",
-                                status: (m.status as any) || "publicado",
-                                scheduled_at: m.scheduled_at ? new Date(m.scheduled_at).toISOString().slice(0, 16) : "",
-                                cover_image_url: m.cover_image_url || ""
-                              });
-                            }}
-                            title="Editar Módulo"
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
-                          </button>
+                          {(memberType === "admin" || memberType === null) && (
+                            <button 
+                              style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                              onClick={() => {
+                                setEditingModule({
+                                  id: m.id,
+                                  title: m.title,
+                                  description: m.description || "",
+                                  status: (m.status as any) || "publicado",
+                                  scheduled_at: m.scheduled_at ? new Date(m.scheduled_at).toISOString().slice(0, 16) : "",
+                                  cover_image_url: m.cover_image_url || ""
+                                });
+                              }}
+                              title="Editar Módulo"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
+                            </button>
+                          )}
 
                           <button 
                             style={{ background: "none", border: "none", color: "var(--color-error)", cursor: "pointer", display: "flex", alignItems: "center" }}
@@ -1156,17 +1413,41 @@ export default function AdminPage() {
                                     <span className="material-symbols-outlined" style={{ color: "rgba(194, 194, 245, 0.4)", fontSize: "18px" }}>
                                       drag_indicator
                                     </span>
-                                    <span style={{ 
-                                      width: "14px", 
-                                      height: "14px", 
-                                      border: "1.5px solid rgba(194, 194, 245, 0.4)", 
-                                      borderRadius: "2px",
-                                      display: "inline-block"
-                                    }} />
                                     <span 
-                                      style={{ color: "var(--color-on-surface)", fontSize: "14px", fontWeight: 500, cursor: "pointer" }}
+                                      style={{ 
+                                        width: "16px", 
+                                        height: "16px", 
+                                        border: selectedLessons.includes(l.id) ? "none" : "1.5px solid rgba(194, 194, 245, 0.4)", 
+                                        backgroundColor: selectedLessons.includes(l.id) ? "var(--color-primary)" : "transparent",
+                                        borderRadius: "3px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        cursor: "pointer"
+                                      }}
                                       onClick={(e) => {
                                         e.stopPropagation();
+                                        if (selectedLessons.includes(l.id)) {
+                                          setSelectedLessons(selectedLessons.filter(id => id !== l.id));
+                                        } else {
+                                          setSelectedLessons([...selectedLessons, l.id]);
+                                        }
+                                      }}
+                                    >
+                                      {selectedLessons.includes(l.id) && <span className="material-symbols-outlined" style={{ fontSize: "12px", color: "#0c0c0e", fontWeight: "bold" }}>check</span>}
+                                    </span>
+                                    <span 
+                                      style={{ 
+                                        color: "var(--color-on-surface)", 
+                                        fontSize: "14px", 
+                                        fontWeight: 500, 
+                                        cursor: (memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) ? "pointer" : "default" 
+                                      }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (memberType !== "admin" && memberType !== null && l.instructor_name && l.instructor_name !== memberName) {
+                                          return;
+                                        }
                                         setEditingLesson({
                                           id: l.id,
                                           module_id: l.module_id,
@@ -1183,7 +1464,7 @@ export default function AdminPage() {
                                           attached_resources: l.attached_resources || []
                                         });
                                       }}
-                                      title="Clique para Configurar Aula"
+                                      title={(memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) ? "Clique para Configurar Aula" : "Apenas o instrutor desta aula pode editá-la"}
                                     >
                                       {String(index + 1).padStart(2, "0")} - {l.title}
                                     </span>
@@ -1226,38 +1507,42 @@ export default function AdminPage() {
                                       {l.status === "rascunho" ? "Rascunho" : l.status === "agendado" ? "Agendado" : "Publicado"}
                                     </span>
 
-                                    <button 
-                                      style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingLesson({
-                                          id: l.id,
-                                          module_id: l.module_id,
-                                          title: l.title,
-                                          description: l.description || "",
-                                          duration: l.duration || "",
-                                          video_url: l.video_url || "",
-                                          instructor_name: l.instructor_name || "Eng. Magno Santos",
-                                          instructor_role: l.instructor_role || "CEO & Fundador CLS",
-                                          instructor_avatar: l.instructor_avatar || "/magno.jpg",
-                                          status: (l.status as any) || "publicado",
-                                          scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
-                                          cover_image_url: l.cover_image_url || "",
-                                          attached_resources: l.attached_resources || []
-                                        });
-                                      }}
-                                      title="Editar Aula"
-                                    >
-                                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>edit</span>
-                                    </button>
+                                    {(memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) && (
+                                      <button 
+                                        style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setEditingLesson({
+                                            id: l.id,
+                                            module_id: l.module_id,
+                                            title: l.title,
+                                            description: l.description || "",
+                                            duration: l.duration || "",
+                                            video_url: l.video_url || "",
+                                            instructor_name: l.instructor_name || "Eng. Magno Santos",
+                                            instructor_role: l.instructor_role || "CEO & Fundador CLS",
+                                            instructor_avatar: l.instructor_avatar || "/magno.jpg",
+                                            status: (l.status as any) || "publicado",
+                                            scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
+                                            cover_image_url: l.cover_image_url || "",
+                                            attached_resources: l.attached_resources || []
+                                          });
+                                        }}
+                                        title="Editar Aula"
+                                      >
+                                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>edit</span>
+                                      </button>
+                                    )}
 
-                                    <button 
-                                      style={{ background: "none", border: "none", color: "rgba(244, 67, 54, 0.7)", cursor: "pointer", display: "flex", alignItems: "center" }}
-                                      onClick={() => handleDeleteLesson(l.id)}
-                                      title="Excluir Aula"
-                                    >
-                                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
-                                    </button>
+                                    {(memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) && (
+                                      <button 
+                                        style={{ background: "none", border: "none", color: "rgba(244, 67, 54, 0.7)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                                        onClick={() => handleDeleteLesson(l.id)}
+                                        title="Excluir Aula"
+                                      >
+                                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               );
@@ -1337,10 +1622,10 @@ export default function AdminPage() {
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>Criar Novo Curso (Conteúdo)</h3>
+                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>Criar Nova Masterclass (Conteúdo)</h3>
                   <form onSubmit={handleAddCourse} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME DO CURSO</label>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME DA MASTERCLASS</label>
                       <input
                         type="text"
                         className="input-dark"
@@ -1367,10 +1652,68 @@ export default function AdminPage() {
                         style={{ flex: 1 }}
                         disabled={submitting}
                       >
-                        {submitting ? "Criando..." : "Criar Curso"}
+                        {submitting ? "Criando..." : "Criar Masterclass"}
                       </button>
                     </div>
                   </form>
+                </div>
+              </div>
+            )}
+
+            {/* Modal de Edição de Masterclass */}
+            {editingCourse && (
+              <div 
+                style={{
+                  position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+                  backgroundColor: "rgba(10, 10, 12, 0.8)", backdropFilter: "blur(5px)",
+                  zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center"
+                }}
+                onClick={() => setEditingCourse(null)}
+              >
+                <div 
+                  style={{
+                    backgroundColor: "rgba(20, 20, 25, 0.98)", border: "1px solid rgba(255, 255, 255, 0.1)",
+                    borderRadius: "12px", width: "100%", maxWidth: "500px", padding: "28px", boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                    <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Editar Masterclass</h3>
+                    <button onClick={() => setEditingCourse(null)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
+                      <span className="material-symbols-outlined">close</span>
+                    </button>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DA MASTERCLASS</label>
+                      <input
+                        type="text" className="input-dark" value={editingCourse.title}
+                        onChange={(e) => setEditingCourse({...editingCourse, title: e.target.value})}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO</label>
+                      <textarea
+                        className="input-dark" rows={4} value={editingCourse.description}
+                        onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>STATUS</label>
+                      <select
+                        className="input-dark" value={editingCourse.status}
+                        onChange={(e) => setEditingCourse({...editingCourse, status: e.target.value as any})}
+                      >
+                        <option value="publicado">Publicado</option>
+                        <option value="rascunho">Rascunho</option>
+                        <option value="agendado">Agendado</option>
+                      </select>
+                    </div>
+                    <button className="btn-primary" style={{ marginTop: "8px" }} onClick={handleUpdateCourse} disabled={submitting}>
+                      {submitting ? "Salvando..." : "Salvar Alterações"}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -2107,10 +2450,10 @@ export default function AdminPage() {
         )}
 
 
-        {/* Tab: Mentorados */}
+        {/* Tab: Membros */}
         {activeTab === "mentorados" && (
           <div>
-            <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "24px" }}>Mentorados Cadastrados</h3>
+            <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "24px" }}>Membros</h3>
             
             {loadingMentorados ? (
               <div style={{ padding: "40px", textAlign: "center" }}>Carregando mentorados...</div>
@@ -2130,43 +2473,98 @@ export default function AdminPage() {
                 </p>
               </div>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {mentorados.map((m) => (
                   <div 
                     key={m.id} 
-                    className="glass-panel" 
+                    className="glass-panel hover-border" 
                     style={{ 
-                      padding: "20px", 
-                      borderRadius: "6px", 
+                      padding: "16px 20px", 
+                      borderRadius: "8px", 
                       border: "1px solid rgba(255,255,255,0.06)",
                       display: "flex",
                       alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
                       gap: "16px"
                     }}
                   >
-                    <div 
-                      style={{ 
-                        width: "48px", 
-                        height: "48px", 
-                        borderRadius: "50%", 
-                        backgroundColor: "var(--color-primary)", 
-                        color: "var(--color-on-primary)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 700,
-                        fontSize: "16px",
-                        overflow: "hidden",
-                        border: "1px solid var(--color-secondary)",
-                        flexShrink: 0
-                      }}
-                    >
-                      {m.img ? <img src={m.img} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : (m.initials || m.name.substring(0, 2).toUpperCase())}
+                    <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                      <MemberBadge
+                        name={m.name}
+                        img={m.img}
+                        initials={m.initials}
+                        memberType={m.member_type}
+                        size={48}
+                      />
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                          <h4 style={{ color: "#ffffff", margin: 0, fontWeight: 600, fontSize: "16px" }}>{m.name}</h4>
+                          {m.member_type && (
+                            <span style={{
+                              fontSize: "9px",
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.5px",
+                              backgroundColor: m.member_type === "admin" 
+                                ? "rgba(76, 175, 80, 0.15)" 
+                                : m.member_type === "master" 
+                                  ? "rgba(237, 192, 102, 0.15)" 
+                                  : "rgba(124, 77, 255, 0.15)",
+                              color: m.member_type === "admin" 
+                                ? "#4CAF50" 
+                                : m.member_type === "master" 
+                                  ? "#EDC066" 
+                                  : "#B388FF",
+                              border: `1px solid ${m.member_type === "admin" ? "rgba(76, 175, 80, 0.3)" : m.member_type === "master" ? "rgba(237, 192, 102, 0.3)" : "rgba(124, 77, 255, 0.3)"}`
+                            }}>
+                              {m.member_type === "admin" 
+                                ? (m.name.toLowerCase().includes("magno") ? "Mentor" : m.name.toLowerCase().includes("mayara") ? "Mentora" : "Admin") 
+                                : m.member_type}
+
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ color: "var(--color-secondary)", margin: "0 0 2px 0", fontSize: "12px" }}>{m.role} {m.company ? `na ${m.company}` : ""}</p>
+                        <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "11px" }}>{m.email}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 style={{ color: "#ffffff", margin: "0 0 4px 0", fontWeight: 600, fontSize: "15px" }}>{m.name}</h4>
-                      <p style={{ color: "var(--color-secondary)", margin: "0 0 2px 0", fontSize: "12px" }}>{m.role} {m.company ? `na ${m.company}` : ""}</p>
-                      <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "11px" }}>{m.email}</p>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: "6px 12px", fontSize: "11px", borderColor: "rgba(255,255,255,0.15)", color: "var(--color-on-surface)" }}
+                        onClick={() => alert("Em breve: Visualizar detalhes do membro.")}
+                      >
+                        Ver Detalhes
+                      </button>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: "6px 12px", fontSize: "11px", borderColor: "rgba(255,255,255,0.15)", color: "var(--color-on-surface)" }}
+                        onClick={() => alert("Em breve: Editar informações do membro.")}
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: "6px 12px", fontSize: "11px", borderColor: "var(--color-secondary)", color: "var(--color-secondary)" }}
+                        onClick={() => alert("Em breve: Inativar o acesso do membro.")}
+                      >
+                        Inativar
+                      </button>
+                      <button 
+                        className="btn-outline" 
+                        style={{ padding: "6px 12px", fontSize: "11px", borderColor: "var(--color-error)", color: "var(--color-error)" }}
+                        onClick={() => {
+                          if (confirm(`Tem certeza que deseja excluir ${m.name}? Essa ação é irreversível.`)) {
+                            alert("Em breve: Exclusão será implementada na API.");
+                          }
+                        }}
+                      >
+                        Excluir
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -2298,7 +2696,189 @@ export default function AdminPage() {
             })()}
           </div>
         )}
+
+        {/* Tab: Cadastrar Usuário */}
+        {activeTab === "cadastrar-usuario" && (memberType === "admin" || memberType === null) && (
+          <div>
+            <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "24px" }}>Cadastrar Novo Usuário</h3>
+            
+            <form onSubmit={handleRegisterUser} style={{ display: "flex", flexDirection: "column", gap: "20px", maxWidth: "500px" }}>
+              {regSuccessMsg && (
+                <div style={{ padding: "12px 16px", backgroundColor: "rgba(76, 175, 80, 0.12)", color: "#81C784", borderRadius: "4px", border: "1px solid rgba(76, 175, 80, 0.25)", fontSize: "13px" }}>
+                  {regSuccessMsg}
+                </div>
+              )}
+              {regErrorMsg && (
+                <div style={{ padding: "12px 16px", backgroundColor: "rgba(244, 67, 54, 0.12)", color: "#E57373", borderRadius: "4px", border: "1px solid rgba(244, 67, 54, 0.25)", fontSize: "13px" }}>
+                  {regErrorMsg}
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME COMPLETO</label>
+                <input
+                  type="text"
+                  className="input-dark"
+                  placeholder="Nome do usuário"
+                  value={regName}
+                  onChange={(e) => setRegName(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>E-MAIL</label>
+                <input
+                  type="email"
+                  className="input-dark"
+                  placeholder="exemplo@dominio.com"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CARGO / PROFISSÃO</label>
+                  <input
+                    type="text"
+                    className="input-dark"
+                    placeholder="Ex: Arquiteta, Desenvolvedor"
+                    value={regRole}
+                    onChange={(e) => setRegRole(e.target.value)}
+                  />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>EMPRESA</label>
+                  <input
+                    type="text"
+                    className="input-dark"
+                    placeholder="Nome da empresa"
+                    value={regCompany}
+                    onChange={(e) => setRegCompany(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TIPO DE MEMBRO</label>
+                <select
+                  className="input-dark"
+                  value={regMemberType}
+                  onChange={(e) => setRegMemberType(e.target.value as any)}
+                >
+                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentor</option>
+                  <option value="master" style={{ backgroundColor: "#131316" }}>Master</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", border: "1px solid rgba(255, 255, 255, 0.05)", padding: "16px", borderRadius: "4px", backgroundColor: "rgba(255, 255, 255, 0.01)" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>SENHA DE ACESSO</label>
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", cursor: "pointer", color: "#fff" }}>
+                    <input
+                      type="radio"
+                      name="passwordType"
+                      checked={regPasswordType === "default"}
+                      onChange={() => setRegPasswordType("default")}
+                    />
+                    Senha Padrão (CLS@2026)
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", cursor: "pointer", color: "#fff" }}>
+                    <input
+                      type="radio"
+                      name="passwordType"
+                      checked={regPasswordType === "custom"}
+                      onChange={() => setRegPasswordType("custom")}
+                    />
+                    Criar Senha Personalizada
+                  </label>
+                </div>
+
+                {regPasswordType === "custom" && (
+                  <input
+                    type="text"
+                    className="input-dark"
+                    placeholder="Digite a senha (mínimo 6 caracteres)"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    required={regPasswordType === "custom"}
+                    style={{ marginTop: "8px" }}
+                  />
+                )}
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ marginTop: "12px" }} disabled={regSubmitting}>
+                {regSubmitting ? "Cadastrando..." : "Cadastrar Usuário"}
+              </button>
+            </form>
+          </div>
+        )}
       </div>
+
+      {/* Bulk Actions Bar */}
+      {(selectedModules.length > 0 || selectedLessons.length > 0) && (
+        <div style={{
+          position: "fixed",
+          bottom: "32px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(20, 20, 25, 0.95)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(237, 192, 102, 0.3)",
+          borderRadius: "50px",
+          padding: "12px 24px",
+          display: "flex",
+          alignItems: "center",
+          gap: "24px",
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)",
+          zIndex: 9999
+        }}>
+          <span style={{ color: "var(--color-on-surface)", fontWeight: 600, fontSize: "14px" }}>
+            {selectedModules.length + selectedLessons.length} selecionado(s)
+          </span>
+          <div style={{ width: "1px", height: "24px", backgroundColor: "rgba(255, 255, 255, 0.1)" }}></div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <button 
+              className="btn-secondary" 
+              style={{ padding: "8px 16px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}
+              onClick={() => handleBulkAction('draft')}
+              disabled={bulkActionLoading}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>visibility_off</span>
+              Rascunho
+            </button>
+            <button 
+              className="btn-secondary" 
+              style={{ padding: "8px 16px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", borderColor: "var(--color-primary)", color: "var(--color-primary)" }}
+              onClick={() => handleBulkAction('publish')}
+              disabled={bulkActionLoading}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>public</span>
+              Publicar
+            </button>
+            <button 
+              className="btn-secondary" 
+              style={{ padding: "8px 16px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px", backgroundColor: "rgba(244, 67, 54, 0.1)", color: "#F44336", borderColor: "rgba(244, 67, 54, 0.2)" }}
+              onClick={() => handleBulkAction('delete')}
+              disabled={bulkActionLoading}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+              Excluir
+            </button>
+          </div>
+          <button 
+            style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer", display: "flex", alignItems: "center", marginLeft: "8px" }}
+            onClick={() => {
+              setSelectedModules([]);
+              setSelectedLessons([]);
+            }}
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

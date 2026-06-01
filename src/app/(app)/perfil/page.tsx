@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import MemberBadge from "@/components/MemberBadge";
 
 
 interface Member {
@@ -23,6 +24,7 @@ interface Member {
   x_url?: string | null;
   website_url?: string | null;
   username?: string | null;
+  member_type?: 'admin' | 'master' | 'mentor' | null;
 }
 
 interface Comment {
@@ -227,8 +229,10 @@ export default function PerfilPage() {
         .order("created_at", { ascending: false });
 
       if (!postsErr && postsData) {
-        setUserPosts(postsData);
+        const standardUserPosts = postsData.filter((p: any) => !p.post_type || p.post_type === "standard");
+        setUserPosts(standardUserPosts);
       }
+
 
       // 5. Fetch all connections for status checking in discovery
       const { data: allConnData } = await supabase
@@ -688,37 +692,13 @@ export default function PerfilPage() {
               <div className="profile-card">
                 {/* Avatar Image or Initials circle */}
                 <div style={{ position: "relative", marginBottom: "16px" }}>
-                  {memberInfo?.img ? (
-                    <div style={{ width: "96px", height: "96px", borderRadius: "50%", overflow: "hidden", border: "2px solid var(--color-secondary)" }}>
-                      <img src={memberInfo.img} alt={memberInfo.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
-                  ) : (
-                    <div style={{
-                      width: "96px",
-                      height: "96px",
-                      borderRadius: "50%",
-                      backgroundColor: "rgba(237, 192, 102, 0.1)",
-                      border: "2px solid var(--color-secondary)",
-                      color: "var(--color-secondary)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "28px",
-                      fontWeight: "bold",
-                    }}>
-                      {memberInfo?.initials || memberInfo?.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "CLS"}
-                    </div>
-                  )}
-                  <span style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    backgroundColor: "#10b981",
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    border: "2px solid var(--color-surface)"
-                  }} title="Membro Ativo" />
+                  <MemberBadge
+                    name={memberInfo?.name || ""}
+                    img={memberInfo?.img}
+                    initials={memberInfo?.initials}
+                    memberType={memberInfo?.member_type}
+                    size={96}
+                  />
                 </div>
 
                 <h3 className="font-title-lg" style={{ color: "#ffffff", marginBottom: "4px" }}>
@@ -1236,28 +1216,13 @@ export default function PerfilPage() {
                       {pendingRequests.map((req) => (
                         <div key={req.id} className="req-card">
                           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                            {req.requester.img ? (
-                              <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-                                <img src={req.requester.img} alt={req.requester.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                              </div>
-                            ) : (
-                              <div style={{
-                                width: "36px",
-                                height: "36px",
-                                borderRadius: "50%",
-                                backgroundColor: "rgba(255,255,255,0.05)",
-                                border: "1px solid rgba(255,255,255,0.1)",
-                                color: "var(--color-outline)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                padding: "6px"
-                              }}>
-                                <svg viewBox="0 0 24 24" style={{ width: "100%", height: "100%", fill: "currentColor", opacity: 0.4 }}>
-                                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                </svg>
-                              </div>
-                            )}
+                            <MemberBadge
+                              name={req.requester.name}
+                              img={req.requester.img}
+                              initials={req.requester.initials}
+                              memberType={req.requester.member_type}
+                              size={36}
+                            />
                             <div style={{ textAlign: "left" }}>
                               <h5 style={{ fontSize: "13px", color: "#ffffff", margin: 0 }}>{req.requester.name}</h5>
                               <span style={{ fontSize: "11px", color: "var(--color-outline)" }}>{req.requester.role}</span>
@@ -1305,29 +1270,13 @@ export default function PerfilPage() {
                     <div className="grid-cards">
                       {connectedMembers.map((conn) => (
                         <div key={conn.id} className="conn-card">
-                          {conn.img ? (
-                            <div style={{ width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", marginBottom: "10px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                              <img src={conn.img} alt={conn.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            </div>
-                          ) : (
-                            <div style={{
-                              width: "48px",
-                              height: "48px",
-                              borderRadius: "50%",
-                              backgroundColor: "rgba(255,255,255,0.04)",
-                              border: "1px solid rgba(255,255,255,0.08)",
-                              color: "var(--color-outline)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              padding: "8px",
-                              marginBottom: "10px"
-                            }}>
-                              <svg viewBox="0 0 24 24" style={{ width: "100%", height: "100%", fill: "currentColor", opacity: 0.4 }}>
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                              </svg>
-                            </div>
-                          )}
+                          <MemberBadge
+                            name={conn.name}
+                            img={conn.img}
+                            initials={conn.initials}
+                            memberType={conn.member_type}
+                            size={48}
+                          />
                           <h5 style={{ fontSize: "13px", color: "#ffffff", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
                           <span style={{ fontSize: "10px", color: "var(--color-secondary)", marginBottom: "2px", fontWeight: 500 }}>{conn.role}</span>
                           <span style={{ fontSize: "9px", color: "var(--color-outline)", marginBottom: "8px" }}>{conn.location}</span>
@@ -1465,29 +1414,13 @@ export default function PerfilPage() {
 
                             return (
                               <div key={conn.id} className="conn-card">
-                                {conn.img ? (
-                                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", overflow: "hidden", marginBottom: "10px", border: "1px solid rgba(255,255,255,0.08)" }}>
-                                    <img src={conn.img} alt={conn.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                  </div>
-                                ) : (
-                                  <div style={{
-                                    width: "48px",
-                                    height: "48px",
-                                    borderRadius: "50%",
-                                    backgroundColor: "rgba(255,255,255,0.04)",
-                                    border: "1px solid rgba(255,255,255,0.08)",
-                                    color: "var(--color-outline)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    padding: "8px",
-                                    marginBottom: "10px"
-                                  }}>
-                                    <svg viewBox="0 0 24 24" style={{ width: "100%", height: "100%", fill: "currentColor", opacity: 0.4 }}>
-                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                    </svg>
-                                  </div>
-                                )}
+                                <MemberBadge
+                                   name={conn.name}
+                                   img={conn.img}
+                                   initials={conn.initials}
+                                   memberType={conn.member_type}
+                                   size={48}
+                                 />
                                 <h5 style={{ fontSize: "13px", color: "#ffffff", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
                                 <span style={{ fontSize: "10.5px", color: "var(--color-secondary)", marginBottom: "2px", fontWeight: 500 }}>{conn.role}</span>
                                 <span style={{ fontSize: "9px", color: "var(--color-outline)", marginBottom: "8px" }}>
@@ -1626,9 +1559,13 @@ export default function PerfilPage() {
 
                         {/* Post Header */}
                         <div style={{ display: "flex", gap: "12px", marginBottom: "14px" }}>
-                          <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", backgroundColor: "rgba(255,255,255,0.02)" }}>
-                            <img src={memberInfo?.img || post.author_avatar || "/magno.jpg"} alt={memberInfo?.name || post.author_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          </div>
+                          <MemberBadge
+                            name={memberInfo?.name || post.author_name}
+                            img={memberInfo?.img || post.author_avatar}
+                            initials={memberInfo?.initials}
+                            memberType={memberInfo?.member_type}
+                            size={40}
+                          />
                           <div>
                             <h4 style={{ fontSize: "13px", color: "#ffffff", fontWeight: 600, margin: 0 }}>{memberInfo?.name || post.author_name}</h4>
                             <span style={{ fontSize: "10px", color: "var(--color-secondary)", fontWeight: 500, display: "block" }}>{memberInfo?.role || post.author_role}</span>

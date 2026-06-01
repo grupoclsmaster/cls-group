@@ -14,10 +14,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    // 2. Authorize admin
-    if (user.email !== "Magnorjsantos@hotmail.com" && user.email !== "mayaracosta00@gmail.com") {
+    const emailLower = user.email?.toLowerCase();
+    if (emailLower !== "magnorjsantos@hotmail.com" && emailLower !== "mayaracosta00@gmail.com") {
       return NextResponse.json({ error: "Acesso negado: Apenas administradores master" }, { status: 403 });
     }
+
 
     // 3. Parse form data
     const formData = await req.formData();

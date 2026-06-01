@@ -38,7 +38,8 @@ export default function Sidebar() {
 
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user && (user.email === "Magnorjsantos@hotmail.com" || user.email === "mayaracosta00@gmail.com")) {
+      const emailLower = user?.email?.toLowerCase();
+      if (user && (emailLower === "magnorjsantos@hotmail.com" || emailLower === "mayaracosta00@gmail.com")) {
         setIsAdmin(true);
       }
     };

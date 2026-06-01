@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonAvatar } from "./SkeletonLoading";
+import MemberBadge from "./MemberBadge";
 
 interface Notification {
   id: string;
@@ -59,7 +60,7 @@ export default function TopBar() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [member, setMember] = useState<{ name: string; initials?: string; img?: string } | null>(null);
+  const [member, setMember] = useState<{ name: string; initials?: string; img?: string; member_type?: 'admin' | 'master' | 'mentor' | null } | null>(null);
   const [loadingMember, setLoadingMember] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -109,17 +110,24 @@ export default function TopBar() {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          if (user.email === "Magnorjsantos@hotmail.com" || user.email === "mayaracosta00@gmail.com") {
-            setIsAdmin(true);
-          }
           const { data, error } = await supabase
             .from("members")
-            .select("name, initials, img")
+            .select("name, initials, img, member_type")
             .eq("id", user.id)
             .single();
+          const emailLower = user.email?.toLowerCase();
+          const isEmailAdmin = emailLower === "magnorjsantos@hotmail.com" || emailLower === "mayaracosta00@gmail.com";
           if (data && !error) {
             setMember(data);
+            if (data.member_type === "admin" || isEmailAdmin) {
+              setIsAdmin(true);
+            }
+          } else {
+            if (isEmailAdmin) {
+              setIsAdmin(true);
+            }
           }
+
         }
       } catch (err) {
         console.error("Error fetching current user:", err);
@@ -425,9 +433,13 @@ export default function TopBar() {
                       backgroundColor: "transparent"
                     }}
                   >
-                    <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", flexShrink: 0 }}>
-                      <img src={m.img || "/magno.jpg"} alt={m.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    </div>
+                    <MemberBadge
+                      name={m.name}
+                      img={m.img}
+                      initials={m.initials}
+                      memberType={m.member_type}
+                      size={30}
+                    />
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
                       <span style={{ fontSize: "12px", fontWeight: 600, color: "#ffffff" }}>{m.name}</span>
                       <span style={{ fontSize: "10px", color: "var(--color-on-surface-variant)" }}>
@@ -692,54 +704,14 @@ export default function TopBar() {
         <Link href="/perfil" className="topbar-btn" style={{ padding: "4px", display: "flex", alignItems: "center", textDecoration: "none" }}>
           {loadingMember ? (
             <SkeletonAvatar size="32px" />
-          ) : member?.img ? (
-            <img
-              src={member.img}
-              alt={member.name}
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "1.5px solid var(--color-secondary)",
-                transition: "transform 0.2s ease, border-color 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-secondary-fixed)";
-                e.currentTarget.style.transform = "scale(1.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-secondary)";
-                e.currentTarget.style.transform = "scale(1)";
-              }}
+          ) : member ? (
+            <MemberBadge
+              name={member.name}
+              img={member.img}
+              initials={member.initials}
+              memberType={member.member_type}
+              size={32}
             />
-          ) : member?.initials ? (
-            <div
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(237, 192, 102, 0.1)",
-                border: "1.5px solid var(--color-secondary)",
-                color: "var(--color-secondary)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "11px",
-                fontWeight: "bold",
-                transition: "transform 0.2s ease, border-color 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-secondary-fixed)";
-                e.currentTarget.style.transform = "scale(1.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-secondary)";
-                e.currentTarget.style.transform = "scale(1)";
-              }}
-            >
-              {member.initials}
-            </div>
           ) : (
             <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>
               account_circle
