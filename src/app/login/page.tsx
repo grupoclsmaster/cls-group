@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -402,8 +403,8 @@ export default function LoginPage() {
         >
           <span>© {new Date().getFullYear()} CLUB PRO CLS</span>
           <div style={{ display: "flex", gap: "16px" }}>
-            <a href="#" style={{ color: "inherit", textDecoration: "none" }} className="hover-gold-text">Termos</a>
-            <a href="#" style={{ color: "inherit", textDecoration: "none" }} className="hover-gold-text">Privacidade</a>
+            <Link href="/termos" style={{ color: "inherit", textDecoration: "none" }} className="hover-gold-text">Termos</Link>
+            <Link href="/privacidade" style={{ color: "inherit", textDecoration: "none" }} className="hover-gold-text">Privacidade</Link>
           </div>
         </div>
       </div>
