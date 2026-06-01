@@ -343,8 +343,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
-
-        </div>
       </div>
 
       <div style={{ height: "48px" }} />
