@@ -764,7 +764,7 @@ export default function PerfilPage() {
                   />
                 </div>
 
-                <h3 className="font-title-lg" style={{ color: "#ffffff", marginBottom: "4px" }}>
+                <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", marginBottom: "4px" }}>
                   {memberInfo?.name}
                 </h3>
                 {memberInfo?.username && (
@@ -935,11 +935,11 @@ export default function PerfilPage() {
                 <div style={{ display: "flex", width: "100%", gap: "10px", margin: "20px 0" }}>
                   <div className="stat-badge">
                     <span className="font-label-caps" style={{ display: "block", fontSize: "9px", color: "var(--color-outline)" }}>Conexões</span>
-                    <strong style={{ fontSize: "16px", color: "#ffffff" }}>{connectedMembers.length}</strong>
+                    <strong style={{ fontSize: "16px", color: "var(--color-on-surface)" }}>{connectedMembers.length}</strong>
                   </div>
                   <div className="stat-badge">
                     <span className="font-label-caps" style={{ display: "block", fontSize: "9px", color: "var(--color-outline)" }}>Publicações</span>
-                    <strong style={{ fontSize: "16px", color: "#ffffff" }}>{userPosts.length}</strong>
+                    <strong style={{ fontSize: "16px", color: "var(--color-on-surface)" }}>{userPosts.length}</strong>
                   </div>
                 </div>
 
@@ -967,11 +967,11 @@ export default function PerfilPage() {
                 <div className="details-grid">
                   <div>
                     <span className="font-label-caps" style={{ color: "var(--color-outline)", fontSize: "9px", display: "block", marginBottom: "4px" }}>Setor / Indústria</span>
-                    <span style={{ fontSize: "13px", color: "#ffffff" }}>{memberInfo?.industry || "Não especificado"}</span>
+                    <span style={{ fontSize: "13px", color: "var(--color-on-surface)" }}>{memberInfo?.industry || "Não especificado"}</span>
                   </div>
                   <div>
                     <span className="font-label-caps" style={{ color: "var(--color-outline)", fontSize: "9px", display: "block", marginBottom: "4px" }}>Localização</span>
-                    <span style={{ fontSize: "13px", color: "#ffffff" }}>{memberInfo?.location || "Não especificado"}</span>
+                    <span style={{ fontSize: "13px", color: "var(--color-on-surface)" }}>{memberInfo?.location || "Não especificado"}</span>
                   </div>
                   <div>
                     <span className="font-label-caps" style={{ color: "var(--color-outline)", fontSize: "9px", display: "block", marginBottom: "4px" }}>E-mail</span>
@@ -1287,7 +1287,7 @@ export default function PerfilPage() {
                               size={36}
                             />
                             <div style={{ textAlign: "left" }}>
-                              <h5 style={{ fontSize: "13px", color: "#ffffff", margin: 0 }}>{req.requester.name}</h5>
+                              <h5 style={{ fontSize: "13px", color: "var(--color-on-surface)", margin: 0 }}>{req.requester.name}</h5>
                               <span style={{ fontSize: "11px", color: "var(--color-outline)" }}>{req.requester.role}</span>
                             </div>
                           </div>
@@ -1340,7 +1340,7 @@ export default function PerfilPage() {
                             memberType={conn.member_type}
                             size={48}
                           />
-                          <h5 style={{ fontSize: "13px", color: "#ffffff", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
+                          <h5 style={{ fontSize: "13px", color: "var(--color-on-surface)", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
                           <span style={{ fontSize: "10px", color: "var(--color-secondary)", marginBottom: "2px", fontWeight: 500 }}>{conn.role}</span>
                           <span style={{ fontSize: "9px", color: "var(--color-outline)", marginBottom: "8px" }}>{conn.location}</span>
 
@@ -1438,10 +1438,10 @@ export default function PerfilPage() {
                           style={{
                             width: "100%",
                             padding: "10px 12px 10px 38px",
-                            backgroundColor: "rgba(0,0,0,0.2)",
-                            border: "1px solid rgba(255,255,255,0.08)",
+                            backgroundColor: "var(--search-input-bg)",
+                            border: "1px solid var(--search-input-border)",
                             borderRadius: "6px",
-                            color: "#ffffff",
+                            color: "var(--color-on-surface)",
                             fontSize: "13px",
                             outline: "none"
                           }}
@@ -1449,7 +1449,7 @@ export default function PerfilPage() {
                       </div>
 
                       {filteredUnconnected.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "32px 16px", border: "1px dashed rgba(255,255,255,0.06)", borderRadius: "6px" }}>
+                        <div style={{ textAlign: "center", padding: "32px 16px", border: "1px dashed var(--border-color)", borderRadius: "6px" }}>
                           <span className="material-symbols-outlined" style={{ fontSize: "28px", color: "var(--color-outline)", marginBottom: "8px", opacity: 0.3 }}>
                             search_off
                           </span>
@@ -1484,7 +1484,7 @@ export default function PerfilPage() {
                                    memberType={conn.member_type}
                                    size={48}
                                  />
-                                <h5 style={{ fontSize: "13px", color: "#ffffff", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
+                                <h5 style={{ fontSize: "13px", color: "var(--color-on-surface)", margin: "0 0 2px", fontWeight: 600 }}>{conn.name}</h5>
                                 <span style={{ fontSize: "10.5px", color: "var(--color-secondary)", marginBottom: "2px", fontWeight: 500 }}>{conn.role}</span>
                                 <span style={{ fontSize: "9px", color: "var(--color-outline)", marginBottom: "8px" }}>
                                   {conn.company ? `@ ${conn.company}` : conn.location || "Membro"}
@@ -1630,7 +1630,7 @@ export default function PerfilPage() {
                             size={40}
                           />
                           <div>
-                            <h4 style={{ fontSize: "13px", color: "#ffffff", fontWeight: 600, margin: 0 }}>{memberInfo?.name || post.author_name}</h4>
+                            <h4 style={{ fontSize: "13px", color: "var(--color-on-surface)", fontWeight: 600, margin: 0 }}>{memberInfo?.name || post.author_name}</h4>
                             <span style={{ fontSize: "10px", color: "var(--color-secondary)", fontWeight: 500, display: "block" }}>{memberInfo?.role || post.author_role}</span>
                           </div>
                         </div>

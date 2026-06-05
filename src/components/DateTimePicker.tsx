@@ -205,180 +205,192 @@ export default function DateTimePicker({ value, onChange, placeholder = "Selecio
         </span>
       </div>
 
-      {/* Popover Calendar */}
+      {/* Popover Calendar / Popup Modal */}
       {isOpen && (
-        <div style={{
-          position: "absolute",
-          top: "100%",
-          left: 0,
-          marginTop: "8px",
-          width: "320px",
-          backgroundColor: "#131316",
-          border: "1px solid rgba(255, 255, 255, 0.15)",
-          borderRadius: "8px",
-          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
-          zIndex: 9999,
-          padding: "16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          backdropFilter: "blur(12px)"
-        }}>
-          {/* Calendar Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <button 
-              type="button" 
-              onClick={handlePrevMonth}
-              style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer", display: "flex" }}
-              className="hover-gold-text"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>chevron_left</span>
-            </button>
-            <span style={{ fontWeight: 600, color: "#ffffff", fontSize: "14px" }}>
-              {monthNames[viewMonth]} {viewYear}
-            </span>
-            <button 
-              type="button" 
-              onClick={handleNextMonth}
-              style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer", display: "flex" }}
-              className="hover-gold-text"
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>chevron_right</span>
-            </button>
-          </div>
-
-          {/* Weekday headers */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontSize: "10px", color: "var(--color-outline)", fontWeight: 700 }}>
-            <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
-          </div>
-
-          {/* Days Grid */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
-            {allCalendarDays.map((day, idx) => {
-              if (day === null) {
-                return <div key={`empty-${idx}`} />;
-              }
-              const selected = isSelectedDay(day);
-              return (
-                <button
-                  key={`day-${day}`}
-                  type="button"
-                  onClick={() => handleSelectDay(day)}
-                  style={{
-                    height: "30px",
-                    width: "30px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: "4px",
-                    border: "none",
-                    background: selected ? "var(--color-secondary)" : "transparent",
-                    color: selected ? "var(--color-on-secondary)" : "#ffffff",
-                    fontSize: "12px",
-                    fontWeight: selected ? 700 : 400,
-                    cursor: "pointer",
-                    transition: "all 0.1s"
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!selected) {
-                      e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!selected) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }
-                  }}
-                >
-                  {day}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Time Selector */}
-          <div style={{
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            paddingTop: "12px",
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsOpen(false);
+            }
+          }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.65)",
+            backdropFilter: "blur(4px)",
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "center",
+            zIndex: 99999
+          }}
+        >
+          <div style={{
+            width: "320px",
+            backgroundColor: "#131316",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "8px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.5)",
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
             gap: "12px"
           }}>
-            <span style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>HORÁRIO</span>
-            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              {/* Hour Dropdown */}
-              <select
-                value={selectedHour}
-                onChange={(e) => handleTimeChange(e.target.value, selectedMinute)}
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "4px",
-                  color: "#ffffff",
-                  padding: "4px",
-                  fontSize: "12px",
-                  outline: "none"
-                }}
+            {/* Calendar Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <button 
+                type="button" 
+                onClick={handlePrevMonth}
+                style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer", display: "flex" }}
+                className="hover-gold-text"
               >
-                {hours.map(h => (
-                  <option key={`h-${h}`} value={h} style={{ backgroundColor: "#131316" }}>{h}</option>
-                ))}
-              </select>
-              <span style={{ color: "#ffffff" }}>:</span>
-              {/* Minute Dropdown */}
-              <select
-                value={selectedMinute}
-                onChange={(e) => handleTimeChange(selectedHour, e.target.value)}
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "4px",
-                  color: "#ffffff",
-                  padding: "4px",
-                  fontSize: "12px",
-                  outline: "none"
-                }}
+                <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>chevron_left</span>
+              </button>
+              <span style={{ fontWeight: 600, color: "#ffffff", fontSize: "14px" }}>
+                {monthNames[viewMonth]} {viewYear}
+              </span>
+              <button 
+                type="button" 
+                onClick={handleNextMonth}
+                style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer", display: "flex" }}
+                className="hover-gold-text"
               >
-                {minutes.map(m => (
-                  <option key={`m-${m}`} value={m} style={{ backgroundColor: "#131316" }}>{m}</option>
-                ))}
-              </select>
+                <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>chevron_right</span>
+              </button>
             </div>
-          </div>
 
-          {/* Footer buttons */}
-          <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px", gap: "8px" }}>
-            <button
-              type="button"
-              onClick={handleClear}
-              className="btn-outline"
-              style={{
-                flex: 1,
-                fontSize: "10px",
-                padding: "6px 0",
-                display: "inline-flex",
-                justifyContent: "center",
-                color: "#f87171",
-                borderColor: "rgba(248, 113, 113, 0.2)"
-              }}
-            >
-              LIMPAR
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="btn-primary"
-              style={{
-                flex: 1,
-                fontSize: "10px",
-                padding: "6px 0",
-                display: "inline-flex",
-                justifyContent: "center"
-              }}
-            >
-              FECHAR
-            </button>
+            {/* Weekday headers */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontSize: "10px", color: "var(--color-outline)", fontWeight: 700 }}>
+              <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
+            </div>
+
+            {/* Days Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
+              {allCalendarDays.map((day, idx) => {
+                if (day === null) {
+                  return <div key={`empty-${idx}`} />;
+                }
+                const selected = isSelectedDay(day);
+                return (
+                  <button
+                    key={`day-${day}`}
+                    type="button"
+                    onClick={() => handleSelectDay(day)}
+                    style={{
+                      height: "30px",
+                      width: "30px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "4px",
+                      border: "none",
+                      background: selected ? "var(--color-secondary)" : "transparent",
+                      color: selected ? "var(--color-on-secondary)" : "#ffffff",
+                      fontSize: "12px",
+                      fontWeight: selected ? 700 : 400,
+                      cursor: "pointer",
+                      transition: "all 0.1s"
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!selected) {
+                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!selected) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    {day}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Time Selector */}
+            <div style={{
+              borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+              paddingTop: "12px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "12px"
+            }}>
+              <span style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>HORÁRIO</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                {/* Hour Dropdown */}
+                <select
+                  value={selectedHour}
+                  onChange={(e) => handleTimeChange(e.target.value, selectedMinute)}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "4px",
+                    color: "#ffffff",
+                    padding: "4px",
+                    fontSize: "12px",
+                    outline: "none"
+                  }}
+                >
+                  {hours.map(h => (
+                    <option key={`h-${h}`} value={h} style={{ backgroundColor: "#131316" }}>{h}</option>
+                  ))}
+                </select>
+                <span style={{ color: "#ffffff" }}>:</span>
+                {/* Minute Dropdown */}
+                <select
+                  value={selectedMinute}
+                  onChange={(e) => handleTimeChange(selectedHour, e.target.value)}
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    borderRadius: "4px",
+                    color: "#ffffff",
+                    padding: "4px",
+                    fontSize: "12px",
+                    outline: "none"
+                  }}
+                >
+                  {minutes.map(m => (
+                    <option key={`m-${m}`} value={m} style={{ backgroundColor: "#131316" }}>{m}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Footer buttons */}
+            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "12px", gap: "8px" }}>
+              <button
+                type="button"
+                onClick={handleClear}
+                className="btn-outline"
+                style={{
+                  flex: 1,
+                  fontSize: "10px",
+                  padding: "6px 0",
+                  display: "inline-flex",
+                  justifyContent: "center",
+                  color: "#f87171",
+                  borderColor: "rgba(248, 113, 113, 0.2)"
+                }}
+              >
+                LIMPAR
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                className="btn-primary"
+                style={{
+                  flex: 1,
+                  fontSize: "10px",
+                  padding: "6px 0",
+                  display: "inline-flex",
+                  justifyContent: "center"
+                }}
+              >
+                FECHAR
+              </button>
+            </div>
           </div>
         </div>
       )}

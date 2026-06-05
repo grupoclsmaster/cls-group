@@ -182,8 +182,8 @@ export default function CourseDetailPage() {
           flex: 0 0 280px;
           border-radius: 6px;
           overflow: hidden;
-          background: linear-gradient(145deg, rgba(7, 7, 50, 0.4) 0%, rgba(19, 19, 22, 0.35) 100%);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--dropdown-bg);
+          border: 1px solid var(--border-color);
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
           display: flex;
@@ -203,9 +203,9 @@ export default function CourseDetailPage() {
           width: 44px;
           height: 44px;
           border-radius: 50%;
-          background-color: rgba(19, 19, 22, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #ffffff;
+          background-color: var(--dropdown-bg);
+          border: 1px solid var(--dropdown-border);
+          color: var(--color-on-surface);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -318,10 +318,10 @@ export default function CourseDetailPage() {
             style={{
               width: "220px",
               padding: "10px 16px 10px 42px",
-              backgroundColor: "rgba(14, 14, 17, 0.75)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              backgroundColor: "var(--search-input-bg)",
+              border: "1px solid var(--search-input-border)",
               borderRadius: "100px",
-              color: "#ffffff",
+              color: "var(--color-on-surface)",
               fontSize: "13px",
               outline: "none",
               backdropFilter: "blur(8px)"
@@ -478,7 +478,7 @@ export default function CourseDetailPage() {
                 <h3
                   className="font-title-lg"
                   style={{
-                    color: "#ffffff",
+                    color: "var(--color-on-surface)",
                     fontWeight: 700,
                     fontSize: "18px",
                     marginBottom: "12px",
@@ -589,7 +589,7 @@ export default function CourseDetailPage() {
                           <h4
                             style={{
                               fontSize: "14px",
-                              color: "#ffffff",
+                              color: "var(--color-on-surface)",
                               fontWeight: 600,
                               lineHeight: "1.3",
                               marginBottom: "6px",

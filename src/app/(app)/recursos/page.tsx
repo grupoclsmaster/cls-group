@@ -725,49 +725,36 @@ export default function RecursosPage() {
               </div>
 
               {/* URL */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>
-                  {uploadMode === "upload" ? "URL DE DOWNLOAD (PREENCHIDA AUTOMATICAMENTE)" : "URL DO RECURSO (LINK)"}
-                </label>
-                <input
-                  type="text"
-                  className="input-dark"
-                  placeholder={uploadMode === "upload" ? "Aguardando upload..." : "https://link-do-recurso.com"}
-                  value={formUrl}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFormUrl(val);
-                    if (val) {
-                      const ext = val.split('.').pop()?.split(/[?#]/)[0]?.toUpperCase() || "LINK";
-                      setFormFormat(ext);
-                    }
-                  }}
-                  required
-                  disabled={uploadMode === "upload" && !formUrl}
-                />
-              </div>
-
-              {/* Schedule and Size Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              {/* URL */}
+              {uploadMode === "url" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR DISPONIBILIDADE</label>
-                  <DateTimePicker
-                    value={formAvailableAt}
-                    onChange={(val) => setFormAvailableAt(val)}
-                  />
-                  <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>Deixe em branco para disponibilização imediata.</span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TAMANHO / METADADO (OPCIONAL)</label>
+                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>URL DO RECURSO (LINK)</label>
                   <input
                     type="text"
                     className="input-dark"
-                    placeholder="Ex: 15.2 MB ou LINK"
-                    value={formSize}
-                    onChange={(e) => setFormSize(e.target.value)}
+                    placeholder="https://link-do-recurso.com"
+                    value={formUrl}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormUrl(val);
+                      if (val) {
+                        const ext = val.split('.').pop()?.split(/[?#]/)[0]?.toUpperCase() || "LINK";
+                        setFormFormat(ext);
+                      }
+                    }}
+                    required
                   />
                 </div>
+              )}
+
+              {/* Schedule */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR DISPONIBILIDADE</label>
+                <DateTimePicker
+                  value={formAvailableAt}
+                  onChange={(val) => setFormAvailableAt(val)}
+                />
+                <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>Deixe em branco para disponibilização imediata.</span>
               </div>
 
               {/* Actions */}
@@ -836,44 +823,34 @@ export default function RecursosPage() {
               </div>
 
               {/* URL */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>URL DO RECURSO (LINK)</label>
-                <input
-                  type="text"
-                  className="input-dark"
-                  value={formUrl}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setFormUrl(val);
-                    if (val) {
-                      const ext = val.split('.').pop()?.split(/[?#]/)[0]?.toUpperCase() || "LINK";
-                      setFormFormat(ext);
-                    }
-                  }}
-                  required
-                />
-              </div>
-
-              {/* Schedule and Size Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+              {formFormat.toUpperCase() === "LINK" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR DISPONIBILIDADE</label>
-                  <DateTimePicker
-                    value={formAvailableAt}
-                    onChange={(val) => setFormAvailableAt(val)}
-                  />
-                  <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>Deixe em branco para disponibilização imediata.</span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TAMANHO / METADADO</label>
+                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>URL DO RECURSO (LINK)</label>
                   <input
                     type="text"
                     className="input-dark"
-                    value={formSize}
-                    onChange={(e) => setFormSize(e.target.value)}
+                    value={formUrl}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormUrl(val);
+                      if (val) {
+                        const ext = val.split('.').pop()?.split(/[?#]/)[0]?.toUpperCase() || "LINK";
+                        setFormFormat(ext);
+                      }
+                    }}
+                    required
                   />
                 </div>
+              )}
+
+              {/* Schedule */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR DISPONIBILIDADE</label>
+                <DateTimePicker
+                  value={formAvailableAt}
+                  onChange={(val) => setFormAvailableAt(val)}
+                />
+                <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>Deixe em branco para disponibilização imediata.</span>
               </div>
 
               {/* Actions */}

@@ -305,14 +305,14 @@ export default function TopBar() {
         transition: "width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
         height: "80px",
         padding: "0 40px",
-        backgroundColor: "rgba(19, 19, 22, 0.7)",
+        backgroundColor: "var(--topbar-bg)",
         backdropFilter: "blur(20px)",
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         zIndex: 40,
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+        borderBottom: "1px solid var(--topbar-border)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
       }}
     >
       <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
@@ -381,9 +381,9 @@ export default function TopBar() {
                   padding: "8px 32px 8px 36px",
                   borderRadius: "20px",
                   fontSize: "12px",
-                  backgroundColor: "rgba(0, 0, 0, 0.4)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
-                  color: "#ffffff",
+                  backgroundColor: "var(--search-input-bg)",
+                  border: "1px solid var(--search-input-border)",
+                  color: "var(--color-on-surface)",
                   transition: "all 0.3s ease",
                   marginRight: "8px",
                   position: "relative",
@@ -427,12 +427,12 @@ export default function TopBar() {
                   alignItems: "center",
                   justifyContent: "center",
                   padding: "4px",
-                  color: "rgba(255, 255, 255, 0.5)",
+                  color: "var(--color-outline)",
                   zIndex: 2,
                   transition: "color 0.2s"
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = "#ffffff"}
-                onMouseLeave={(e) => e.currentTarget.style.color = "rgba(255, 255, 255, 0.5)"}
+                onMouseEnter={(e) => e.currentTarget.style.color = "var(--color-on-surface)"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "var(--color-outline)"}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>close</span>
               </button>
@@ -453,7 +453,7 @@ export default function TopBar() {
                 alignItems: "center",
                 justifyContent: "center",
                 padding: "4px",
-                color: "#ffffff"
+                color: "var(--color-on-surface-variant)"
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>search</span>
@@ -469,11 +469,11 @@ export default function TopBar() {
                 top: "45px",
                 right: 0,
                 width: "280px",
-                backgroundColor: "rgba(20, 20, 25, 0.98)",
+                backgroundColor: "var(--dropdown-bg)",
                 backdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
+                border: "1px solid var(--dropdown-border)",
                 borderRadius: "8px",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
                 zIndex: 2,
                 padding: "8px 0",
                 display: "flex",
@@ -500,7 +500,7 @@ export default function TopBar() {
                       setSearchResults([]);
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)";
+                      e.currentTarget.style.backgroundColor = "var(--dropdown-item-hover)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
@@ -523,7 +523,7 @@ export default function TopBar() {
                       size={30}
                     />
                     <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
-                      <span style={{ fontSize: "12px", fontWeight: 600, color: "#ffffff" }}>{m.name}</span>
+                      <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--dropdown-text)" }}>{m.name}</span>
                       <span style={{ fontSize: "10px", color: "var(--color-on-surface-variant)" }}>
                         {m.role} {m.company ? `na ${m.company}` : ""}
                       </span>
@@ -580,9 +580,9 @@ export default function TopBar() {
                   width: "360px",
                   maxHeight: "450px",
                   borderRadius: "4px",
-                  border: "1px solid rgba(237, 192, 102, 0.15)",
-                  backgroundColor: "rgba(19, 19, 22, 0.98)",
-                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.5)",
+                  border: "1px solid var(--dropdown-border)",
+                  backgroundColor: "var(--dropdown-bg)",
+                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
                   zIndex: 50,
                   display: "flex",
                   flexDirection: "column",
@@ -594,7 +594,7 @@ export default function TopBar() {
                 <div
                   style={{
                     padding: "16px",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderBottom: "1px solid var(--border-color)",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -620,7 +620,7 @@ export default function TopBar() {
                         >
                           Ler todas
                         </button>
-                        <span style={{ color: "rgba(255,255,255,0.15)", fontSize: "10px" }}>|</span>
+                        <span style={{ color: "var(--border-color)", fontSize: "10px" }}>|</span>
                         <button
                           onClick={handleClearAll}
                           style={{
@@ -696,21 +696,21 @@ export default function TopBar() {
                           onClick={() => handleNotificationClick(item)}
                           style={{
                             padding: "16px",
-                            borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+                            borderBottom: "1px solid var(--border-color)",
                             display: "flex",
                             gap: "12px",
                             cursor: "pointer",
                             transition: "background-color 0.2s ease",
-                            backgroundColor: item.read ? "transparent" : "rgba(255, 255, 255, 0.02)",
+                            backgroundColor: item.read ? "transparent" : "var(--dropdown-item-unread)",
                             position: "relative",
                           }}
                           onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.04)";
+                            e.currentTarget.style.backgroundColor = "var(--dropdown-item-hover)";
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.backgroundColor = item.read
                               ? "transparent"
-                              : "rgba(255, 255, 255, 0.02)";
+                              : "var(--dropdown-item-unread)";
                           }}
                         >
                           {!item.read && (
@@ -752,7 +752,7 @@ export default function TopBar() {
                                 style={{
                                   fontSize: "12px",
                                   fontWeight: item.read ? 600 : 700,
-                                  color: item.read ? "var(--color-on-surface)" : "#ffffff",
+                                  color: item.read ? "var(--color-on-surface-variant)" : "var(--color-on-surface)",
                                   margin: 0,
                                 }}
                               >

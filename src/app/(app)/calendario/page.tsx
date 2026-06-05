@@ -841,7 +841,7 @@ export default function CalendarioPage() {
   }
 
   return (
-    <div className="animate-fadeIn">
+    <div className="animate-fadeIn" style={{ paddingTop: "12px" }}>
       {/* Dynamic Header */}
       <section style={{ marginBottom: "28px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
         <div>
@@ -1160,12 +1160,12 @@ export default function CalendarioPage() {
               width: "480px",
               padding: "32px",
               borderRadius: "4px",
-              border: "1px solid rgba(237, 192, 102, 0.2)",
-              backgroundColor: "rgba(19, 19, 22, 0.95)",
+              border: "1px solid var(--dropdown-border)",
+              backgroundColor: "var(--dropdown-bg)",
               display: "flex",
               flexDirection: "column",
               gap: "20px",
-              boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
             }}
           >
             <div>
@@ -1173,7 +1173,7 @@ export default function CalendarioPage() {
                 <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "20px" }}>event_available</span>
                 <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px" }}>Criar Novo Evento</span>
               </div>
-              <h3 className="font-title-lg" style={{ color: "#ffffff", margin: 0 }}>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", margin: 0 }}>
                 Dia {selectedDay} de {activeMonth.name}
               </h3>
             </div>
@@ -1355,9 +1355,9 @@ export default function CalendarioPage() {
             padding: "16px 24px",
             borderRadius: "4px",
             border: toast.type === "success" ? "1px solid #a3e635" : "1px solid var(--color-error)",
-            backgroundColor: "rgba(19, 19, 22, 0.95)",
+            backgroundColor: "var(--dropdown-bg)",
             color: toast.type === "success" ? "#a3e635" : "var(--color-error)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
             zIndex: 10001,
             display: "flex",
             alignItems: "center",
@@ -1399,20 +1399,20 @@ export default function CalendarioPage() {
         >
           <div 
             style={{
-              backgroundColor: "rgba(30, 30, 35, 0.95)",
-              border: "1px solid rgba(237, 192, 102, 0.2)",
+              backgroundColor: "var(--dropdown-bg)",
+              border: "1px solid var(--dropdown-border)",
               borderRadius: "8px",
               padding: "24px",
               width: "90%",
               maxWidth: "400px",
-              boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
               display: "flex",
               flexDirection: "column",
               gap: "12px"
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#ffffff" }}>
+            <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "var(--color-on-surface)" }}>
               {customDialog.title}
             </h3>
             <p style={{ margin: 0, fontSize: "13px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>

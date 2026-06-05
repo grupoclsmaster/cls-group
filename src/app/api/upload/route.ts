@@ -9,9 +9,15 @@ import fs from "fs";
 import os from "os";
 import crypto from "crypto";
 
-// Configure ffmpeg path
-if (ffmpegPath) {
-  ffmpeg.setFfmpegPath(ffmpegPath);
+// Configure ffmpeg path safely
+try {
+  if (ffmpegPath && fs.existsSync(ffmpegPath)) {
+    ffmpeg.setFfmpegPath(ffmpegPath);
+  } else {
+    console.warn("ffmpeg-static path does not exist on filesystem:", ffmpegPath);
+  }
+} catch (e) {
+  console.error("Failed to configure ffmpeg path:", e);
 }
 
 export async function POST(req: NextRequest) {

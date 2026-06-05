@@ -113,8 +113,8 @@ export default function MasterclassesPage() {
       {/* CSS Injection */}
       <style dangerouslySetInnerHTML={{ __html: `
         .course-card {
-          background: linear-gradient(145deg, rgba(7, 7, 50, 0.4) 0%, rgba(19, 19, 22, 0.35) 100%);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--dropdown-bg);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           overflow: hidden;
           cursor: pointer;
@@ -175,10 +175,10 @@ export default function MasterclassesPage() {
             style={{
               width: "220px",
               padding: "10px 16px 10px 42px",
-              backgroundColor: "rgba(14, 14, 17, 0.75)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              backgroundColor: "var(--search-input-bg)",
+              border: "1px solid var(--search-input-border)",
               borderRadius: "100px",
-              color: "#ffffff",
+              color: "var(--color-on-surface)",
               fontSize: "13px",
               outline: "none",
               backdropFilter: "blur(8px)"
@@ -210,7 +210,7 @@ export default function MasterclassesPage() {
               
               <div style={{ padding: "20px", display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "space-between" }}>
                 <div>
-                  <h3 className="font-title-lg" style={{ color: "#ffffff", marginBottom: "8px", fontWeight: 700 }}>
+                  <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", marginBottom: "8px", fontWeight: 700 }}>
                     {course.title}
                   </h3>
                   <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", marginBottom: "16px", fontSize: "13px", lineHeight: "1.5" }}>
@@ -218,7 +218,7 @@ export default function MasterclassesPage() {
                   </p>
                 </div>
                 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px", marginTop: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border-color)", paddingTop: "14px", marginTop: "10px" }}>
                   <span style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>
                     {stats.modulesCount} Módulos • {stats.lessonsCount} Aulas
                   </span>

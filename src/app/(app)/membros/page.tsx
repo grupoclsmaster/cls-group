@@ -1520,7 +1520,7 @@ export default function FeedComunidadePage() {
                   />
 
                   {/* Post Type Selector */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "12px 0 6px 0", borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: "12px" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "12px 0 6px 0", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
                     <button
                       type="button"
                       onClick={() => setPostType("standard")}
@@ -1534,7 +1534,7 @@ export default function FeedComunidadePage() {
                         fontWeight: 600,
                         backgroundColor: postType === "standard" ? "rgba(237, 192, 102, 0.15)" : "transparent",
                         color: postType === "standard" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "standard" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid rgba(255, 255, 255, 0.08)",
+                        border: postType === "standard" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1555,7 +1555,7 @@ export default function FeedComunidadePage() {
                         fontWeight: 600,
                         backgroundColor: postType === "status" ? "rgba(237, 192, 102, 0.15)" : "transparent",
                         color: postType === "status" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "status" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid rgba(255, 255, 255, 0.08)",
+                        border: postType === "status" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1576,7 +1576,7 @@ export default function FeedComunidadePage() {
                         fontWeight: 600,
                         backgroundColor: postType === "reels" ? "rgba(237, 192, 102, 0.15)" : "transparent",
                         color: postType === "reels" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "reels" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid rgba(255, 255, 255, 0.08)",
+                        border: postType === "reels" ? "1px solid rgba(237, 192, 102, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1712,7 +1712,7 @@ export default function FeedComunidadePage() {
                         size={42}
                       />
                       <div>
-                        <h4 style={{ fontSize: "14px", color: "#ffffff", fontWeight: 600 }}>{authorName}</h4>
+                        <h4 style={{ fontSize: "14px", color: "var(--color-on-surface)", fontWeight: 600 }}>{authorName}</h4>
                         <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 600, display: "block" }}>{authorRole}</span>
                       </div>
                     </div>
@@ -1951,7 +1951,7 @@ export default function FeedComunidadePage() {
                                 />
                                 <div style={{ flex: 1 }}>
                                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
-                                    <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff" }}>{comment.author_name}</span>
+                                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-on-surface)" }}>{comment.author_name}</span>
                                     <span style={{ fontSize: "9px", color: "var(--color-outline)" }}>{formatPostTime(comment.created_at)}</span>
                                   </div>
 
@@ -2135,7 +2135,7 @@ export default function FeedComunidadePage() {
                                         />
                                         <div style={{ flex: 1 }}>
                                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
-                                            <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>{reply.author_name}</span>
+                                            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-on-surface)" }}>{reply.author_name}</span>
                                             <span style={{ fontSize: "8px", color: "var(--color-outline)" }}>{formatPostTime(reply.created_at)}</span>
                                           </div>
                                           
@@ -2412,8 +2412,8 @@ export default function FeedComunidadePage() {
                   padding: "10px 12px 10px 36px",
                   borderRadius: "4px",
                   fontSize: "12px",
-                  backgroundColor: "rgba(0,0,0,0.15)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)"
+                  backgroundColor: "var(--search-input-bg)",
+                  border: "1px solid var(--search-input-border)"
                 }}
               />
             </div>
@@ -2431,7 +2431,7 @@ export default function FeedComunidadePage() {
                       size={32}
                     />
                     <div>
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff", display: "block" }}>{member.name}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-on-surface)", display: "block" }}>{member.name}</span>
                       <span style={{ fontSize: "9px", color: "var(--color-outline)", display: "block" }}>{member.role} na {member.company}</span>
                     </div>
                   </div>
