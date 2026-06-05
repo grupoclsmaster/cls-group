@@ -60,9 +60,10 @@ export default function TopBar() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [member, setMember] = useState<{ name: string; initials?: string; img?: string; member_type?: 'admin' | 'master' | 'mentor' | null } | null>(null);
+  const [member, setMember] = useState<{ name: string; initials?: string; img?: string; member_type?: 'admin' | 'master' | 'mentor' | null; theme?: string } | null>(null);
   const [loadingMember, setLoadingMember] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   // Search states
   const [searchOpen, setSearchOpen] = useState(false);
@@ -104,6 +105,48 @@ export default function TopBar() {
     return () => clearTimeout(delayDebounce);
   }, [searchQuery]);
 
+  // Load theme preference on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("cls-theme") as "dark" | "light";
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute("data-theme", savedTheme);
+      document.documentElement.className = savedTheme;
+    }
+  }, []);
+
+  // Sync theme when member profile is loaded
+  useEffect(() => {
+    if (member && member.theme) {
+      const dbTheme = member.theme as "dark" | "light";
+      setTheme(dbTheme);
+      localStorage.setItem("cls-theme", dbTheme);
+      document.documentElement.setAttribute("data-theme", dbTheme);
+      document.documentElement.className = dbTheme;
+    }
+  }, [member]);
+
+  const toggleTheme = async () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    localStorage.setItem("cls-theme", nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    document.documentElement.className = nextTheme;
+
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from("members")
+          .update({ theme: nextTheme })
+          .eq("id", user.id);
+      }
+    } catch (err) {
+      console.error("Error updating theme in database:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -112,7 +155,7 @@ export default function TopBar() {
         if (user) {
           const { data, error } = await supabase
             .from("members")
-            .select("name, initials, img, member_type")
+            .select("name, initials, img, member_type, theme")
             .eq("id", user.id)
             .single();
           const emailLower = user.email?.toLowerCase();
@@ -739,6 +782,26 @@ export default function TopBar() {
             </>
           )}
         </div>
+
+        <button
+          onClick={toggleTheme}
+          className="topbar-btn"
+          title={theme === "dark" ? "Alternar para Modo Claro" : "Alternar para Modo Escuro"}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "8px",
+            color: "var(--color-on-surface-variant)"
+          }}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>
+            {theme === "dark" ? "light_mode" : "dark_mode"}
+          </span>
+        </button>
 
         <Link href="/perfil" className="topbar-btn" style={{ padding: "4px", display: "flex", alignItems: "center", textDecoration: "none" }}>
           {loadingMember ? (
