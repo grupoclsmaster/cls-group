@@ -22,6 +22,106 @@ export default function DashboardPage() {
   const [activeModuleName, setActiveModuleName] = useState("Nenhum módulo iniciado");
   const [progressPercent, setProgressPercent] = useState(0);
 
+  const [tutorialStep, setTutorialStep] = useState<number>(-1);
+  const [dontShowAgain, setDontShowAgain] = useState<boolean>(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+
+  const tutorialSteps = [
+    {
+      title: "Boas-vindas ao Club Pro CLS!",
+      description: "Este é o seu portal de elite. Vamos fazer um tour rápido pelas principais ferramentas disponíveis para alavancar seus negócios.",
+      selector: "#welcome-section"
+    },
+    {
+      title: "Progresso do Módulo Atual",
+      description: "Aqui você acompanha a conclusão do seu treinamento atual. Conforme você assiste às aulas nas Masterclasses, o progresso é atualizado automaticamente.",
+      selector: "#progress-card"
+    },
+    {
+      title: "Mentorias ao Vivo",
+      description: "Fique por dentro das datas, temas e links de transmissão das próximas mentorias ao vivo com os líderes do mercado.",
+      selector: "#mentorship-card"
+    },
+    {
+      title: "Próximos Eventos",
+      description: "Acompanhe todo o calendário do Club para planejar sua agenda com antecedência.",
+      selector: "#events-card"
+    },
+    {
+      title: "Biblioteca de Masterclasses",
+      description: "Acesse rapidamente os conteúdos gravados mais recentes, planilhas de viabilidade (EVTL) e de custos indiretos.",
+      selector: "#masterclasses-card"
+    },
+    {
+      title: "Navegação Completa",
+      description: "Use a barra lateral para navegar pelas missões técnicas, oportunidades de co-investimento e diretório de membros.",
+      selector: ".sidebar"
+    }
+  ];
+
+  const handleNextStep = () => {
+    if (dontShowAgain) {
+      localStorage.setItem("cls_skip_tutorial", "true");
+    }
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(prev => prev + 1);
+    } else {
+      localStorage.setItem("cls_skip_tutorial", "true");
+      setTutorialStep(-1);
+    }
+  };
+
+  const handleCloseTutorial = () => {
+    if (dontShowAgain) {
+      localStorage.setItem("cls_skip_tutorial", "true");
+    }
+    setTutorialStep(-1);
+  };
+
+  useEffect(() => {
+    if (tutorialStep >= 0 && tutorialStep < tutorialSteps.length) {
+      const updateCoords = () => {
+        const step = tutorialSteps[tutorialStep];
+        if (step.selector) {
+          const el = document.querySelector(step.selector);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            setCoords({
+              top: rect.top + window.scrollY,
+              left: rect.left + window.scrollX,
+              width: rect.width,
+              height: rect.height
+            });
+          }
+        } else {
+          setCoords(null);
+        }
+      };
+
+      // Delay slightly to ensure component is fully mounted/rendered
+      const timer = setTimeout(() => {
+        updateCoords();
+        const step = tutorialSteps[tutorialStep];
+        if (step.selector) {
+          const el = document.querySelector(step.selector);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }
+      }, 150);
+
+      window.addEventListener("resize", updateCoords);
+      window.addEventListener("scroll", updateCoords);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener("resize", updateCoords);
+        window.removeEventListener("scroll", updateCoords);
+      };
+    } else {
+      setCoords(null);
+    }
+  }, [tutorialStep]);
+
   const formatName = (name: string) => {
     if (!name) return "";
     return name
@@ -159,6 +259,10 @@ export default function DashboardPage() {
         console.error("Erro ao buscar dados do dashboard:", err);
       } finally {
         setLoading(false);
+        const skipTutorial = localStorage.getItem("cls_skip_tutorial") === "true";
+        if (!skipTutorial) {
+          setTutorialStep(0);
+        }
       }
     };
     void fetchDashboardData();
@@ -171,7 +275,7 @@ export default function DashboardPage() {
   return (
     <div className="animate-fadeIn">
       {/* Welcome */}
-      <section style={{ marginBottom: "40px" }}>
+      <section id="welcome-section" style={{ marginBottom: "40px" }}>
         <h2
           className="font-display-mobile"
           style={{ color: "var(--color-on-surface)", marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}
@@ -201,6 +305,7 @@ export default function DashboardPage() {
 
         {/* Progress Card */}
         <div
+          id="progress-card"
           className="glass-panel metallic-edge"
           style={{
             gridColumn: "span 4",
@@ -229,6 +334,7 @@ export default function DashboardPage() {
 
         {/* Next Mentorship Card */}
         <div
+          id="mentorship-card"
           className="premium-gradient-bg metallic-edge"
           onClick={() => {
             if (nextMentorship) {
@@ -308,6 +414,7 @@ export default function DashboardPage() {
 
         {/* Events Panel */}
         <div
+          id="events-card"
           className="glass-panel"
           style={{
             gridColumn: "span 4",
@@ -369,7 +476,7 @@ export default function DashboardPage() {
         </div>
 
         {/* === Row 2: Latest Masterclasses === */}
-        <div style={{ gridColumn: "span 12", marginTop: "16px" }}>
+        <div id="masterclasses-card" style={{ gridColumn: "span 12", marginTop: "16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "24px" }}>
             <div>
               <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Últimas Masterclasses</h3>
@@ -388,7 +495,7 @@ export default function DashboardPage() {
             {latestCourses.length > 0 ? (
               latestCourses.map((mc) => (
                 <Link
-                  href={`/masterclasses?course_id=${mc.id}`}
+                  href={`/masterclasses/curso/${mc.slug || mc.id}`}
                   key={mc.id}
                   style={{ textDecoration: "none" }}
                 >
@@ -449,6 +556,178 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ height: "48px" }} />
+
+      {/* Tutorial Overlay */}
+      {tutorialStep >= 0 && tutorialStep < tutorialSteps.length && (() => {
+        // Calculate style for floating popover next to target
+        let popoverStyle: React.CSSProperties = {
+          position: "fixed",
+          zIndex: 10001,
+          transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        };
+
+        if (coords) {
+          const scrollY = typeof window !== "undefined" ? window.scrollY : 0;
+          const scrollX = typeof window !== "undefined" ? window.scrollX : 0;
+          const innerWidth = typeof window !== "undefined" ? window.innerWidth : 1000;
+          const innerHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+
+          const viewportTop = coords.top - scrollY;
+          const viewportLeft = coords.left - scrollX;
+
+          let top = viewportTop + coords.height + 16;
+          let left = viewportLeft + (coords.width / 2) - 230; // Center popover under target
+
+          // Maintain on-screen bounds horizontally
+          if (left < 20) left = 20;
+          if (left + 460 > innerWidth - 20) left = innerWidth - 460 - 20;
+
+          const estimatedHeight = 260; // Approximate onboarding box height
+          if (top + estimatedHeight > innerHeight - 20) {
+            // Place it above if no space below
+            top = viewportTop - estimatedHeight - 16;
+            if (top < 20) {
+              // Centered fallback
+              popoverStyle = {
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 10001,
+                width: "90%",
+                maxWidth: "460px",
+                transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+              };
+            } else {
+              popoverStyle.top = `${top}px`;
+              popoverStyle.left = `${left}px`;
+              popoverStyle.width = "460px";
+            }
+          } else {
+            popoverStyle.top = `${top}px`;
+            popoverStyle.left = `${left}px`;
+            popoverStyle.width = "460px";
+          }
+        } else {
+          popoverStyle = {
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            zIndex: 10001,
+            width: "90%",
+            maxWidth: "460px",
+            transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+          };
+        }
+
+        return (
+          <>
+            {/* Transparent blocker to prevent interactions while doing the tour */}
+            <div style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9998,
+              backgroundColor: "transparent"
+            }} />
+
+            {/* Glowing cut-out highlight mask */}
+            {coords ? (
+              <div style={{
+                position: "absolute",
+                top: `${coords.top}px`,
+                left: `${coords.left}px`,
+                width: `${coords.width}px`,
+                height: `${coords.height}px`,
+                border: "3px solid var(--color-secondary)",
+                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 25px rgba(237, 192, 102, 0.4)",
+                borderRadius: "8px",
+                pointerEvents: "none",
+                zIndex: 9999,
+                transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)"
+              }} />
+            ) : (
+              <div style={{
+                position: "fixed",
+                inset: 0,
+                backgroundColor: "rgba(0, 0, 0, 0.75)",
+                backdropFilter: "blur(4px)",
+                zIndex: 9999
+              }} />
+            )}
+
+            {/* Instruction popover */}
+            <div className="glass-panel metallic-edge" style={popoverStyle}>
+              <div style={{ padding: "32px", position: "relative" }}>
+                {/* Step indicator */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px" }}>
+                    TUTORIAL • PASSO {tutorialStep + 1} DE {tutorialSteps.length}
+                  </span>
+                  <button 
+                    onClick={() => handleCloseTutorial()}
+                    style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+                  </button>
+                </div>
+
+                {/* Content */}
+                <h3 className="font-headline-sm" style={{ color: "#fff", marginBottom: "12px", fontSize: "20px" }}>
+                  {tutorialSteps[tutorialStep].title}
+                </h3>
+                <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "24px", lineHeight: "1.6" }}>
+                  {tutorialSteps[tutorialStep].description}
+                </p>
+
+                {/* Checkbox Don't show again */}
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+                  <input 
+                    type="checkbox" 
+                    id="dontShow" 
+                    checked={dontShowAgain}
+                    onChange={(e) => setDontShowAgain(e.target.checked)}
+                    style={{ accentColor: "var(--color-secondary)", cursor: "pointer" }}
+                  />
+                  <label htmlFor="dontShow" style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", cursor: "pointer", userSelect: "none" }}>
+                    Não mostrar este tutorial novamente
+                  </label>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <button 
+                    onClick={() => handleCloseTutorial()}
+                    className="hover-gold-text"
+                    style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.4)", fontSize: "12px", fontWeight: 700, cursor: "pointer", letterSpacing: "0.05em", textTransform: "uppercase" }}
+                  >
+                    Pular
+                  </button>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    {tutorialStep > 0 && (
+                      <button 
+                        onClick={() => setTutorialStep(prev => prev - 1)}
+                        className="btn-outline"
+                        style={{ fontSize: "11px", padding: "8px 16px" }}
+                      >
+                        Voltar
+                      </button>
+                    )}
+                    <button 
+                      onClick={() => handleNextStep()}
+                      className="btn-primary"
+                      style={{ fontSize: "11px", padding: "8px 16px" }}
+                    >
+                      {tutorialStep === tutorialSteps.length - 1 ? "Concluir" : "Próximo"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

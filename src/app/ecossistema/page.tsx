@@ -1,614 +1,683 @@
-            "use client";
-            import Link from "next/link";
-            import { useState, useEffect } from "react";
-            import { useRouter } from "next/navigation";
-            import { createClient } from "@/utils/supabase/client";
-            import { SkeletonDashboard } from "@/components/SkeletonLoading";
+"use client";
+import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { SkeletonDashboard } from "@/components/SkeletonLoading";
 
-            interface Product {
-              id: string;
-              title: string;
-              description: string;
-              category: string;
-              type: string;
-              image: string;
-              ctaText: string;
-            }
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  price: string;
+  image: string;
+  checkoutUrl: string;
+}
 
-            const otherProducts: Product[] = [
-              {
-                id: "saia-improviso",
-                title: "Saia do Improviso",
-                description: "O treinamento prático de controle físico-financeiro para engenheiros e construtores. Aprenda a estruturar cronogramas precisos e eliminar desvios de orçamento no canteiro de obras de uma vez por todas.",
-                category: "Curso Completo",
-                type: "Adquirir Acesso",
-                image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=600",
-                ctaText: "Adquirir Curso"
-              },
-              {
-                id: "calc-estrutural",
-                title: "Cálculo Estrutural para Iniciantes",
-                description: "Domine as teorias fundamentais e o dimensionamento prático de vigas, pilares e lajes de concreto armado. Leitura e interpretação de projetos para garantir máxima segurança executiva.",
-                category: "Treinamento Técnico",
-                type: "Adquirir Acesso",
-                image: "https://images.unsplash.com/photo-1503387762-592dedb8c310?auto=format&fit=crop&q=80&w=600",
-                ctaText: "Adquirir Treinamento"
-              },
-              {
-                id: "ebook-moderno",
-                title: "Ebook Engenheiro Moderno",
-                description: "Descubra as principais ConTechs, ferramentas de inteligência artificial aplicadas à engenharia e técnicas de alavancagem profissional e posicionamento no mercado premium.",
-                category: "Material Digital",
-                type: "Download",
-                image: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&q=80&w=600",
-                ctaText: "Fazer Download"
-              }
-            ];
+const otherProducts: Product[] = [
+  {
+    id: "saia-improviso",
+    title: "Saia do Improviso",
+    description: "Controle físico-financeiro prático para canteiros de obras. Aprenda a estruturar cronogramas precisos e eliminar desvios de orçamento de vez.",
+    category: "Curso Completo",
+    price: "12x de R$ 49,70 ou R$ 497 à vista",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=600",
+    checkoutUrl: "https://checkout.grupocls.com.br/saia-do-improviso"
+  },
+  {
+    id: "calc-estrutural",
+    title: "Cálculo Estrutural Prático",
+    description: "Dimensionamento e leitura de projetos de vigas, pilares e lajes de concreto armado. Segurança executiva sem mistérios.",
+    category: "Treinamento Técnico",
+    price: "12x de R$ 29,70 ou R$ 297 à vista",
+    image: "https://images.unsplash.com/photo-1503387762-592dedb8c310?auto=format&fit=crop&q=80&w=600",
+    checkoutUrl: "https://checkout.grupocls.com.br/calculo-estrutural"
+  },
+  {
+    id: "orcamento-360",
+    title: "Orçamento & Planejamento 360",
+    description: "Domine a engenharia de custos, cotações integradas e precificação estratégica para fechar contratos altamente lucrativos.",
+    category: "Treinamento Técnico",
+    price: "12x de R$ 39,70 ou R$ 397 à vista",
+    image: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&q=80&w=600",
+    checkoutUrl: "https://checkout.grupocls.com.br/orcamento-360"
+  },
+  {
+    id: "ebook-moderno",
+    title: "Ebook Engenheiro Moderno",
+    description: "Guia completo sobre ConTechs, inteligência artificial aplicada à construção civil e posicionamento de mercado profissional premium.",
+    category: "Material Gratuito",
+    price: "Gratuito",
+    image: "https://images.unsplash.com/photo-1581092921461-eab62e97a780?auto=format&fit=crop&q=80&w=600",
+    checkoutUrl: "https://checkout.grupocls.com.br/ebook-moderno"
+  }
+];
 
-            export default function StandaloneEcossistemaPage() {
-              const router = useRouter();
-  
-              const [isMember, setIsMember] = useState(false);
-              const [loading, setLoading] = useState(true);
+export default function StandaloneEcossistemaPage() {
+  const router = useRouter();
 
-              useEffect(() => {
-                async function checkMembership() {
-                  try {
-                    // createClient() is instantiated here (client-side only, inside useEffect)
-                    const supabase = createClient();
-                    const { data: { user } } = await supabase.auth.getUser();
-                    if (user) {
-                      const { data: member } = await supabase
-                        .from('members')
-                        .select('status')
-                        .eq('id', user.id)
-                        .single();
-          
-                      if (member && member.status === "Ativo") {
-                        setIsMember(true);
-                      }
-                    }
-                  } catch (err) {
-                    console.error("Auth check failed", err);
-                  } finally {
-                    setLoading(false);
-                  }
-                }
-                checkMembership();
-              }, []);
+  const [isMember, setIsMember] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState("Todos");
 
-              const handleCtaClick = (productId: string, active: boolean) => {
-                if (productId === "club-pro") {
-                  if (active) {
-                    router.push("/dashboard");
-                  } else {
-                    alert("O Club Pro CLS é restrito a convidados. Fale com nosso consultor comercial para se candidatar a uma vaga!");
-                  }
-                } else {
-                  alert("Redirecionando para a página de aquisição e checkout deste produto...");
-                }
-              };
+  useEffect(() => {
+    async function checkMembership() {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: member } = await supabase
+            .from('members')
+            .select('status')
+            .eq('id', user.id)
+            .single();
 
-              if (loading) {
-                return <SkeletonDashboard />;
-              }
+          if (member && member.status === "Ativo") {
+            setIsMember(true);
+          }
+        }
+      } catch (err) {
+        console.error("Auth check failed", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    checkMembership();
+  }, []);
 
-              return (
-                <div style={{ minHeight: "100vh", backgroundColor: "#0c0c0e", color: "#e5e1e6", position: "relative", overflowX: "hidden" }}>
+  const handleCtaClick = (productId: string, checkoutUrl: string) => {
+    if (productId === "club-pro") {
+      if (isMember) {
+        router.push("/dashboard");
+      } else {
+        window.open("https://wa.me/5599999999999?text=Quero%20me%20candidatar%20ao%20Club%20Pro%20CLS", "_blank");
+      }
+    } else {
+      window.open(checkoutUrl, "_blank");
+    }
+  };
+
+  const categories = ["Todos", "Curso Completo", "Treinamento Técnico", "Material Gratuito"];
+
+  const filteredProducts = activeCategory === "Todos"
+    ? otherProducts
+    : otherProducts.filter(p => p.category === activeCategory);
+
+  if (loading) {
+    return <SkeletonDashboard />;
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", backgroundColor: "#0b0b0d", color: "#e5e1e6", position: "relative", overflowX: "hidden" }}>
       
-                  {/* Background Radial Glow */}
-                  <div className="eco-bg-glow" />
+      {/* Background Glow */}
+      <div className="eco-bg-glow" />
 
-                  <div className="eco-container">
-        
-                    {/* CSS custom rules for grid layout, high end animations, card shadows, responsive styling */}
-                    <style dangerouslySetInnerHTML={{ __html: `
-                      .eco-bg-glow {
-                        position: absolute;
-                        top: 0;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        width: 100%;
-                        max-width: 1400px;
-                        height: 550px;
-                        background: radial-gradient(circle at 50% 0%, rgba(237, 192, 102, 0.08) 0%, rgba(7, 7, 50, 0.04) 50%, transparent 100%);
-                        z-index: 0;
-                        pointer-events: none;
-                      }
-          
-                      .eco-container {
-                        position: relative;
-                        z-index: 1;
-                        max-width: 1100px;
-                        margin: 0 auto;
-                        padding: 24px 32px 80px 32px;
-                      }
+      <div className="eco-container">
 
-                      .eco-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        margin-bottom: 64px;
-                        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-                        padding: 24px 0;
-                        position: sticky;
-                        top: 0;
-                        background: rgba(12, 12, 14, 0.8);
-                        backdrop-filter: blur(12px);
-                        -webkit-backdrop-filter: blur(12px);
-                        z-index: 100;
-                      }
-          
-                      .eco-logo-group {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                      }
-          
-                      .eco-logo-dot {
-                        width: 8px;
-                        height: 8px;
-                        background-color: var(--color-secondary);
-                        border-radius: 50%;
-                        box-shadow: 0 0 12px var(--color-secondary);
-                      }
+        <style dangerouslySetInnerHTML={{ __html: `
+          .eco-bg-glow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 1400px;
+            height: 650px;
+            background: radial-gradient(circle at 50% 0%, rgba(237, 192, 102, 0.09) 0%, rgba(7, 7, 50, 0.03) 60%, transparent 100%);
+            z-index: 0;
+            pointer-events: none;
+          }
 
-                      .eco-brand-title {
-                        font-family: 'Inter', sans-serif;
-                        font-size: 16px;
-                        font-weight: 700;
-                        letter-spacing: 0.15em;
-                        text-transform: uppercase;
-                        background: linear-gradient(135deg, #ffffff 0%, #ffddea 50%, #edc066 100%);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        margin: 0;
-                      }
+          .eco-container {
+            position: relative;
+            z-index: 1;
+            max-width: 720px; /* Reduced width for link tree aesthetics */
+            margin: 0 auto;
+            padding: 20px 20px 80px 20px;
+          }
 
-                      .eco-hero-section {
-                        text-align: center;
-                        margin-bottom: 64px;
-                      }
+          .eco-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px 0;
+          }
 
-                      .eco-hero-title {
-                        font-family: 'Outfit', sans-serif;
-                        font-size: 44px;
-                        font-weight: 700;
-                        line-height: 1.18;
-                        margin-bottom: 14px;
-                        background: linear-gradient(180deg, #ffffff 36%, rgba(255, 255, 255, 0.85) 100%);
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                      }
+          .eco-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
 
-                      .eco-hero-subtitle {
-                        font-family: 'Inter', sans-serif;
-                        font-size: 15px;
-                        color: var(--color-on-surface-variant);
-                        max-width: 620px;
-                        margin: 0 auto;
-                        line-height: 1.6;
-                        opacity: 0.85;
-                      }
+          .eco-logo-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #edc066;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #edc066;
+          }
 
-                      .eco-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-                        gap: 28px;
-                      }
-          
-                      .eco-highlight-card {
-                        width: 100%;
-                        border-radius: 16px;
-                        border: 1px solid rgba(237, 192, 102, 0.18);
-                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.86) 0%, rgba(14, 14, 17, 0.96) 100%);
-                        overflow: hidden;
-                        margin-bottom: 64px;
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.045);
-                        position: relative;
-                        transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-                      }
-          
-                      .eco-highlight-card:hover {
-                        transform: translateY(-2px);
-                        border-color: rgba(237, 192, 102, 0.35);
-                        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(237, 192, 102, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-                      }
-          
-                      .eco-highlight-grid {
-                        display: grid;
-                        grid-template-columns: 1.2fr 1fr;
-                        min-height: 380px;
-                      }
+          .eco-brand-title {
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 0%, #edc066 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+          }
 
-                      .eco-highlight-image-wrapper {
-                        position: relative;
-                        min-height: 340px;
-                        background-color: var(--color-surface-container-low);
-                        overflow: hidden;
-                      }
+          .eco-hero-section {
+            text-align: center;
+            margin-bottom: 32px;
+          }
 
-                      .eco-highlight-image {
-                        position: absolute;
-                        inset: 0;
-                        background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200');
-                        background-size: cover;
-                        background-position: center 25%;
-                        transition: transform 8s ease;
-                      }
+          .eco-hero-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 38px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 10px;
+            background: linear-gradient(180deg, #ffffff 30%, rgba(255, 255, 255, 0.75) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
 
-                      .eco-highlight-card:hover .eco-highlight-image {
-                        transform: scale(1.05);
-                      }
+          .eco-hero-subtitle {
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: #c8c5cf;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
+            opacity: 0.85;
+          }
 
-                      .eco-highlight-overlay {
-                        position: absolute;
-                        inset: 0;
-                        background: linear-gradient(to right, transparent 20%, rgba(20, 19, 22, 0.95) 100%);
-                      }
+          /* Metric Stats Counter Row */
+          .eco-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+          }
 
-                      .eco-highlight-details {
-                        padding: 40px;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: center;
-                        gap: 20px;
-                        z-index: 2;
-                        background-color: rgba(20, 19, 22, 0.95);
-                      }
+          .eco-stat-box {
+            background: linear-gradient(145deg, rgba(20, 20, 25, 0.6) 0%, rgba(12, 12, 15, 0.8) 100%);
+            border: 1px solid rgba(237, 192, 102, 0.08);
+            border-radius: 10px;
+            padding: 14px 8px;
+            backdrop-filter: blur(10px);
+          }
 
-                      .eco-card {
-                        background: linear-gradient(145deg, rgba(28, 27, 30, 0.62) 0%, rgba(14, 14, 17, 0.86) 100%);
-                        border: 1px solid rgba(255, 255, 255, 0.05);
-                        border-radius: 12px;
-                        overflow: hidden;
-                        display: flex;
-                        flex-direction: column;
-                        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-                        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-                      }
-          
-                      .eco-card:hover {
-                        transform: translateY(-6px);
-                        border-color: rgba(237, 192, 102, 0.25);
-                        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.45), 0 0 25px rgba(237, 192, 102, 0.03);
-                      }
+          .eco-stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #edc066;
+            margin-bottom: 2px;
+          }
 
-                      .eco-card-image-wrapper {
-                        aspect-ratio: 16/10;
-                        position: relative;
-                        overflow: hidden;
-                        background-color: var(--color-surface-container);
-                      }
+          .eco-stat-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8c8894;
+          }
 
-                      .eco-card-image {
-                        position: absolute;
-                        inset: 0;
-                        background-size: cover;
-                        background-position: center;
-                        transition: transform 6s ease;
-                      }
+          /* Featured Flagship Item (Club Pro CLS) */
+          .eco-flagship-section {
+            margin-bottom: 40px;
+          }
 
-                      .eco-card:hover .eco-card-image {
-                        transform: scale(1.06);
-                      }
+          .eco-flagship-card {
+            background: linear-gradient(135deg, rgba(28, 27, 30, 0.9) 0%, rgba(12, 12, 14, 0.98) 100%);
+            border: 1px solid rgba(237, 192, 102, 0.25);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+          }
 
-                      .eco-card-overlay {
-                        position: absolute;
-                        inset: 0;
-                        background: linear-gradient(to top, rgba(14, 14, 17, 0.9) 0%, transparent 60%);
-                      }
+          .eco-flagship-card:hover {
+            border-color: rgba(237, 192, 102, 0.5);
+            box-shadow: 0 20px 40px rgba(237, 192, 102, 0.08);
+            transform: translateY(-2px);
+          }
 
-                      .eco-card-content {
-                        padding: 28px;
-                        display: flex;
-                        flex-direction: column;
-                        flex-grow: 1;
-                        gap: 18px;
-                      }
+          .eco-flagship-cover {
+            height: 160px;
+            background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200');
+            background-size: cover;
+            background-position: center 30%;
+            position: relative;
+          }
 
-                      .eco-card-title {
-                        font-family: 'Outfit', sans-serif;
-                        font-size: 18px;
-                        color: #ffffff;
-                        font-weight: 600;
-                        margin: 0;
-                      }
+          .eco-flagship-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(12, 12, 14, 1) 0%, rgba(0,0,0,0.4) 100%);
+          }
 
-                      .eco-card-desc {
-                        font-family: 'Inter', sans-serif;
-                        font-size: 13px;
-                        color: var(--color-on-surface-variant);
-                        line-height: 1.6;
-                        margin: 0;
-                        flex-grow: 1;
-                        opacity: 0.85;
-                      }
+          .eco-flagship-content {
+            padding: 24px;
+            position: relative;
+            margin-top: -30px;
+            z-index: 2;
+          }
 
-                      .badge-premium {
-                        background: linear-gradient(135deg, rgba(237, 192, 102, 0.15) 0%, rgba(237, 192, 102, 0.05) 100%);
-                        color: var(--color-secondary);
-                        border: 1px solid rgba(237, 192, 102, 0.3);
-                        font-size: 10px;
-                        font-weight: 700;
-                        letter-spacing: 0.08em;
-                        padding: 6px 12px;
-                        border-radius: 4px;
-                        text-transform: uppercase;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 6px;
-                      }
-          
-                      .badge-locked {
-                        background: rgba(255, 255, 255, 0.03);
-                        color: var(--color-on-surface-variant);
-                        border: 1px solid rgba(255, 255, 255, 0.08);
-                        font-size: 10px;
-                        font-weight: 700;
-                        letter-spacing: 0.08em;
-                        padding: 6px 12px;
-                        border-radius: 4px;
-                        text-transform: uppercase;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 6px;
-                      }
-          
-                      .badge-other {
-                        background: rgba(255, 255, 255, 0.04);
-                        color: var(--color-on-surface-variant);
-                        border: 1px solid rgba(255, 255, 255, 0.08);
-                        font-size: 10px;
-                        font-weight: 700;
-                        letter-spacing: 0.06em;
-                        padding: 6px 12px;
-                        border-radius: 6px;
-                        text-transform: uppercase;
-                      }
-          
-                      .btn-eco-active {
-                        background: linear-gradient(135deg, #edc066 0%, #d89f24 100%) !important;
-                        color: #261900 !important;
-                        border: none !important;
-                        box-shadow: 0 4px 15px rgba(237, 192, 102, 0.25) !important;
-                        font-weight: 700 !important;
-                        transition: all 0.3s ease !important;
-                      }
-                      .btn-eco-active:hover {
-                        background: linear-gradient(135deg, #ffdea3 0%, #edc066 100%) !important;
-                        box-shadow: 0 6px 20px rgba(237, 192, 102, 0.4) !important;
-                        transform: translateY(-1px);
-                      }
+          .badge-flagship {
+            background: linear-gradient(135deg, rgba(237, 192, 102, 0.15) 0%, rgba(237, 192, 102, 0.05) 100%);
+            color: #edc066;
+            border: 1px solid rgba(237, 192, 102, 0.3);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 12px;
+          }
 
-                      .btn-eco-locked {
-                        background: rgba(255, 255, 255, 0.03) !important;
-                        color: rgba(255, 255, 255, 0.3) !important;
-                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                        cursor: not-allowed !important;
-                        font-weight: 600 !important;
-                        transition: all 0.3s ease !important;
-                      }
-                      .btn-eco-locked:hover {
-                        background: rgba(255, 255, 255, 0.05) !important;
-                        border-color: rgba(255, 255, 255, 0.12) !important;
-                      }
+          .eco-flagship-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 6px 0;
+          }
 
-                      .btn-card-cta {
-                        width: 100%;
-                        margin-top: 12px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 8px;
-                        padding: 14px 22px;
-                        background: transparent;
-                        color: var(--color-secondary);
-                        border: 1px solid rgba(237, 192, 102, 0.28);
-                        border-radius: 8px;
-                        font-family: 'Inter', sans-serif;
-                        font-size: 12px;
-                        font-weight: 700;
-                        letter-spacing: 0.08em;
-                        text-transform: uppercase;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
-                      }
-                      .eco-card:hover .btn-card-cta {
-                        border-color: var(--color-secondary);
-                        background: rgba(237, 192, 102, 0.05);
-                        box-shadow: 0 4px 12px rgba(237, 192, 102, 0.15);
-                      }
+          .eco-flagship-desc {
+            font-size: 13px;
+            color: #c8c5cf;
+            line-height: 1.5;
+            margin-bottom: 18px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0.9;
+          }
 
-                      @media (max-width: 900px) {
-                        .eco-highlight-grid {
-                          grid-template-columns: 1fr;
-                        }
-                        .eco-highlight-image-wrapper {
-                          min-height: 220px;
-                        }
-                        .eco-highlight-overlay {
-                          background: linear-gradient(to top, rgba(20, 19, 22, 0.95) 0%, rgba(20, 19, 22, 0.3) 100%);
-                        }
-                        .eco-highlight-details {
-                          padding: 32px 24px;
-                        }
-                        .eco-hero-title {
-                          font-size: 36px;
-                        }
-                        .eco-header {
-                          margin-bottom: 36px;
-                          padding: 16px 0;
-                        }
-                      }
-                    `}} />
+          .eco-flagship-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+          }
 
-                    {/* Minimal Header */}
-                    <header className="eco-header">
-                      <Link href="/" style={{ textDecoration: 'none' }}>
-                        <div className="eco-logo-group">
-                          <div className="eco-logo-dot" />
-                          <h1 className="eco-brand-title">GRUPO CLS</h1>
-                        </div>
-                      </Link>
-                      {isMember && (
-                        <Link href="/dashboard" className="btn-outline" style={{ textDecoration: "none", fontSize: "11px", padding: "10px 20px", display: "inline-flex", alignItems: "center", gap: "8px" }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>dashboard</span>
-                          Ir para o Painel
-                        </Link>
-                      )}
-                    </header>
+          .eco-flagship-price {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: #edc066;
+          }
 
-                    {/* Page Titles */}
-                    <section className="eco-hero-section">
-                      <h2 className="eco-hero-title">
-                        Nosso Ecossistema
-                      </h2>
-                      <p className="eco-hero-subtitle">
-                        Conheça todas as soluções de desenvolvimento técnico, mentoria avançada e networking do ecossistema CLS.
-                      </p>
-                    </section>
+          .eco-flagship-btn {
+            background: linear-gradient(135deg, #edc066 0%, #d89f24 100%);
+            color: #261900;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(237, 192, 102, 0.2);
+          }
 
-                    {/* Grid of Other Products */}
-                    <h4
-                      style={{
-                        fontFamily: "'Outfit', sans-serif",
-                        fontSize: "22px",
-                        color: "var(--color-on-surface)",
-                        marginBottom: "28px",
-                        fontWeight: 600,
-                        borderBottom: "1px solid rgba(255,255,255,0.06)",
-                        paddingBottom: "12px"
-                      }}
-                    >
-                      Programas e Soluções Adicionais
-                    </h4>
+          .eco-flagship-btn:hover {
+            background: linear-gradient(135deg, #ffdea3 0%, #edc066 100%);
+            box-shadow: 0 6px 16px rgba(237, 192, 102, 0.35);
+            transform: translateY(-1px);
+          }
 
-                    <div className="eco-grid" style={{ marginBottom: "64px" }}>
-                      {otherProducts.map((product) => (
-                        <div key={product.id} className="eco-card">
-              
-                          {/* Thumbnail */}
-                          <div className="eco-card-image-wrapper">
-                            <div
-                              className="eco-card-image"
-                              style={{
-                                backgroundImage: `url('${product.image}')`
-                              }}
-                            />
-                            <div className="eco-card-overlay" />
-                
-                            <div style={{ position: "absolute", top: "16px", left: "16px", zIndex: 3 }}>
-                              <span className="badge-other">{product.category}</span>
-                            </div>
-                          </div>
+          /* Filter Tabs */
+          .eco-filter-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+          }
+          .eco-filter-container::-webkit-scrollbar {
+            display: none;
+          }
 
-                          {/* Content */}
-                          <div className="eco-card-content">
-                            <h4 className="eco-card-title">
-                              {product.title}
-                            </h4>
-                
-                            <p className="eco-card-desc">
-                              {product.description}
-                            </p>
+          .eco-filter-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #8c8894;
+            font-size: 11px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+          }
 
-                            <button
-                              onClick={() => handleCtaClick(product.id, false)}
-                              className="btn-card-cta"
-                            >
-                              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>shopping_bag</span>
-                              {product.ctaText}
-                            </button>
-                          </div>
+          .eco-filter-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+          }
 
-                        </div>
-                      ))}
-                    </div>
+          .eco-filter-btn.active {
+            background: rgba(237, 192, 102, 0.1);
+            border-color: rgba(237, 192, 102, 0.3);
+            color: #edc066;
+          }
 
-                    {/* Highlighted Flagship Product Card (Club Pro CLS) */}
-                    <div className="eco-highlight-card">
-                      <div className="eco-highlight-grid">
-            
-                        {/* Cover image banner */}
-                        <div className="eco-highlight-image-wrapper">
-                          <div className="eco-highlight-image" />
-                          <div className="eco-highlight-overlay" />
-              
-                          {/* Lock watermark overlay for unsubscribed visitors */}
-                          {!isMember && (
-                            <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.3)", backdropFilter: "blur(3px)", zIndex: 2 }}>
-                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", background: "rgba(19,19,22,0.8)", border: "1px solid rgba(255,255,255,0.08)", padding: "20px 24px", borderRadius: "12px" }}>
-                                <span className="material-symbols-outlined" style={{ fontSize: "36px", color: "var(--color-secondary)" }}>lock</span>
-                                <span style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "0.05em", color: "var(--color-on-surface-variant)" }}>ACESSO EXCLUSIVO</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
+          /* Link-Tree Row Card */
+          .eco-tree-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+          }
 
-                        {/* Details column */}
-                        <div className="eco-highlight-details">
-                          <div>
-                            {isMember ? (
-                              <span className="badge-premium">
-                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>verified</span>
-                                SEU PLANO ATIVO
-                              </span>
-                            ) : (
-                              <span className="badge-locked">
-                                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>lock</span>
-                                CONVITE EXCLUSIVO
-                              </span>
-                            )}
-                          </div>
+          .eco-tree-card {
+            background: linear-gradient(145deg, rgba(20, 20, 24, 0.7) 0%, rgba(12, 12, 14, 0.85) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+          }
 
-                          <h3 style={{ fontSize: "32px", color: "#ffffff", fontWeight: 700, margin: 0, fontFamily: "'Outfit', sans-serif" }}>
-                            Club Pro CLS
-                          </h3>
+          .eco-tree-card:hover {
+            transform: translateY(-2px) scale(1.01);
+            border-color: rgba(237, 192, 102, 0.22);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35), 0 0 15px rgba(237, 192, 102, 0.02);
+          }
 
-                          <p style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", margin: 0, opacity: 0.9 }}>
-                            {isMember 
-                              ? "Sua plataforma executiva de elite na construção civil. Acesso ilimitado a mentorias semanais, biblioteca completa de masterclasses, modelos de dossiês e materiais de apoio exclusivos para acelerar sua captação de recursos e gestão de obras."
-                              : "A plataforma executiva de elite da construção civil. Acesso restrito a mentorias semanais com líderes de mercado, biblioteca de masterclasses avançadas de viabilidade e custos, dossiês técnicos e rodadas fechadas de co-investimento."
-                            }
-                          </p>
+          .eco-tree-thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+          }
 
-                          <button
-                            onClick={() => handleCtaClick("club-pro", isMember)}
-                            disabled={!isMember}
-                            className={isMember ? "btn-primary btn-eco-active" : "btn-primary btn-eco-locked"}
-                            style={{
-                              width: "fit-content",
-                              marginTop: "8px",
-                              padding: "14px 28px",
-                              borderRadius: "6px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px"
-                            }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                              {isMember ? "login" : "lock"}
-                            </span>
-                            {isMember ? "Acessar Conteúdo" : "Exclusivo para Membros"}
-                          </button>
-                        </div>
+          .eco-tree-info {
+            flex-grow: 1;
+            padding: 0 16px;
+            min-width: 0; /* Prevents overflow issues with truncating text */
+          }
 
-                      </div>
-                    </div>
+          .eco-tree-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 4px 0;
+          }
 
-                    {/* Footer */}
-                    <footer style={{ marginTop: "100px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "32px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-                      <div>
-                        &copy; {new Date().getFullYear()} GRUPO CLS. Todos os direitos reservados.
-                      </div>
-                      <div style={{ display: "flex", gap: "16px" }}>
-                        <span style={{ color: "var(--color-secondary)", fontWeight: 600, fontSize: "12px", letterSpacing: "0.05em", textTransform: "uppercase" }}>Construindo o Futuro</span>
-                      </div>
-                    </footer>
+          .eco-tree-desc {
+            font-size: 11px;
+            color: #a8a5b0;
+            line-height: 1.4;
+            margin: 0 0 4px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 0.85;
+          }
 
-                  </div>
-                  <div style={{ height: "48px" }} />
-                </div>
-              );
+          .eco-tree-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .eco-tree-tag {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #edc066;
+            background: rgba(237, 192, 102, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+          }
+
+          .eco-tree-price {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            color: #8c8894;
+            font-weight: 500;
+          }
+
+          .eco-tree-action {
+            flex-shrink: 0;
+          }
+
+          .eco-tree-btn {
+            background: transparent;
+            color: #edc066;
+            border: 1px solid rgba(237, 192, 102, 0.25);
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+          }
+
+          .eco-tree-card:hover .eco-tree-btn {
+            background: #edc066;
+            color: #261900;
+            border-color: #edc066;
+            box-shadow: 0 4px 10px rgba(237, 192, 102, 0.25);
+          }
+
+          @media (max-width: 600px) {
+            .eco-tree-card {
+              flex-direction: column;
+              align-items: stretch;
+              gap: 12px;
+              padding: 14px;
             }
+            .eco-tree-thumb {
+              width: 100%;
+              height: 120px;
+            }
+            .eco-tree-info {
+              padding: 0;
+            }
+            .eco-tree-btn {
+              width: 100%;
+              justify-content: center;
+            }
+            .eco-flagship-footer {
+              flex-direction: column;
+              align-items: stretch;
+            }
+            .eco-flagship-btn {
+              width: 100%;
+              justify-content: center;
+            }
+          }
+        `}} />
+
+        {/* Minimal Header */}
+        <header className="eco-header">
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <div className="eco-logo-group">
+              <div className="eco-logo-dot" />
+              <h1 className="eco-brand-title">GRUPO CLS</h1>
+            </div>
+          </Link>
+          {isMember && (
+            <Link href="/dashboard" className="btn-outline" style={{ textDecoration: "none", fontSize: "10px", padding: "8px 16px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>dashboard</span>
+              Painel
+            </Link>
+          )}
+        </header>
+
+        {/* Hero Section */}
+        <section className="eco-hero-section">
+          <h2 className="eco-hero-title">
+            Ecossistema CLS
+          </h2>
+          <p className="eco-hero-subtitle">
+            Acelere sua carreira e gestão com nossas soluções de mentoria avançada, treinamentos técnicos e ferramentas profissionais.
+          </p>
+        </section>
+
+
+        {/* Highlighted Flagship (Club Pro CLS) at the Top */}
+        <section className="eco-flagship-section">
+          <div className="eco-flagship-card">
+            <div className="eco-flagship-cover">
+              <div className="eco-flagship-overlay" />
+            </div>
+            
+            <div className="eco-flagship-content">
+              <div>
+                <span className="badge-flagship" style={!isMember ? { background: "rgba(255, 100, 100, 0.08)", color: "#ff6b6b", borderColor: "rgba(255, 100, 100, 0.25)" } : {}}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>{isMember ? "verified_user" : "lock"}</span>
+                  {isMember ? "Membros Club" : "Acesso Fechado"}
+                </span>
+              </div>
+
+              <h3 className="eco-flagship-title">Club Pro CLS</h3>
+              
+              <p className="eco-flagship-desc">
+                A plataforma de elite da construção civil. Acesso a mentorias ao vivo com referências de mercado, banco de dossiês técnicos e ferramentas prontas.
+              </p>
+
+              <div className="eco-flagship-footer">
+                <div className="eco-flagship-price" style={!isMember ? { color: "#ff6b6b" } : {}}>
+                  {isMember ? "Seu plano está ativo" : "Apenas para Convidados • Indisponível"}
+                </div>
+                <button
+                  onClick={() => handleCtaClick("club-pro", "")}
+                  disabled={!isMember}
+                  className="eco-flagship-btn"
+                  style={!isMember ? { background: "rgba(255, 255, 255, 0.03)", color: "rgba(255, 255, 255, 0.3)", border: "1px solid rgba(255, 255, 255, 0.08)", cursor: "not-allowed", boxShadow: "none" } : {}}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    {isMember ? "login" : "lock"}
+                  </span>
+                  {isMember ? "Acessar Painel" : "Inscrições Fechadas"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Catalog Section Header */}
+        <h4
+          style={{
+            fontFamily: "'Outfit', sans-serif",
+            fontSize: "18px",
+            color: "#ffffff",
+            marginBottom: "16px",
+            fontWeight: 600,
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            paddingBottom: "8px"
+          }}
+        >
+          Treinamentos & Downloads
+        </h4>
+
+        {/* Filter Categories */}
+        <div className="eco-filter-container">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              className={`eco-filter-btn ${activeCategory === cat ? 'active' : ''}`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Link-Tree Style List */}
+        <div className="eco-tree-list">
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="eco-tree-card">
+              
+              {/* Product Thumbnail */}
+              <div
+                className="eco-tree-thumb"
+                style={{ backgroundImage: `url('${product.image}')` }}
+              />
+
+              {/* Product Info */}
+              <div className="eco-tree-info">
+                <h4 className="eco-tree-title">{product.title}</h4>
+                <p className="eco-tree-desc">{product.description}</p>
+                <div className="eco-tree-meta">
+                  <span className="eco-tree-tag">{product.category}</span>
+                  <span className="eco-tree-price">{product.price}</span>
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div className="eco-tree-action">
+                <button
+                  onClick={() => handleCtaClick(product.id, product.checkoutUrl)}
+                  className="eco-tree-btn"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
+                    {product.price === "Gratuito" ? "download" : "shopping_cart"}
+                  </span>
+                  {product.price === "Gratuito" ? "Baixar" : "Comprar"}
+                </button>
+              </div>
+
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <footer style={{ marginTop: "80px", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "24px", display: "flex", justifyContent: "space-between", alignItems: "center", color: "#8c8894", fontSize: "12px" }}>
+          <div>
+            &copy; {new Date().getFullYear()} GRUPO CLS.
+          </div>
+          <div>
+            <span style={{ color: "#edc066", fontWeight: 600, fontSize: "11px", letterSpacing: "0.05em", textTransform: "uppercase" }}>Construindo o Futuro</span>
+          </div>
+        </footer>
+
+      </div>
+      <div style={{ height: "40px" }} />
+    </div>
+  );
+}

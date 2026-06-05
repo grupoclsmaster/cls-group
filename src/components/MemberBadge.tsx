@@ -6,18 +6,19 @@ interface MemberBadgeProps {
   name: string;
   img?: string | null;
   initials?: string | null;
-  memberType?: 'admin' | 'master' | 'mentor' | null;
+  memberType?: 'admin' | 'master' | 'mentor' | 'mentorado' | null;
   size?: number;
   showLabel?: boolean;
+  isOnline?: boolean;
 }
 
 const MEMBER_CONFIG = {
   master: {
-    color: '#EDC066',
+    color: '#C0C0C0',
     label: 'Master',
     icon: '★',
-    gradient: 'linear-gradient(135deg, #EDC066, #F5D98C, #D4A843)',
-    shadow: 'rgba(237, 192, 102, 0.45)',
+    gradient: 'linear-gradient(135deg, #C0C0C0, #EAEAEA, #9E9E9E, #CCCCCC)',
+    shadow: 'rgba(192, 192, 192, 0.45)',
   },
   mentor: {
     color: '#7C4DFF',
@@ -27,11 +28,18 @@ const MEMBER_CONFIG = {
     shadow: 'rgba(124, 77, 255, 0.45)',
   },
   admin: {
-    color: '#4CAF50',
+    color: '#EDC066',
     label: 'Admin',
     icon: '✓',
-    gradient: 'linear-gradient(135deg, #4CAF50, #81C784, #388E3C)',
-    shadow: 'rgba(76, 175, 80, 0.45)',
+    gradient: 'linear-gradient(135deg, #EDC066, #F5D98C, #D4A843)',
+    shadow: 'rgba(237, 192, 102, 0.45)',
+  },
+  mentorado: {
+    color: '#C0C0C0',
+    label: 'Mentorado',
+    icon: '✓',
+    gradient: 'linear-gradient(135deg, #C0C0C0, #EAEAEA, #9E9E9E, #CCCCCC)',
+    shadow: 'rgba(192, 192, 192, 0.45)',
   },
 } as const;
 
@@ -59,9 +67,11 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
   memberType,
   size = 40,
   showLabel = false,
+  isOnline = false,
 }) => {
   const [imgError, setImgError] = React.useState(false);
-  const config = memberType ? MEMBER_CONFIG[memberType] : null;
+  const resolvedType = memberType || 'mentorado';
+  const config = MEMBER_CONFIG[resolvedType];
   const borderWidth = 2.5;
   const badgeSize = Math.round(size * 0.35);
   const badgeFontSize = Math.round(badgeSize * 0.55);
@@ -149,7 +159,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
   const badgeIconStyle: React.CSSProperties = {
     fontSize: badgeFontSize,
     lineHeight: 1,
-    color: memberType === 'master' ? '#2a1f00' : '#fff',
+    color: resolvedType === 'mentor' ? '#fff' : '#111118',
     fontWeight: 900,
     display: 'flex',
     alignItems: 'center',
@@ -167,9 +177,23 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
     marginTop: 2,
   };
 
+  const onlineDotStyle: React.CSSProperties = {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: Math.max(10, Math.round(size * 0.22)),
+    height: Math.max(10, Math.round(size * 0.22)),
+    borderRadius: '50%',
+    backgroundColor: '#4CAF50',
+    border: '2px solid #111118',
+    boxShadow: '0 0 8px rgba(76, 175, 80, 0.6)',
+    zIndex: 10,
+  };
+
   return (
     <div style={wrapperStyle}>
       <div style={ringStyle}>
+        {isOnline && <div style={onlineDotStyle} title="Online" />}
         <div style={avatarContainerStyle}>
           {img && !imgError ? (
             <img
@@ -188,7 +212,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
         {config && (
           <div style={badgeStyle}>
             <span style={badgeIconStyle}>
-              {memberType === 'admin' ? (
+              {resolvedType === 'admin' ? (
                 <svg
                   width={badgeFontSize}
                   height={badgeFontSize}
@@ -198,10 +222,10 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
                 >
                   <path
                     d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1.5 14.5l-3.5-3.5 1.41-1.41L10.5 13.67l5.59-5.59L17.5 9.5l-7 7z"
-                    fill="#fff"
+                    fill="#2a1f00"
                   />
                 </svg>
-              ) : memberType === 'mentor' ? (
+              ) : resolvedType === 'mentor' ? (
                 <svg
                   width={badgeFontSize}
                   height={badgeFontSize}
@@ -214,8 +238,21 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
                     fill="#fff"
                   />
                 </svg>
-              ) : (
+              ) : resolvedType === 'master' ? (
                 <span style={{ fontSize: badgeFontSize, lineHeight: 1 }}>★</span>
+              ) : (
+                <svg
+                  width={badgeFontSize}
+                  height={badgeFontSize}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                    fill="#fff"
+                  />
+                </svg>
               )}
             </span>
           </div>
@@ -224,12 +261,11 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
 
       {showLabel && config && (
         <span style={labelStyle}>
-          {memberType === 'admin'
+          {resolvedType === 'admin'
             ? (name.toLowerCase().includes('magno') ? 'Mentor' : name.toLowerCase().includes('mayara') ? 'Mentora' : config.label)
             : config.label}
         </span>
       )}
-
     </div>
   );
 };

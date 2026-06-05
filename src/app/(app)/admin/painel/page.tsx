@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonDashboard } from "@/components/SkeletonLoading";
 import MemberBadge from "@/components/MemberBadge";
+import DateTimePicker from "@/components/DateTimePicker";
 
 interface Lesson {
   id: string;
@@ -132,6 +133,13 @@ export default function AdminPage() {
   // Drag and Drop ordering state
   const [draggedLessonId, setDraggedLessonId] = useState<string | null>(null);
   const [draggedModuleId, setDraggedModuleId] = useState<string | null>(null);
+  const [moduleDragEnabled, setModuleDragEnabled] = useState(true);
+  
+  // Inline Renaming State
+  const [inlineRenamingModuleId, setInlineRenamingModuleId] = useState<string | null>(null);
+  const [inlineModuleTitle, setInlineModuleTitle] = useState("");
+  const [inlineRenamingLessonId, setInlineRenamingLessonId] = useState<string | null>(null);
+  const [inlineLessonTitle, setInlineLessonTitle] = useState("");
 
   // Bulk Selection States
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
@@ -161,6 +169,8 @@ export default function AdminPage() {
   const [resourceFormat, setResourceFormat] = useState("XLSX");
   const [resourceSize, setResourceSize] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [resourceUploadMode, setResourceUploadMode] = useState<"upload" | "url">("upload");
+  const [resourceUploadWarning, setResourceUploadWarning] = useState<string | null>(null);
 
   // Form states - User Registration
   const [regName, setRegName] = useState("");
@@ -468,6 +478,14 @@ export default function AdminPage() {
   const handleDropModule = async (e: React.DragEvent, targetModuleId: string, courseId: string) => {
     e.preventDefault();
     const draggedId = e.dataTransfer.getData("moduleId");
+    
+    // Check if dragging a lesson instead of module
+    const draggedLessonIdLocal = e.dataTransfer.getData("lessonId");
+    if (draggedLessonIdLocal) {
+      await handleDropLessonOnModule(draggedLessonIdLocal, targetModuleId);
+      return;
+    }
+
     if (!draggedId || draggedId === targetModuleId) {
       setDraggedModuleId(null);
       return;
@@ -507,51 +525,183 @@ export default function AdminPage() {
     }
   };
 
-  const handleDrop = async (e: React.DragEvent, targetLessonId: string, targetModuleId: string) => {
-    e.preventDefault();
-    if (!draggedLessonId || draggedLessonId === targetLessonId) return;
+  const handleDropLessonOnModule = async (lessonId: string, targetModuleId: string) => {
+    let sourceModuleId = "";
+    let draggedLesson: Lesson | null = null;
+    
+    for (const c of courses) {
+      if (c.modules) {
+        for (const m of c.modules) {
+          if (m.lessons) {
+            const found = m.lessons.find(l => l.id === lessonId);
+            if (found) {
+              sourceModuleId = m.id;
+              draggedLesson = found;
+              break;
+            }
+          }
+        }
+      }
+      if (draggedLesson) break;
+    }
 
-    // Find the module that contains the lessons
+    if (!draggedLesson || sourceModuleId === targetModuleId) return;
+
     const courseIndex = courses.findIndex(c => c.id === selectedCourseId);
     if (courseIndex === -1) return;
-    const courseModules = courses[courseIndex].modules || [];
-    const moduleIndex = courseModules.findIndex(m => m.id === targetModuleId);
-    if (moduleIndex === -1) return;
+    const courseModules = [...(courses[courseIndex].modules || [])];
 
-    const targetModule = courseModules[moduleIndex];
-    if (!targetModule.lessons) return;
+    const sourceModuleIndex = courseModules.findIndex(m => m.id === sourceModuleId);
+    const targetModuleIndex = courseModules.findIndex(m => m.id === targetModuleId);
+    if (sourceModuleIndex === -1 || targetModuleIndex === -1) return;
 
-    // Reorder locally first for instant feedback
-    const lessonsList = [...targetModule.lessons];
-    const draggedIndex = lessonsList.findIndex(l => l.id === draggedLessonId);
-    const targetIndex = lessonsList.findIndex(l => l.id === targetLessonId);
+    const sourceModule = courseModules[sourceModuleIndex];
+    const targetModule = courseModules[targetModuleIndex];
 
-    if (draggedIndex === -1 || targetIndex === -1) return;
+    const sourceLessonsList = [...(sourceModule.lessons || [])];
+    const targetLessonsList = [...(targetModule.lessons || [])];
 
-    const [removed] = lessonsList.splice(draggedIndex, 1);
-    lessonsList.splice(targetIndex, 0, removed);
+    const draggedIndex = sourceLessonsList.findIndex(l => l.id === lessonId);
+    if (draggedIndex === -1) return;
 
-    // Update state immediately
+    const [removed] = sourceLessonsList.splice(draggedIndex, 1);
+    removed.module_id = targetModuleId;
+    targetLessonsList.push(removed);
+
+    sourceModule.lessons = sourceLessonsList.map((l, index) => ({ ...l, sequence_order: index }));
+    targetModule.lessons = targetLessonsList.map((l, index) => ({ ...l, sequence_order: index }));
+
     const updatedCourses = [...courses];
-    const updatedModules = [...courseModules];
-    updatedModules[moduleIndex] = {
-      ...targetModule,
-      lessons: lessonsList.map((l, index) => ({ ...l, sequence_order: index }))
-    };
-    updatedCourses[courseIndex] = { ...updatedCourses[courseIndex], modules: updatedModules };
+    updatedCourses[courseIndex] = { ...updatedCourses[courseIndex], modules: courseModules };
     setCourses(updatedCourses);
 
-    // Update in database
     try {
-      const updates = lessonsList.map((l, index) => {
-        return supabase
-          .from("lessons")
-          .update({ sequence_order: index })
-          .eq("id", l.id);
-      });
+      await supabase
+        .from("lessons")
+        .update({ module_id: targetModuleId })
+        .eq("id", lessonId);
 
-      await Promise.all(updates);
-      showStatus("success", "Ordem das aulas atualizada!");
+      const targetUpdates = targetModule.lessons
+        ? targetModule.lessons.map((l, index) => {
+            return supabase.from("lessons").update({ sequence_order: index }).eq("id", l.id);
+          })
+        : [];
+      const sourceUpdates = sourceModule.lessons
+        ? sourceModule.lessons.map((l, index) => {
+            return supabase.from("lessons").update({ sequence_order: index }).eq("id", l.id);
+          })
+        : [];
+
+      await Promise.all([...targetUpdates, ...sourceUpdates]);
+      showStatus("success", "Aula movida para o módulo com sucesso!");
+    } catch (err) {
+      console.error(err);
+      showStatus("error", "Erro ao mover aula.");
+      await refreshData();
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetLessonId: string, targetModuleId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const dragId = e.dataTransfer.getData("lessonId") || draggedLessonId;
+    if (!dragId || dragId === targetLessonId) {
+      setDraggedLessonId(null);
+      return;
+    }
+
+    let sourceModuleId = "";
+    let draggedLesson: Lesson | null = null;
+    
+    for (const c of courses) {
+      if (c.modules) {
+        for (const m of c.modules) {
+          if (m.lessons) {
+            const found = m.lessons.find(l => l.id === dragId);
+            if (found) {
+              sourceModuleId = m.id;
+              draggedLesson = found;
+              break;
+            }
+          }
+        }
+      }
+      if (draggedLesson) break;
+    }
+
+    if (!draggedLesson) {
+      setDraggedLessonId(null);
+      return;
+    }
+
+    const courseIndex = courses.findIndex(c => c.id === selectedCourseId);
+    if (courseIndex === -1) {
+      setDraggedLessonId(null);
+      return;
+    }
+    const courseModules = [...(courses[courseIndex].modules || [])];
+
+    const sourceModuleIndex = courseModules.findIndex(m => m.id === sourceModuleId);
+    const targetModuleIndex = courseModules.findIndex(m => m.id === targetModuleId);
+    if (sourceModuleIndex === -1 || targetModuleIndex === -1) {
+      setDraggedLessonId(null);
+      return;
+    }
+
+    const sourceModule = courseModules[sourceModuleIndex];
+    const targetModule = courseModules[targetModuleIndex];
+
+    const sourceLessonsList = [...(sourceModule.lessons || [])];
+    const targetLessonsList = sourceModuleId === targetModuleId ? sourceLessonsList : [...(targetModule.lessons || [])];
+
+    const draggedIndex = sourceLessonsList.findIndex(l => l.id === dragId);
+    const targetIndex = targetLessonsList.findIndex(l => l.id === targetLessonId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedLessonId(null);
+      return;
+    }
+
+    const [removed] = sourceLessonsList.splice(draggedIndex, 1);
+    
+    if (sourceModuleId === targetModuleId) {
+      sourceLessonsList.splice(targetIndex, 0, removed);
+      targetModule.lessons = sourceLessonsList.map((l, index) => ({ ...l, sequence_order: index }));
+    } else {
+      removed.module_id = targetModuleId;
+      targetLessonsList.splice(targetIndex, 0, removed);
+      
+      sourceModule.lessons = sourceLessonsList.map((l, index) => ({ ...l, sequence_order: index }));
+      targetModule.lessons = targetLessonsList.map((l, index) => ({ ...l, sequence_order: index }));
+    }
+
+    const updatedCourses = [...courses];
+    updatedCourses[courseIndex] = { ...updatedCourses[courseIndex], modules: courseModules };
+    setCourses(updatedCourses);
+
+    try {
+      if (sourceModuleId !== targetModuleId) {
+        await supabase
+          .from("lessons")
+          .update({ module_id: targetModuleId })
+          .eq("id", dragId);
+      }
+
+      const targetUpdates = targetModule.lessons
+        ? targetModule.lessons.map((l, index) => {
+            return supabase.from("lessons").update({ sequence_order: index }).eq("id", l.id);
+          })
+        : [];
+
+      const sourceUpdates = (sourceModuleId !== targetModuleId && sourceModule.lessons) 
+        ? sourceModule.lessons.map((l, index) => {
+            return supabase.from("lessons").update({ sequence_order: index }).eq("id", l.id);
+          })
+        : [];
+
+      await Promise.all([...targetUpdates, ...sourceUpdates]);
+      showStatus("success", "Aula reordenada com sucesso!");
     } catch (err) {
       console.error("Erro ao reordenar aulas:", err);
       showStatus("error", "Erro ao salvar ordenação no banco.");
@@ -561,13 +711,97 @@ export default function AdminPage() {
     }
   };
 
+  const handleInlineSaveModule = async (moduleId: string) => {
+    if (!inlineModuleTitle.trim()) {
+      setInlineRenamingModuleId(null);
+      return;
+    }
+    
+    setCourses(prev => prev.map(c => ({
+      ...c,
+      modules: c.modules?.map(m => m.id === moduleId ? { ...m, title: inlineModuleTitle } : m)
+    })));
+    setInlineRenamingModuleId(null);
+
+    try {
+      const { error } = await supabase
+        .from("modules")
+        .update({ title: inlineModuleTitle.trim() })
+        .eq("id", moduleId);
+      if (error) throw error;
+      showStatus("success", "Módulo renomeado!");
+    } catch (err) {
+      console.error(err);
+      showStatus("error", "Erro ao renomear módulo.");
+      await refreshData();
+    }
+  };
+
+  const handleInlineSaveLesson = async (lessonId: string) => {
+    if (!inlineLessonTitle.trim()) {
+      setInlineRenamingLessonId(null);
+      return;
+    }
+
+    setCourses(prev => prev.map(c => ({
+      ...c,
+      modules: c.modules?.map(m => ({
+        ...m,
+        lessons: m.lessons?.map(l => l.id === lessonId ? { ...l, title: inlineLessonTitle } : l)
+      }))
+    })));
+    setInlineRenamingLessonId(null);
+
+    try {
+      const { error } = await supabase
+        .from("lessons")
+        .update({ title: inlineLessonTitle.trim() })
+        .eq("id", lessonId);
+      if (error) throw error;
+      showStatus("success", "Aula renomeada!");
+    } catch (err) {
+      console.error(err);
+      showStatus("error", "Erro ao renomear aula.");
+      await refreshData();
+    }
+  };
+
 
   const loadMentorados = async () => {
     setLoadingMentorados(true);
     try {
-      const { data, error } = await supabase.from("members").select("*").order("name");
+      const { data: members, error } = await supabase.from("members").select("*").order("name");
       if (error) throw error;
-      setMentorados(data || []);
+
+      // Fetch total lessons count
+      const { count: lessonsCount } = await supabase
+        .from("lessons")
+        .select("id", { count: "exact", head: true });
+      const totalLessons = lessonsCount || 0;
+
+      // Fetch all completed lessons progress
+      const { data: allProgress } = await supabase
+        .from("user_lesson_progress")
+        .select("user_id, completed")
+        .eq("completed", true);
+
+      const mappedMembers = (members || []).map((m: any) => {
+        const completedCount = allProgress
+          ? allProgress.filter((p: any) => p.user_id === m.id).length
+          : 0;
+        const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+        
+        // Simulating online status: admin always online, others based on name hash for stability
+        const isOnline = m.member_type === "admin" || (m.name && m.name.charCodeAt(0) % 3 === 0);
+
+        return {
+          ...m,
+          progress,
+          isOnline
+        };
+      });
+
+      setMentorados(mappedMembers);
     } catch (err) {
       console.error("Erro ao carregar mentorados:", err);
     } finally {
@@ -651,6 +885,14 @@ export default function AdminPage() {
             setMemberName(member?.name || (emailLower === "magnorjsantos@hotmail.com" ? "Magno Santos" : "Mayara Costa"));
             await refreshData();
             await loadMentorados();
+
+            if (typeof window !== "undefined") {
+              const urlParams = new URLSearchParams(window.location.search);
+              const courseIdParam = urlParams.get("courseId");
+              if (courseIdParam) {
+                setSelectedCourseId(courseIdParam);
+              }
+            }
           } else {
             setIsAdmin(false);
           }
@@ -664,6 +906,7 @@ export default function AdminPage() {
       }
     };
     void checkAdmin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
 
@@ -671,6 +914,7 @@ export default function AdminPage() {
     if (isAdmin && activeTab === "comments") {
       void loadComments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isAdmin]);
 
   const showStatus = (type: "success" | "error", text: string) => {
@@ -740,7 +984,9 @@ export default function AdminPage() {
     }
     setSubmitting(true);
     try {
-      const slug = lessonTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") + "-" + Date.now();
+      const baseSlug = lessonTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const slug = `${baseSlug}-${randomSuffix}`;
       const { error } = await supabase.from("lessons").insert([{
         module_id: moduleId,
         title: lessonTitle,
@@ -828,6 +1074,18 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteCourse = async (courseId: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta Masterclass? Todos os módulos e aulas contidas nela serão excluídos permanentemente.")) return;
+    try {
+      const { error } = await supabase.from("courses").delete().eq("id", courseId);
+      if (error) throw error;
+      showStatus("success", "Masterclass excluída com sucesso!");
+      await refreshData();
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro ao deletar Masterclass.");
+    }
+  };
+
   const handleDeleteLesson = async (lessonId: string) => {
     if (!confirm("Tem certeza que deseja excluir esta aula?")) return;
     try {
@@ -849,6 +1107,14 @@ export default function AdminPage() {
     if (file.size > MAX_SIZE) {
       showStatus("error", "Erro: O tamanho máximo do arquivo é de 150 MB. Seu arquivo tem " + (file.size / (1024 * 1024)).toFixed(1) + " MB.");
       return;
+    }
+
+    // Suggest external links for files over 15MB
+    const limitSuggest = 15 * 1024 * 1024; // 15MB
+    if (file.size > limitSuggest) {
+      setResourceUploadWarning("Este arquivo é muito pesado. Sugerimos compartilhar um link do Google Drive ou OneDrive para não sobrecarregar o servidor.");
+    } else {
+      setResourceUploadWarning(null);
     }
 
     // Check if video file
@@ -889,12 +1155,14 @@ export default function AdminPage() {
 
       // Auto-set category based on format
       const ext = (data.format || "").toLowerCase();
-      if (["xlsx", "xls", "csv"].includes(ext)) {
+      if (["xlsx", "xls", "csv", "numbers"].includes(ext)) {
         setResourceCategory("spreadsheet");
       } else if (ext === "pdf") {
         setResourceCategory("pdf");
-      } else if (["doc", "docx", "ppt", "pptx"].includes(ext)) {
+      } else if (["doc", "docx", "ppt", "pptx", "key", "keynote", "zip", "rar", "tar", "gz", "7z"].includes(ext)) {
         setResourceCategory("template");
+      } else {
+        setResourceCategory("link");
       }
 
       showStatus("success", "Arquivo enviado com sucesso!");
@@ -945,7 +1213,9 @@ export default function AdminPage() {
     }
     setSubmitting(true);
     try {
-      const slug = oppTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") + "-" + Date.now();
+      const baseSlug = oppTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const slug = `${baseSlug}-${randomSuffix}`;
       const { error } = await supabase.from("investment_opportunities").insert([{
         title: oppTitle,
         slug,
@@ -992,7 +1262,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="animate-fadeIn" style={{ maxWidth: "1000px", margin: "0 auto", paddingBottom: "60px" }}>
+    <div className="animate-fadeIn" style={{ maxWidth: "1400px", margin: "0 auto", paddingBottom: "60px" }}>
       <h2 className="font-display-mobile" style={{ color: "var(--color-on-surface)", marginBottom: "8px" }}>Painel Administrativo</h2>
       <p className="font-body-lg" style={{ color: "var(--color-on-surface-variant)", marginBottom: "32px" }}>
         Gerencie as masterclasses, faça upload de recursos/planilhas e agende mentorias.
@@ -1104,29 +1374,7 @@ export default function AdminPage() {
           </button>
         )}
 
-        {/* Resources Tab (Always visible) */}
-        <button
-          onClick={() => setActiveTab("resources")}
-          className="font-label-caps"
-          style={{
-            background: "transparent",
-            border: "none",
-            borderBottom: activeTab === "resources" ? "2px solid var(--color-secondary)" : "2px solid transparent",
-            color: activeTab === "resources" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-            paddingBottom: "12px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "11px",
-            letterSpacing: "0.1em",
-            transition: "all 0.2s ease",
-            whiteSpace: "nowrap"
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>folder</span>
-          RECURSOS
-        </button>
+
 
         {/* Cadastrar Usuário Tab (Admin Only) */}
         {(memberType === "admin" || memberType === null) && (
@@ -1263,12 +1511,22 @@ export default function AdminPage() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                         <h4 style={{ margin: 0, fontSize: "18px", color: "white", fontWeight: 700 }}>{c.title}</h4>
                         {(memberType === "admin" || memberType === null) && (
-                          <button 
-                            onClick={(e) => { e.stopPropagation(); setEditingCourse(c as any); }}
-                            style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
-                          </button>
+                          <div style={{ display: "flex", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
+                            <button 
+                              onClick={() => setEditingCourse(c as any)}
+                              style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
+                              title="Editar Masterclass"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>edit</span>
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteCourse(c.id)}
+                              style={{ background: "none", border: "none", color: "var(--color-error)", cursor: "pointer", padding: 4 }}
+                              title="Excluir Masterclass"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>delete</span>
+                            </button>
+                          </div>
                         )}
                       </div>
                       <p style={{ margin: 0, fontSize: "13px", color: "var(--color-outline)", flex: 1, minHeight: "40px", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
@@ -1307,7 +1565,7 @@ export default function AdminPage() {
                   return (
                     <div 
                       key={m.id} 
-                      draggable
+                      draggable={moduleDragEnabled}
                       onDragStart={(e) => handleDragStartModule(e, m.id)}
                       onDragOver={handleDragOverModule}
                       onDrop={(e) => handleDropModule(e, m.id, selectedCourseId!)}
@@ -1364,30 +1622,52 @@ export default function AdminPage() {
                           >
                             {selectedModules.includes(m.id) && <span className="material-symbols-outlined" style={{ fontSize: "14px", color: "#0c0c0e", fontWeight: "bold" }}>check</span>}
                           </span>
-                          <h4 
-                            style={{ 
-                              color: "var(--color-on-surface)", 
-                              margin: 0, 
-                              fontWeight: 600, 
-                              fontSize: "16px", 
-                              cursor: (memberType === "admin" || memberType === null) ? "pointer" : "default" 
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (memberType !== "admin" && memberType !== null) return;
-                              setEditingModule({
-                                id: m.id,
-                                title: m.title,
-                                description: m.description || "",
-                                status: (m.status as any) || "publicado",
-                                scheduled_at: m.scheduled_at ? new Date(m.scheduled_at).toISOString().slice(0, 16) : "",
-                                cover_image_url: m.cover_image_url || ""
-                              });
-                            }}
-                            title={(memberType === "admin" || memberType === null) ? "Clique para Configurar Módulo" : ""}
-                          >
-                            {m.title}
-                          </h4>
+                          {inlineRenamingModuleId === m.id ? (
+                            <input
+                              type="text"
+                              className="input-dark"
+                              style={{ 
+                                padding: "4px 8px", 
+                                fontSize: "16px", 
+                                fontWeight: 600, 
+                                width: "auto", 
+                                minWidth: "250px", 
+                                height: "32px",
+                                border: "1px solid var(--color-primary)",
+                                borderRadius: "4px",
+                                color: "#ffffff",
+                                backgroundColor: "#0c0c0e"
+                              }}
+                              value={inlineModuleTitle}
+                              onChange={(e) => setInlineModuleTitle(e.target.value)}
+                              onBlur={() => handleInlineSaveModule(m.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleInlineSaveModule(m.id);
+                                if (e.key === "Escape") setInlineRenamingModuleId(null);
+                              }}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            <h4 
+                              style={{ 
+                                color: "var(--color-on-surface)", 
+                                margin: 0, 
+                                fontWeight: 600, 
+                                fontSize: "16px", 
+                                cursor: (memberType === "admin" || memberType === null) ? "pointer" : "default" 
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                if (memberType !== "admin" && memberType !== null) return;
+                                setInlineRenamingModuleId(m.id);
+                                setInlineModuleTitle(m.title);
+                              }}
+                              title={(memberType === "admin" || memberType === null) ? "Dê dois cliques para renomear diretamente" : ""}
+                            >
+                              {m.title}
+                            </h4>
+                          )}
                         </div>
 
                         <div style={{ display: "flex", alignItems: "center", gap: "16px" }} onClick={(e) => e.stopPropagation()}>
@@ -1462,7 +1742,11 @@ export default function AdminPage() {
 
                       {/* Module Lessons Body */}
                       {isExpanded && (
-                        <div style={{ padding: "0" }}>
+                        <div 
+                          style={{ padding: "0" }}
+                          onMouseEnter={() => setModuleDragEnabled(false)}
+                          onMouseLeave={() => setModuleDragEnabled(true)}
+                        >
                           {/* Lessons list */}
                           {m.lessons && m.lessons.length > 0 ? (
                             m.lessons.map((l, index) => {
@@ -1472,7 +1756,14 @@ export default function AdminPage() {
                                 <div 
                                   key={l.id} 
                                   draggable
-                                  onDragStart={(e) => handleDragStart(e, l.id)}
+                                  onDragStart={(e) => {
+                                    setModuleDragEnabled(false);
+                                    handleDragStart(e, l.id);
+                                  }}
+                                  onDragEnd={() => {
+                                    setModuleDragEnabled(true);
+                                    setDraggedLessonId(null);
+                                  }}
                                   onDragOver={handleDragOver}
                                   onDrop={(e) => handleDrop(e, l.id, m.id)}
                                   style={{ 
@@ -1513,38 +1804,51 @@ export default function AdminPage() {
                                     >
                                       {selectedLessons.includes(l.id) && <span className="material-symbols-outlined" style={{ fontSize: "12px", color: "#0c0c0e", fontWeight: "bold" }}>check</span>}
                                     </span>
-                                    <span 
-                                      style={{ 
-                                        color: "var(--color-on-surface)", 
-                                        fontSize: "14px", 
-                                        fontWeight: 500, 
-                                        cursor: (memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) ? "pointer" : "default" 
-                                      }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (memberType !== "admin" && memberType !== null && l.instructor_name && l.instructor_name !== memberName) {
-                                          return;
-                                        }
-                                        setEditingLesson({
-                                          id: l.id,
-                                          module_id: l.module_id,
-                                          title: l.title,
-                                          description: l.description || "",
-                                          duration: l.duration || "",
-                                          video_url: l.video_url || "",
-                                          instructor_name: l.instructor_name || "Eng. Magno Santos",
-                                          instructor_role: l.instructor_role || "CEO & Fundador CLS",
-                                          instructor_avatar: l.instructor_avatar || "/magno.jpg",
-                                          status: (l.status as any) || "publicado",
-                                          scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
-                                          cover_image_url: l.cover_image_url || "",
-                                          attached_resources: l.attached_resources || []
-                                        });
-                                      }}
-                                      title={(memberType === "admin" || memberType === null || !l.instructor_name || l.instructor_name === memberName) ? "Clique para Configurar Aula" : "Apenas o instrutor desta aula pode editá-la"}
-                                    >
-                                      {String(index + 1).padStart(2, "0")} - {l.title}
-                                    </span>
+                                    {inlineRenamingLessonId === l.id ? (
+                                      <input
+                                        type="text"
+                                        className="input-dark"
+                                        style={{ 
+                                          padding: "2px 6px", 
+                                          fontSize: "14px", 
+                                          fontWeight: 500, 
+                                          width: "auto", 
+                                          minWidth: "250px", 
+                                          height: "28px",
+                                          border: "1px solid var(--color-primary)",
+                                          borderRadius: "4px",
+                                          color: "#ffffff",
+                                          backgroundColor: "#0c0c0e"
+                                        }}
+                                        value={inlineLessonTitle}
+                                        onChange={(e) => setInlineLessonTitle(e.target.value)}
+                                        onBlur={() => handleInlineSaveLesson(l.id)}
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") handleInlineSaveLesson(l.id);
+                                          if (e.key === "Escape") setInlineRenamingLessonId(null);
+                                        }}
+                                        autoFocus
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                    ) : (
+                                      <span 
+                                        style={{ 
+                                          color: "var(--color-on-surface)", 
+                                          fontSize: "14px", 
+                                          fontWeight: 500, 
+                                          cursor: (memberType === "admin" || memberType === null) ? "pointer" : "default"
+                                        }}
+                                        onDoubleClick={(e) => {
+                                          e.stopPropagation();
+                                          if (memberType !== "admin" && memberType !== null) return;
+                                          setInlineRenamingLessonId(l.id);
+                                          setInlineLessonTitle(l.title);
+                                        }}
+                                        title={(memberType === "admin" || memberType === null) ? "Dê dois cliques para renomear diretamente" : ""}
+                                      >
+                                        {String(index + 1).padStart(2, "0")} - {l.title}
+                                      </span>
+                                    )}
 
                                     {isComunidade && (
                                       <span style={{
@@ -1589,21 +1893,7 @@ export default function AdminPage() {
                                         style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          setEditingLesson({
-                                            id: l.id,
-                                            module_id: l.module_id,
-                                            title: l.title,
-                                            description: l.description || "",
-                                            duration: l.duration || "",
-                                            video_url: l.video_url || "",
-                                            instructor_name: l.instructor_name || "Eng. Magno Santos",
-                                            instructor_role: l.instructor_role || "CEO & Fundador CLS",
-                                            instructor_avatar: l.instructor_avatar || "/magno.jpg",
-                                            status: (l.status as any) || "publicado",
-                                            scheduled_at: l.scheduled_at ? new Date(l.scheduled_at).toISOString().slice(0, 16) : "",
-                                            cover_image_url: l.cover_image_url || "",
-                                            attached_resources: l.attached_resources || []
-                                          });
+                                          router.push(`/admin/aulas/${l.id}`);
                                         }}
                                         title="Editar Aula"
                                       >
@@ -2111,12 +2401,9 @@ export default function AdminPage() {
                       {editingModule.status === "agendado" && (
                         <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                           <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR LANÇAMENTO</label>
-                          <input
-                            type="datetime-local"
-                            className="input-dark"
-                            value={editingModule.scheduled_at}
-                            onChange={(e) => setEditingModule({ ...editingModule, scheduled_at: e.target.value })}
-                            required
+                          <DateTimePicker
+                            value={editingModule.scheduled_at || ""}
+                            onChange={(val) => setEditingModule({ ...editingModule, scheduled_at: val })}
                           />
                         </div>
                       )}
@@ -2147,387 +2434,12 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* Modal/Overlay to Edit Lesson */}
-            {editingLesson && (
-              <div 
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)",
-                  backdropFilter: "blur(5px)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-                onClick={() => setEditingLesson(null)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(237, 192, 102, 0.3)",
-                    borderRadius: "12px",
-                    width: "100%",
-                    maxWidth: "500px",
-                    padding: "28px",
-                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)",
-                    maxHeight: "90vh",
-                    overflowY: "auto"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>
-                    Configurar Aula
-                  </h3>
-                  <form onSubmit={handleSaveLesson} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DA AULA</label>
-                      <input
-                        type="text"
-                        className="input-dark"
-                        value={editingLesson.title}
-                        onChange={(e) => setEditingLesson({ ...editingLesson, title: e.target.value })}
-                        required
-                      />
-                    </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO</label>
-                      <textarea
-                        className="input-dark"
-                        style={{ minHeight: "80px", resize: "vertical" }}
-                        placeholder="Descrição ou resumo da aula..."
-                        value={editingLesson.description}
-                        onChange={(e) => setEditingLesson({ ...editingLesson, description: e.target.value })}
-                      />
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DURAÇÃO</label>
-                        <input
-                          type="text"
-                          className="input-dark"
-                          placeholder="Ex: 18 MIN"
-                          value={editingLesson.duration}
-                          onChange={(e) => setEditingLesson({ ...editingLesson, duration: e.target.value })}
-                        />
-                      </div>
-
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (URL)</label>
-                        <input
-                          type="text"
-                          className="input-dark"
-                          placeholder="Ex: https://vimeo.com/..."
-                          value={editingLesson.video_url}
-                          onChange={(e) => setEditingLesson({ ...editingLesson, video_url: e.target.value })}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>STATUS</label>
-                        <select
-                          className="input-dark"
-                          value={editingLesson.status}
-                          onChange={(e) => setEditingLesson({ ...editingLesson, status: e.target.value as any })}
-                        >
-                          <option value="publicado" style={{ backgroundColor: "#131316" }}>Publicado</option>
-                          <option value="rascunho" style={{ backgroundColor: "#131316" }}>Rascunho</option>
-                          <option value="agendado" style={{ backgroundColor: "#131316" }}>Agendado</option>
-                        </select>
-                      </div>
-
-                      {editingLesson.status === "agendado" && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                          <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR LANÇAMENTO</label>
-                          <input
-                            type="datetime-local"
-                            className="input-dark"
-                            value={editingLesson.scheduled_at}
-                            onChange={(e) => setEditingLesson({ ...editingLesson, scheduled_at: e.target.value })}
-                            required
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CAPA DA AULA (THUMBNAIL)</label>
-                      
-                      {editingLesson.cover_image_url && (
-                        <div style={{ position: "relative", width: "100%", height: "120px", borderRadius: "6px", overflow: "hidden", marginBottom: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                          <img src={editingLesson.cover_image_url} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          <button 
-                            type="button"
-                            onClick={() => setEditingLesson({ ...editingLesson, cover_image_url: "" })}
-                            style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-error)" }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
-                          </button>
-                        </div>
-                      )}
-
-                      <div 
-                        style={{ 
-                          border: "1px dashed rgba(237, 192, 102, 0.3)", 
-                          borderRadius: "6px", 
-                          padding: "16px", 
-                          textAlign: "center",
-                          backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          cursor: "pointer",
-                          position: "relative"
-                        }}
-                      >
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleCoverUpload(e, "lesson")}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            opacity: 0,
-                            cursor: "pointer",
-                            zIndex: 10
-                          }}
-                          disabled={uploadingCover}
-                        />
-                        <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "var(--color-secondary)", marginBottom: "4px" }}>
-                          cloud_upload
-                        </span>
-                        <p style={{ color: "#ffffff", margin: 0, fontSize: "12px", fontWeight: 600 }}>
-                          {uploadingCover ? "Enviando..." : "Subir capa da aula"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "16px", marginTop: "8px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>RECURSOS ANEXADOS (LINKS)</label>
-                        <button 
-                          type="button" 
-                          onClick={() => {
-                            setEditingLesson({
-                              ...editingLesson,
-                              attached_resources: [...(editingLesson.attached_resources || []), { title: "", url: "" }]
-                            })
-                          }}
-                          style={{ background: "none", border: "1px solid rgba(237, 192, 102, 0.3)", color: "var(--color-secondary)", padding: "4px 8px", borderRadius: "4px", fontSize: "11px", cursor: "pointer" }}
-                        >
-                          + Anexar Recurso
-                        </button>
-                      </div>
-                      
-                      {editingLesson.attached_resources && editingLesson.attached_resources.length > 0 ? (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          {editingLesson.attached_resources.map((res: any, idx: number) => (
-                            <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                              <input 
-                                type="text" 
-                                className="input-dark" 
-                                placeholder="Título (ex: PDF da Aula)" 
-                                value={res.title || ""} 
-                                onChange={(e) => {
-                                  const newRes = [...editingLesson.attached_resources];
-                                  newRes[idx].title = e.target.value;
-                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
-                                }}
-                                style={{ flex: 1 }}
-                              />
-                              <input 
-                                type="text" 
-                                className="input-dark" 
-                                placeholder="URL do arquivo" 
-                                value={res.url || ""} 
-                                onChange={(e) => {
-                                  const newRes = [...editingLesson.attached_resources];
-                                  newRes[idx].url = e.target.value;
-                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
-                                }}
-                                style={{ flex: 2 }}
-                              />
-                              <button 
-                                type="button" 
-                                onClick={() => {
-                                  const newRes = editingLesson.attached_resources.filter((_, i) => i !== idx);
-                                  setEditingLesson({ ...editingLesson, attached_resources: newRes });
-                                }}
-                                style={{ background: "none", border: "none", color: "var(--color-error)", cursor: "pointer", display: "flex", alignItems: "center" }}
-                              >
-                                <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p style={{ fontSize: "12px", color: "var(--color-outline)", margin: 0, fontStyle: "italic" }}>
-                          Nenhum recurso anexado.
-                        </p>
-                      )}
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ flex: 1 }}
-                        onClick={() => setEditingLesson(null)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ flex: 1 }}
-                        disabled={submitting || uploadingCover}
-                      >
-                        {submitting ? "Salvando..." : "Salvar Alterações"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
 
-        {/* Tab 2: Spreadsheets and PDFs */}
-        {activeTab === "resources" && (
-          <div>
-            <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "24px" }}>Fazer Upload de Planilhas e PDFs</h3>
-            
-            {/* Drag and drop / file selector upload space */}
-            <div 
-              style={{ 
-                border: "2px dashed rgba(237, 192, 102, 0.3)", 
-                borderRadius: "8px", 
-                padding: "32px 24px", 
-                textAlign: "center",
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                position: "relative",
-                marginBottom: "24px"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "var(--color-secondary)";
-                e.currentTarget.style.backgroundColor = "rgba(237, 192, 102, 0.03)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "rgba(237, 192, 102, 0.3)";
-                e.currentTarget.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
-              }}
-            >
-              <input
-                type="file"
-                onChange={handleFileUpload}
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  width: "100%",
-                  height: "100%",
-                  opacity: 0,
-                  cursor: "pointer",
-                  zIndex: 10
-                }}
-                disabled={uploadingFile}
-              />
-              <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-secondary)", marginBottom: "8px" }}>
-                cloud_upload
-              </span>
-              <p className="font-body-md" style={{ color: "#ffffff", margin: "0 0 4px 0", fontWeight: 600 }}>
-                {uploadingFile ? "Enviando arquivo..." : "Arraste ou clique para selecionar o arquivo"}
-              </p>
-              <p className="font-body-xs" style={{ color: "var(--color-outline)", margin: 0 }}>
-                Apenas os administradores (Magno e Mayara) podem realizar uploads. Suporta PDFs, Planilhas, Apresentações, etc.
-              </p>
-            </div>
 
-            <form onSubmit={handleAddResource} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DO DOCUMENTO</label>
-                  <input
-                    type="text"
-                    className="input-dark"
-                    placeholder="Ex: Planilha de EVTL Completa"
-                    value={resourceTitle}
-                    onChange={(e) => setResourceTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CATEGORIA</label>
-                  <select
-                    className="input-dark"
-                    value={resourceCategory}
-                    onChange={(e) => setResourceCategory(e.target.value)}
-                  >
-                    <option value="spreadsheet" style={{ backgroundColor: "#131316" }}>Planilha (Excel/Sheets)</option>
-                    <option value="pdf" style={{ backgroundColor: "#131316" }}>Dossiê / PDF</option>
-                    <option value="template" style={{ backgroundColor: "#131316" }}>Template / Modelo</option>
-                    <option value="link" style={{ backgroundColor: "#131316" }}>Link Externo</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO DO CONTEÚDO</label>
-                <textarea
-                  className="input-dark"
-                  style={{ minHeight: "80px", resize: "vertical" }}
-                  placeholder="Descreva o que os membros vão encontrar ou aprender com este recurso..."
-                  value={resourceDesc}
-                  onChange={(e) => setResourceDesc(e.target.value)}
-                />
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>URL DE DOWNLOAD / LINK</label>
-                  <input
-                    type="text"
-                    className="input-dark"
-                    placeholder="https://link-do-arquivo.com"
-                    value={resourceFileUrl}
-                    onChange={(e) => {
-                      const url = e.target.value;
-                      setResourceFileUrl(url);
-                      if (url) {
-                        // Try to guess format from URL dynamically
-                        const ext = url.split('.').pop()?.split(/[?#]/)[0]?.toUpperCase();
-                        if (ext && ext.length <= 4 && /^[A-Z0-9]+$/.test(ext)) {
-                          setResourceFormat(ext);
-                          if (["XLSX", "XLS", "CSV"].includes(ext)) {
-                            setResourceCategory("spreadsheet");
-                          } else if (ext === "PDF") {
-                            setResourceCategory("pdf");
-                          }
-                        }
-                      }
-                    }}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Hidden input values for backward compatibility payload */}
-              <input type="hidden" value={resourceFormat} />
-              <input type="hidden" value={resourceSize} />
-
-              <button type="submit" className="btn-primary" style={{ marginTop: "12px" }} disabled={submitting}>
-                {submitting ? "Publicando..." : "Publicar Recurso"}
-              </button>
-            </form>
-          </div>
-        )}
 
 
         {/* Tab: Membros */}
@@ -2576,11 +2488,12 @@ export default function AdminPage() {
                         initials={m.initials}
                         memberType={m.member_type}
                         size={48}
+                        isOnline={m.isOnline}
                       />
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
                           <h4 style={{ color: "#ffffff", margin: 0, fontWeight: 600, fontSize: "16px" }}>{m.name}</h4>
-                          {m.member_type && (
+                          {m.member_type ? (
                             <span style={{
                               fontSize: "9px",
                               fontWeight: 700,
@@ -2588,27 +2501,46 @@ export default function AdminPage() {
                               borderRadius: "4px",
                               textTransform: "uppercase",
                               letterSpacing: "0.5px",
-                              backgroundColor: m.member_type === "admin" 
-                                ? "rgba(76, 175, 80, 0.15)" 
-                                : m.member_type === "master" 
-                                  ? "rgba(237, 192, 102, 0.15)" 
-                                  : "rgba(124, 77, 255, 0.15)",
-                              color: m.member_type === "admin" 
-                                ? "#4CAF50" 
-                                : m.member_type === "master" 
-                                  ? "#EDC066" 
-                                  : "#B388FF",
-                              border: `1px solid ${m.member_type === "admin" ? "rgba(76, 175, 80, 0.3)" : m.member_type === "master" ? "rgba(237, 192, 102, 0.3)" : "rgba(124, 77, 255, 0.3)"}`
+                              backgroundColor: m.member_type === "admin" || m.member_type === "master"
+                                ? "rgba(237, 192, 102, 0.15)" 
+                                : "rgba(124, 77, 255, 0.15)",
+                              color: m.member_type === "admin" || m.member_type === "master"
+                                ? "#EDC066" 
+                                : "#B388FF",
+                              border: `1px solid ${m.member_type === "admin" || m.member_type === "master" ? "rgba(237, 192, 102, 0.3)" : "rgba(124, 77, 255, 0.3)"}`
                             }}>
                               {m.member_type === "admin" 
                                 ? (m.name.toLowerCase().includes("magno") ? "Mentor" : m.name.toLowerCase().includes("mayara") ? "Mentora" : "Admin") 
                                 : m.member_type}
-
+                            </span>
+                          ) : (
+                            <span style={{
+                              fontSize: "9px",
+                              fontWeight: 700,
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.5px",
+                              backgroundColor: "rgba(203, 213, 225, 0.15)",
+                              color: "#C0C0C0",
+                              border: "1px solid rgba(203, 213, 225, 0.3)"
+                            }}>
+                              Mentorado
                             </span>
                           )}
                         </div>
                         <p style={{ color: "var(--color-secondary)", margin: "0 0 2px 0", fontSize: "12px" }}>{m.role} {m.company ? `na ${m.company}` : ""}</p>
-                        <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "11px" }}>{m.email}</p>
+                        <p style={{ color: "var(--color-outline)", margin: "0 0 6px 0", fontSize: "11px" }}>{m.email}</p>
+                        
+                        {/* Progress Bar */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                          <div style={{ width: "120px", height: "6px", backgroundColor: "rgba(255, 255, 255, 0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                            <div style={{ width: `${m.progress || 0}%`, height: "100%", background: "linear-gradient(90deg, #E2E8F0, #CBD5E1)", borderRadius: "3px" }}></div>
+                          </div>
+                          <span style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 500 }}>
+                            {m.progress || 0}% Concluído
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -2935,6 +2867,7 @@ export default function AdminPage() {
                 memberType={viewingMember.member_type}
                 size={80}
                 showLabel={true}
+                isOnline={(viewingMember as any).isOnline}
               />
               <div style={{ textAlign: "center" }}>
                 <h4 style={{ color: "#ffffff", margin: "8px 0 4px 0", fontWeight: 600, fontSize: "18px" }}>{viewingMember.name}</h4>
@@ -2955,14 +2888,24 @@ export default function AdminPage() {
                   fontSize: "12px", 
                   fontWeight: 600, 
                   color: viewingMember.member_type === "admin" 
-                    ? "#4CAF50" 
+                    ? "#EDC066" 
                     : viewingMember.member_type === "master" 
                       ? "#EDC066" 
-                      : "#B388FF"
+                      : viewingMember.member_type === "mentor"
+                        ? "#B388FF"
+                        : "#C0C0C0"
                 }}>
                   {viewingMember.member_type ? viewingMember.member_type.toUpperCase() : "MENTORADO"}
                 </span>
               </div>
+              {(viewingMember as any).progress !== undefined && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: "12px", color: "var(--color-outline)" }}>Progresso</span>
+                  <span style={{ fontSize: "13px", color: "var(--color-secondary)", fontWeight: 600 }}>
+                    {(viewingMember as any).progress}% Concluído
+                  </span>
+                </div>
+              )}
               {viewingMember.created_at && (
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ fontSize: "12px", color: "var(--color-outline)" }}>Membro desde</span>
