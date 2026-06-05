@@ -143,7 +143,7 @@ export default function Sidebar() {
                   <span
                     style={{
                       fontSize: "9px",
-                      backgroundColor: "rgba(237, 192, 102, 0.15)",
+                      backgroundColor: "rgba(10, 82, 185, 0.15)",
                       color: "var(--color-secondary)",
                       padding: "2px 6px",
                       borderRadius: "2px",

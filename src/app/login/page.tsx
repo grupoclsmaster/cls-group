@@ -77,7 +77,7 @@ export default function LoginPage() {
         }
         .login-input:focus {
           border-color: var(--color-secondary);
-          box-shadow: 0 0 0 1px var(--color-secondary), 0 0 20px rgba(237, 192, 102, 0.15);
+          box-shadow: 0 0 0 1px var(--color-secondary), 0 0 20px rgba(10, 82, 185, 0.15);
           background-color: rgba(255, 255, 255, 0.04);
         }
         .login-input-icon {
@@ -112,7 +112,7 @@ export default function LoginPage() {
           width: 400px;
           height: 400px;
           border-radius: 50%;
-          background-color: rgba(237, 192, 102, 0.04);
+          background-color: rgba(10, 82, 185, 0.04);
           filter: blur(100px);
           pointer-events: none;
           z-index: 1;
@@ -139,8 +139,8 @@ export default function LoginPage() {
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background-color: rgba(237, 192, 102, 0.08);
-          border: 1px solid rgba(237, 192, 102, 0.15);
+          background-color: rgba(10, 82, 185, 0.08);
+          border: 1px solid rgba(10, 82, 185, 0.15);
           color: var(--color-secondary);
           flex-shrink: 0;
         }
@@ -164,7 +164,7 @@ export default function LoginPage() {
 
           {/* Slogan and details */}
           <div style={{ maxWidth: "540px", margin: "auto 0" }}>
-            <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "11px", display: "inline-block", marginBottom: "16px", border: "1px solid rgba(237,192,102,0.3)", padding: "4px 12px", borderRadius: "100px", backgroundColor: "rgba(237,192,102,0.05)" }}>
+            <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "11px", display: "inline-block", marginBottom: "16px", border: "1px solid rgba(10, 82, 185,0.3)", padding: "4px 12px", borderRadius: "100px", backgroundColor: "rgba(10, 82, 185,0.05)" }}>
               Acesso Exclusivo
             </span>
             <h2 className="font-display" style={{ fontSize: "clamp(28px, 3vw, 42px)", lineHeight: 1.2, color: "#fff", marginBottom: "24px", fontWeight: 800 }}>

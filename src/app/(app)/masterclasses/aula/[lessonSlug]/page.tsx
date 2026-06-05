@@ -635,7 +635,7 @@ export default function WatchLessonPage() {
                       alignItems: "center",
                       justifyContent: "center",
                       color: "var(--color-on-secondary)",
-                      boxShadow: "0 0 30px rgba(237, 192, 102, 0.4)",
+                      boxShadow: "0 0 30px rgba(10, 82, 185, 0.4)",
                       transform: "scale(1)",
                       transition: "transform 0.3s ease"
                     }}
@@ -693,7 +693,7 @@ export default function WatchLessonPage() {
             <div className="glass-panel" style={{ borderRadius: "8px", padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-                  <span style={{ backgroundColor: "rgba(237, 192, 102, 0.1)", border: "1px solid rgba(237, 192, 102, 0.3)", color: "var(--color-secondary)", padding: "4px 8px", fontSize: "10px", borderRadius: "2px" }} className="font-label-caps">
+                  <span style={{ backgroundColor: "rgba(10, 82, 185, 0.1)", border: "1px solid rgba(10, 82, 185, 0.3)", color: "var(--color-secondary)", padding: "4px 8px", fontSize: "10px", borderRadius: "2px" }} className="font-label-caps">
                     {lesson.code}
                   </span>
                   <span style={{ color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
@@ -730,7 +730,7 @@ export default function WatchLessonPage() {
                       borderRadius: "50%",
                       objectFit: "cover",
                       border: "2px solid var(--color-secondary)",
-                      boxShadow: "0 0 10px rgba(237, 192, 102, 0.2)"
+                      boxShadow: "0 0 10px rgba(10, 82, 185, 0.2)"
                     }}
                   />
                   <div>
@@ -1057,7 +1057,7 @@ export default function WatchLessonPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
-                  backgroundColor: isUseful ? "rgba(237, 192, 102, 0.15)" : "transparent",
+                  backgroundColor: isUseful ? "rgba(10, 82, 185, 0.15)" : "transparent",
                   color: isUseful ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                   border: isUseful ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.15)",
                   padding: "10px",
@@ -1080,7 +1080,7 @@ export default function WatchLessonPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
-                  backgroundColor: isSaved ? "rgba(237, 192, 102, 0.15)" : "transparent",
+                  backgroundColor: isSaved ? "rgba(10, 82, 185, 0.15)" : "transparent",
                   color: isSaved ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                   border: isSaved ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.15)",
                   padding: "10px",

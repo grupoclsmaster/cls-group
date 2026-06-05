@@ -97,7 +97,7 @@ export default function PrivacyPage() {
           width: 600px;
           height: 600px;
           border-radius: 50%;
-          background-color: rgba(237, 192, 102, 0.03);
+          background-color: rgba(10, 82, 185, 0.03);
           filter: blur(140px);
           pointer-events: none;
           z-index: 1;
@@ -118,9 +118,9 @@ export default function PrivacyPage() {
         }
         .back-btn:hover {
           color: var(--color-secondary);
-          border-color: rgba(237, 192, 102, 0.3);
-          background-color: rgba(237, 192, 102, 0.05);
-          box-shadow: 0 0 15px rgba(237, 192, 102, 0.1);
+          border-color: rgba(10, 82, 185, 0.3);
+          background-color: rgba(10, 82, 185, 0.05);
+          box-shadow: 0 0 15px rgba(10, 82, 185, 0.1);
         }
         @media (max-width: 768px) {
           .document-panel {

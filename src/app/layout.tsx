@@ -59,7 +59,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23edc066'%3E%3Cpath d='M12 2L2 9l10 13 10-13z'/%3E%3C/svg%3E" />
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A52B9'%3E%3Cpath d='M12 2L2 9l10 13 10-13z'/%3E%3C/svg%3E" />
       </head>
       <body>{children}</body>
     </html>

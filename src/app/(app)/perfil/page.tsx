@@ -640,11 +640,11 @@ export default function PerfilPage() {
           transition: border-color 0.2s ease;
         }
         .conn-card:hover {
-          border-color: rgba(237, 192, 102, 0.25);
+          border-color: rgba(10, 82, 185, 0.25);
         }
         .req-card {
           background-color: var(--color-surface-container-low);
-          border: 1px solid rgba(237, 192, 102, 0.25);
+          border: 1px solid rgba(10, 82, 185, 0.25);
           border-radius: 6px;
           padding: 16px;
           display: flex;
@@ -699,8 +699,8 @@ export default function PerfilPage() {
         }
         .social-btn-hover:hover {
           color: var(--color-secondary) !important;
-          border-color: rgba(237, 192, 102, 0.3) !important;
-          background-color: rgba(237, 192, 102, 0.08) !important;
+          border-color: rgba(10, 82, 185, 0.3) !important;
+          background-color: rgba(10, 82, 185, 0.08) !important;
           transform: translateY(-2px);
         }
       `}} />
@@ -1052,7 +1052,7 @@ export default function PerfilPage() {
               </div>
             ) : (
               /* Edit Profile Form */
-              <form onSubmit={handleUpdateProfile} className="profile-card" style={{ border: "1px solid rgba(237, 192, 102, 0.2)" }}>
+              <form onSubmit={handleUpdateProfile} className="profile-card" style={{ border: "1px solid rgba(10, 82, 185, 0.2)" }}>
                 <h4 className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "11px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "6px" }}>
                   <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>manage_accounts</span>
                   Editar Informações
@@ -1084,7 +1084,7 @@ export default function PerfilPage() {
                       width: "96px",
                       height: "96px",
                       borderRadius: "50%",
-                      backgroundColor: "rgba(237, 192, 102, 0.05)",
+                      backgroundColor: "rgba(10, 82, 185, 0.05)",
                       border: "2px solid var(--color-secondary)",
                       color: "var(--color-outline)",
                       display: "flex",
@@ -1535,12 +1535,12 @@ export default function PerfilPage() {
                                       ? "rgba(16, 185, 129, 0.1)" 
                                       : isPending 
                                         ? "rgba(255, 255, 255, 0.04)" 
-                                        : "rgba(237, 192, 102, 0.08)",
+                                        : "rgba(10, 82, 185, 0.08)",
                                     border: isAcceptedStatus 
                                       ? "1px solid rgba(16, 185, 129, 0.3)" 
                                       : isPending 
                                         ? "1px solid rgba(255, 255, 255, 0.1)" 
-                                        : "1px solid rgba(237, 192, 102, 0.25)",
+                                        : "1px solid rgba(10, 82, 185, 0.25)",
                                     borderRadius: "4px",
                                     color: isAcceptedStatus 
                                       ? "#10b981" 
@@ -1561,7 +1561,7 @@ export default function PerfilPage() {
                                   }}
                                   onMouseLeave={(e) => {
                                     if (!isPending && !isAcceptedStatus) {
-                                      e.currentTarget.style.backgroundColor = "rgba(237, 192, 102, 0.08)";
+                                      e.currentTarget.style.backgroundColor = "rgba(10, 82, 185, 0.08)";
                                       e.currentTarget.style.color = "var(--color-secondary)";
                                     }
                                   }}

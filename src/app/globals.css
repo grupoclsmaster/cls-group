@@ -62,14 +62,14 @@
   --color-on-primary-fixed: #161740;
   --color-on-primary-fixed-variant: #41436e;
   --color-inverse-primary: #595a87;
-  --color-secondary: #edc066;
-  --color-secondary-container: #7a5901;
-  --color-secondary-fixed: #ffdea3;
-  --color-secondary-fixed-dim: #edc066;
-  --color-on-secondary: #402d00;
-  --color-on-secondary-container: #ffd27a;
-  --color-on-secondary-fixed: #261900;
-  --color-on-secondary-fixed-variant: #5d4200;
+  --color-secondary: #0A52B9;
+  --color-secondary-container: #073582;
+  --color-secondary-fixed: #93C5FD;
+  --color-secondary-fixed-dim: #0A52B9;
+  --color-on-secondary: #EFF6FF;
+  --color-on-secondary-container: #BFDBFE;
+  --color-on-secondary-fixed: #F8FAFC;
+  --color-on-secondary-fixed-variant: #1D4ED8;
   --color-tertiary: #fbb6a2;
   --color-tertiary-container: #220400;
   --color-tertiary-fixed: #ffdbd0;
@@ -167,7 +167,7 @@ body {
 }
 
 .metallic-edge {
-  border: 1px solid rgba(237, 192, 102, 0.15);
+  border: 1px solid rgba(10, 82, 185, 0.15);
 }
 
 .premium-gradient-bg {
@@ -212,7 +212,7 @@ body {
   gap: 8px;
   transition: background-color 0.2s, box-shadow 0.3s, transform 0.1s;
 }
-.btn-primary:hover { background-color: var(--color-secondary-fixed-dim); box-shadow: 0 0 20px rgba(237, 192, 102, 0.2); }
+.btn-primary:hover { background-color: var(--color-secondary-fixed-dim); box-shadow: 0 0 20px rgba(10, 82, 185, 0.2); }
 .btn-primary:active { transform: scale(0.98); }
 
 .btn-outline {
@@ -229,7 +229,7 @@ body {
   cursor: pointer;
   transition: box-shadow 0.3s;
 }
-.btn-outline:hover { box-shadow: 0 0 15px rgba(237, 192, 102, 0.2); }
+.btn-outline:hover { box-shadow: 0 0 15px rgba(10, 82, 185, 0.2); }
 
 /* Hide scrollbar */
 .hide-scroll::-webkit-scrollbar { display: none; }
@@ -239,7 +239,7 @@ body {
 .card-hover {
   transition: border-color 0.3s;
 }
-.card-hover:hover { border-color: rgba(237, 192, 102, 0.3); }
+.card-hover:hover { border-color: rgba(10, 82, 185, 0.3); }
 
 /* Sidebar */
 .sidebar {
@@ -378,14 +378,14 @@ body {
   --color-on-primary-fixed: #161740;
   --color-on-primary-fixed-variant: #41436e;
   --color-inverse-primary: #c2c2f5;
-  --color-secondary: #7a5901;
-  --color-secondary-container: #ffdea3;
-  --color-secondary-fixed: #ffdea3;
-  --color-secondary-fixed-dim: #edc066;
+  --color-secondary: #073582;
+  --color-secondary-container: #93C5FD;
+  --color-secondary-fixed: #93C5FD;
+  --color-secondary-fixed-dim: #0A52B9;
   --color-on-secondary: #ffffff;
-  --color-on-secondary-container: #261900;
-  --color-on-secondary-fixed: #261900;
-  --color-on-secondary-fixed-variant: #5d4200;
+  --color-on-secondary-container: #F8FAFC;
+  --color-on-secondary-fixed: #F8FAFC;
+  --color-on-secondary-fixed-variant: #1D4ED8;
   --color-tertiary: #a66d5b;
   --color-tertiary-container: #ffdbd0;
   --color-tertiary-fixed: #ffdbd0;
@@ -454,17 +454,17 @@ body {
 
 [data-theme='light'] .nav-link:hover {
   color: var(--color-secondary);
-  background-color: rgba(122, 89, 1, 0.04);
+  background-color: rgba(7, 53, 130, 0.04);
 }
 
 [data-theme='light'] .nav-link.active {
   color: var(--color-secondary);
-  background-color: rgba(122, 89, 1, 0.08);
+  background-color: rgba(7, 53, 130, 0.08);
   border-left-color: var(--color-secondary);
 }
 
 [data-theme='light'] .metallic-edge {
-  border: 1px solid rgba(122, 89, 1, 0.12);
+  border: 1px solid rgba(7, 53, 130, 0.12);
 }
 
 [data-theme='light'] .premium-gradient-bg {

@@ -325,20 +325,20 @@ export default function TopBar() {
               gap: "8px",
               padding: "6px 14px",
               borderRadius: "20px",
-              background: "linear-gradient(135deg, rgba(237, 192, 102, 0.15) 0%, rgba(107, 70, 193, 0.15) 100%)",
-              border: "1px solid rgba(237, 192, 102, 0.3)",
+              background: "linear-gradient(135deg, rgba(10, 82, 185, 0.15) 0%, rgba(107, 70, 193, 0.15) 100%)",
+              border: "1px solid rgba(10, 82, 185, 0.3)",
               color: "var(--color-secondary)",
               textDecoration: "none",
               cursor: "pointer",
               transition: "all 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(237, 192, 102, 0.25) 0%, rgba(107, 70, 193, 0.25) 100%)";
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(10, 82, 185, 0.25) 0%, rgba(107, 70, 193, 0.25) 100%)";
               e.currentTarget.style.borderColor = "var(--color-secondary-fixed)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "linear-gradient(135deg, rgba(237, 192, 102, 0.15) 0%, rgba(107, 70, 193, 0.15) 100%)";
-              e.currentTarget.style.borderColor = "rgba(237, 192, 102, 0.3)";
+              e.currentTarget.style.background = "linear-gradient(135deg, rgba(10, 82, 185, 0.15) 0%, rgba(107, 70, 193, 0.15) 100%)";
+              e.currentTarget.style.borderColor = "rgba(10, 82, 185, 0.3)";
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--color-secondary)" }}>
@@ -670,12 +670,12 @@ export default function TopBar() {
                     notifications.map((item) => {
                       let iconName = "notifications";
                       let iconColor = "var(--color-secondary)";
-                      let iconBg = "rgba(237, 192, 102, 0.15)";
+                      let iconBg = "rgba(10, 82, 185, 0.15)";
 
                       if (item.type === "mentoria") {
                         iconName = "calendar_month";
                         iconColor = "var(--color-secondary)";
-                        iconBg = "rgba(237, 192, 102, 0.15)";
+                        iconBg = "rgba(10, 82, 185, 0.15)";
                       } else if (item.type === "masterclass") {
                         iconName = "play_lesson";
                         iconColor = "var(--color-primary)";

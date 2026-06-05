@@ -388,7 +388,7 @@ export default function EditLessonPage() {
 
             <div 
               style={{ 
-                border: "1px dashed rgba(237, 192, 102, 0.3)", 
+                border: "1px dashed rgba(10, 82, 185, 0.3)", 
                 borderRadius: "6px", 
                 padding: "24px", 
                 textAlign: "center",

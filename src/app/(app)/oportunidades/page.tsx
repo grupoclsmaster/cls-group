@@ -177,7 +177,7 @@ export default function OportunidadesPage() {
           alignItems: "flex-end",
           padding: "40px",
           marginBottom: "48px",
-          border: "1px solid rgba(237, 192, 102, 0.25)"
+          border: "1px solid rgba(10, 82, 185, 0.25)"
         }}
       >
         {/* Background Image */}
@@ -195,7 +195,7 @@ export default function OportunidadesPage() {
 
         {/* Hero Content */}
         <div style={{ position: "relative", zIndex: 10, maxWidth: "600px" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: "rgba(237, 192, 102, 0.15)", border: "1px solid rgba(237, 192, 102, 0.3)", padding: "4px 10px", borderRadius: "2px", marginBottom: "16px" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", backgroundColor: "rgba(10, 82, 185, 0.15)", border: "1px solid rgba(10, 82, 185, 0.3)", padding: "4px 10px", borderRadius: "2px", marginBottom: "16px" }}>
             <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "14px" }}>star</span>
             <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "9px" }}>OPORTUNIDADE DESTAQUE</span>
           </div>
