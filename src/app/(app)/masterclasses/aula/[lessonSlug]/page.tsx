@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonMasterclassDetail } from "@/components/SkeletonLoading";
+import MuxPlayer from "@mux/mux-player-react";
 
 interface Lesson {
   id: string;
@@ -601,12 +602,12 @@ export default function WatchLessonPage() {
             {/* Immersive Video Player */}
             {lesson.muxPlaybackId ? (
               <div style={{ borderRadius: "8px", overflow: "hidden", aspectRatio: "16/9", backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <iframe
-                  src={`https://player.mux.com/${lesson.muxPlaybackId}?metadata-video-title=${encodeURIComponent(lesson.title)}&video-title=${encodeURIComponent(lesson.title)}&accent-color=%230072e3`}
-                  style={{ width: "100%", height: "100%", border: "none" }}
-                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
-                  allowFullScreen
-                ></iframe>
+                <MuxPlayer
+                  playbackId={lesson.muxPlaybackId}
+                  metadataVideoTitle={lesson.title}
+                  accentColor="#91B3E1"
+                  style={{ width: "100%", height: "100%" }}
+                />
               </div>
             ) : (
             <div
