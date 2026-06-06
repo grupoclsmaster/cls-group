@@ -297,11 +297,11 @@ export default function WatchLessonPage() {
     loadLesson();
   }, [lessonSlug]);
 
-  // Periodic progress saving during mock video play
+  // Periodic progress saving for MOCK player only (when no Mux playback ID)
   useEffect(() => {
     let interval: any;
     async function updateProg() {
-      if (!isPlaying || !lesson) return;
+      if (!isPlaying || !lesson || lesson.muxPlaybackId) return; // skip if Mux player is active
       try {
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
@@ -349,6 +349,68 @@ export default function WatchLessonPage() {
     }
     return () => clearInterval(interval);
   }, [isPlaying, lesson]);
+
+  // Save real Mux video progress to Supabase
+  const handleMuxTimeUpdate = async (evt: any) => {
+    if (!lesson) return;
+    try {
+      const video = evt.target as HTMLVideoElement;
+      const currentTime = video.currentTime || 0;
+      const totalTime = video.duration || 0;
+      if (!totalTime || totalTime <= 0) return;
+
+      const percent = Math.round((currentTime / totalTime) * 100);
+      setWatchedPercent(percent);
+
+      // Only save to DB every ~5% progress to avoid too many writes
+      if (percent % 5 !== 0) return;
+
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase.from('user_lesson_progress').upsert({
+        user_id: user.id,
+        lesson_id: lesson.id,
+        watched_seconds: Math.floor(currentTime),
+        total_seconds: Math.floor(totalTime),
+        percent_complete: percent,
+        completed: percent >= 90,
+        last_watched_at: new Date().toISOString()
+      }, { onConflict: 'user_id,lesson_id' });
+    } catch (err) {
+      console.error("Erro ao salvar progresso Mux:", err);
+    }
+  };
+
+  // Called when Mux player reaches the end
+  const handleMuxEnded = async () => {
+    if (!lesson) return;
+    try {
+      setIsCompleted(true);
+      setWatchedPercent(100);
+      setSiblingLessons(prev =>
+        prev.map(sib => sib.id === lesson.id ? { ...sib, status: "completed" } : sib)
+      );
+      showToast("Parabéns! Você completou esta aula.", "success");
+
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase.from('user_lesson_progress').upsert({
+        user_id: user.id,
+        lesson_id: lesson.id,
+        watched_seconds: 9999,
+        total_seconds: 9999,
+        percent_complete: 100,
+        completed: true,
+        last_watched_at: new Date().toISOString()
+      }, { onConflict: 'user_id,lesson_id' });
+    } catch (err) {
+      console.error("Erro ao marcar aula concluída:", err);
+    }
+  };
 
   const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -607,6 +669,10 @@ export default function WatchLessonPage() {
                   metadataVideoTitle={lesson.title}
                   accentColor="#91B3E1"
                   style={{ width: "100%", height: "100%" }}
+                  onTimeUpdate={handleMuxTimeUpdate}
+                  onEnded={handleMuxEnded}
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
                 />
               </div>
             ) : (

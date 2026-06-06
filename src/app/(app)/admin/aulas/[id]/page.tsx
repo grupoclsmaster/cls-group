@@ -34,6 +34,7 @@ export default function EditLessonPage() {
   const [instructorName, setInstructorName] = useState("Eng. Magno Santos");
   const [instructorRole, setInstructorRole] = useState("CEO & Fundador CLS");
   const [instructorAvatar, setInstructorAvatar] = useState("/magno.jpg");
+  const [muxPlaybackId, setMuxPlaybackId] = useState("");
 
   const showStatus = (type: "success" | "error", text: string) => {
     setStatusMsg({ type, text });
@@ -87,6 +88,7 @@ export default function EditLessonPage() {
             setInstructorName(lesson.instructor_name || "Eng. Magno Santos");
             setInstructorRole(lesson.instructor_role || "CEO & Fundador CLS");
             setInstructorAvatar(lesson.instructor_avatar || "/magno.jpg");
+            setMuxPlaybackId(lesson.mux_playback_id || "");
           }
         } else {
           router.push("/sem-permissao");
@@ -116,6 +118,7 @@ export default function EditLessonPage() {
           description,
           duration,
           video_url: videoUrl,
+          mux_playback_id: muxPlaybackId || null,
           instructor_name: instructorName,
           instructor_role: instructorRole,
           instructor_avatar: instructorAvatar,
@@ -319,6 +322,28 @@ export default function EditLessonPage() {
                 onChange={(e) => setVideoUrl(e.target.value)}
               />
             </div>
+          </div>
+
+          {/* Mux Playback ID */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "20px", background: "rgba(145,179,225,0.06)", borderRadius: "8px", border: "1px solid rgba(145,179,225,0.2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--color-secondary)" }}>play_circle</span>
+              <label style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 700, letterSpacing: "0.05em" }}>MUX PLAYBACK ID</label>
+            </div>
+            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", margin: "0 0 10px 0" }}>Cole aqui o Playback ID do vídeo no Mux. O player oficial do Mux será exibido automaticamente para os alunos.</p>
+            <input
+              type="text"
+              className="input-dark"
+              placeholder="Ex: Tbg2cj48M5K4saYVe101i02YQv02V2UCy..."
+              value={muxPlaybackId}
+              onChange={(e) => setMuxPlaybackId(e.target.value)}
+            />
+            {muxPlaybackId && (
+              <p style={{ fontSize: "11px", color: "#81C784", margin: "6px 0 0 0", display: "flex", alignItems: "center", gap: "4px" }}>
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
+                Player Mux será utilizado nesta aula.
+              </p>
+            )}
           </div>
 
           {/* Status & Schedule */}
