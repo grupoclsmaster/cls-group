@@ -61,6 +61,18 @@ export default function WatchLessonPage() {
   // Resources state
   const [downloadingResources, setDownloadingResources] = useState(false);
 
+  // Real duration from Mux player (overrides DB value once loaded)
+  const [muxDuration, setMuxDuration] = useState<string>("");
+
+  // Format seconds to "X MIN" or "Xh Ymin"
+  const formatDuration = (secs: number): string => {
+    const totalMin = Math.round(secs / 60);
+    const hours = Math.floor(totalMin / 60);
+    const mins = totalMin % 60;
+    if (hours > 0) return `${hours}H${mins > 0 ? ` ${mins} MIN` : ""}`;
+    return `${totalMin} MIN`;
+  };
+
   const handlePostReply = async (parentId: string) => {
     if (!replyContent.trim() || !lesson) return;
     try {
@@ -673,6 +685,10 @@ export default function WatchLessonPage() {
                   onEnded={handleMuxEnded}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
+                  onLoadedMetadata={(e: any) => {
+                    const dur = (e.target as HTMLVideoElement).duration;
+                    if (dur && dur > 0) setMuxDuration(formatDuration(dur));
+                  }}
                 />
               </div>
             ) : (
@@ -777,7 +793,7 @@ export default function WatchLessonPage() {
                     {lesson.code}
                   </span>
                   <span style={{ color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-                    • {lesson.duration}
+                    • {muxDuration || lesson.duration}
                   </span>
                 </div>
                 <h1 className="font-headline-sm" style={{ color: "var(--color-on-surface)", marginBottom: "16px", fontSize: "28px" }}>
