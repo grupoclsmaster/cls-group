@@ -23,6 +23,7 @@ interface Lesson {
   thumbnailUrl?: string;
   attachedResources?: any[];
   courseSlug?: string;
+  muxPlaybackId?: string;
 }
 
 export default function WatchLessonPage() {
@@ -198,7 +199,8 @@ export default function WatchLessonPage() {
             longDesc: dbLesson.long_description || dbLesson.description,
             thumbnailUrl: dbLesson.cover_image_url || dbLesson.thumbnail_url || "https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&q=80&w=400",
             attachedResources: dbLesson.attached_resources || [],
-            courseSlug: courseSlugVal
+            courseSlug: courseSlugVal,
+            muxPlaybackId: dbLesson.mux_playback_id || ""
           };
         }
 
@@ -597,6 +599,16 @@ export default function WatchLessonPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
             
             {/* Immersive Video Player */}
+            {lesson.muxPlaybackId ? (
+              <div style={{ borderRadius: "8px", overflow: "hidden", aspectRatio: "16/9", backgroundColor: "#000", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <iframe
+                  src={`https://player.mux.com/${lesson.muxPlaybackId}?metadata-video-title=${encodeURIComponent(lesson.title)}&video-title=${encodeURIComponent(lesson.title)}&accent-color=%230072e3`}
+                  style={{ width: "100%", height: "100%", border: "none" }}
+                  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            ) : (
             <div
               className="glass-panel"
               style={{
@@ -688,6 +700,7 @@ export default function WatchLessonPage() {
                 </button>
               </div>
             </div>
+            )}
 
             {/* Title, Description & Mentor Details */}
             <div className="glass-panel" style={{ borderRadius: "8px", padding: "32px", display: "flex", flexDirection: "column", gap: "24px" }}>

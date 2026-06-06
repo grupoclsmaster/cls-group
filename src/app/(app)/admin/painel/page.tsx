@@ -157,6 +157,7 @@ export default function AdminPage() {
   const [lessonDesc, setLessonDesc] = useState("");
   const [lessonDuration, setLessonDuration] = useState("");
   const [lessonVideoUrl, setLessonVideoUrl] = useState("");
+  const [lessonMuxPlaybackId, setLessonMuxPlaybackId] = useState("");
   const [lessonInstructorName, setLessonInstructorName] = useState("Eng. Magno Santos");
   const [lessonInstructorRole, setLessonInstructorRole] = useState("CEO & Fundador CLS");
   const [lessonInstructorAvatar, setLessonInstructorAvatar] = useState("/magno.jpg");
@@ -993,6 +994,7 @@ export default function AdminPage() {
         description: lessonDesc,
         duration: lessonDuration || "15 MIN",
         video_url: lessonVideoUrl,
+        mux_playback_id: lessonMuxPlaybackId,
         instructor_name: lessonInstructorName,
         instructor_role: lessonInstructorRole,
         instructor_avatar: lessonInstructorAvatar,
@@ -1004,6 +1006,7 @@ export default function AdminPage() {
       setLessonDesc("");
       setLessonDuration("");
       setLessonVideoUrl("");
+      setLessonMuxPlaybackId("");
       setActiveAddLessonModuleId(null);
       showStatus("success", "Aula cadastrada com sucesso!");
       await refreshData();
@@ -2262,7 +2265,7 @@ export default function AdminPage() {
                       />
                     </div>
 
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                         <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DURAÇÃO (Ex: 15 MIN)</label>
                         <input
@@ -2281,6 +2284,16 @@ export default function AdminPage() {
                           placeholder="https://vimeo.com/..."
                           value={lessonVideoUrl}
                           onChange={(e) => setLessonVideoUrl(e.target.value)}
+                        />
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>MUX PLAYBACK ID</label>
+                        <input
+                          type="text"
+                          className="input-dark"
+                          placeholder="Ex: Tbg2cj48M5..."
+                          value={lessonMuxPlaybackId}
+                          onChange={(e) => setLessonMuxPlaybackId(e.target.value)}
                         />
                       </div>
                     </div>

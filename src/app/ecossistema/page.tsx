@@ -71,9 +71,9 @@ const featuredBanners: Banner[] = [
     subtitle: "2ª Edição • Outubro 2026",
     description: "O maior evento de engenharia, negócios e incorporação imobiliária do Brasil está de volta. Garanta sua vaga no lote de pré-lançamento com condições exclusivas.",
     tag: "EVENTO PRINCIPAL",
-    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=1200",
+    image: "/banner-codigo.png",
     ctaText: "Garantir Ingresso",
-    ctaLink: "https://grupocls.com.br/codigo-construcao"
+    ctaLink: "https://www.ocodigodaconstrucao.com.br/#planos-2-edicao"
   },
   {
     id: "concreto-conversa-recente",
@@ -442,6 +442,17 @@ export default function EcossistemaPage() {
           .slider-content {
             padding: 20px;
             max-width: 100%;
+          }
+          .slider-content h2 {
+            font-size: 20px !important;
+            line-height: 1.1 !important;
+          }
+          .slider-content p {
+            font-size: 11px !important;
+            margin-bottom: 16px !important;
+          }
+          .slider-content span {
+            font-size: 10px !important;
           }
         }
         /* Right sidebar selector items */
@@ -912,41 +923,13 @@ export default function EcossistemaPage() {
         </section>
         )}
         {/* Smart Site Map Footer */}
-        <footer style={{ borderTop: "1px solid var(--border-color)", paddingTop: "48px", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.2fr", gap: "40px" }} className="hide-sidebar-at-900">
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+        <footer style={{ borderTop: "1px solid var(--border-color)", paddingTop: "48px", display: "grid", gridTemplateColumns: "1fr", gap: "40px" }} className="hide-sidebar-at-900">
+          <div style={{ textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "16px" }}>
               <span className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "14px", fontWeight: 700, letterSpacing: "0.05em" }}>GRUPO CLS</span>
             </div>
-            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", maxWidth: "260px" }}>O hub centralizador de conhecimento técnico, ferramentas digitais avançadas e networking de alto nível na construção civil.</p>
+            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", maxWidth: "400px", margin: "0 auto" }}>O hub centralizador de conhecimento técnico, ferramentas digitais avançadas e networking de alto nível na construção civil.</p>
             <span style={{ display: "block", fontSize: "11px", color: "var(--color-outline)", marginTop: "24px" }}>&copy; {new Date().getFullYear()} Grupo CLS. Todos os direitos reservados.</span>
-          </div>
-
-          <div>
-            <h5 className="font-label-caps" style={{ color: "var(--color-on-surface)", fontSize: "10px", marginBottom: "16px" }}>Produtos</h5>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", padding: 0 }}>
-              <li><Link href="#produtos" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Planilhas Prontas</Link></li>
-              <li><Link href="#produtos" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Ebooks & Manuais</Link></li>
-              <li><Link href="#projetos" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Projetos Arquitetônicos</Link></li>
-              <li><Link href="#projetos" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Modelos Contratuais</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="font-label-caps" style={{ color: "var(--color-on-surface)", fontSize: "10px", marginBottom: "16px" }}>Mídia e Eventos</h5>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", padding: 0 }}>
-              <li><Link href="#podcast" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Episódios Podcast</Link></li>
-              <li><Link href="#eventos" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">O Código da Construção</Link></li>
-              <li><Link href="/masterclasses" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Masterclasses Gravadas</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 className="font-label-caps" style={{ color: "var(--color-on-surface)", fontSize: "10px", marginBottom: "16px" }}>Soluções Corporativas</h5>
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "10px", padding: 0 }}>
-              <li><Link href="#podcast" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Patrocinar Podcast</Link></li>
-              <li><Link href="#podcast" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Gravação de Podcast (Estúdio)</Link></li>
-              <li><Link href="#podcast" style={{ textDecoration: "none", color: "var(--color-on-surface-variant)", fontSize: "12px" }} className="hover-gold-text">Produção de Cursos</Link></li>
-            </ul>
           </div>
         </footer>
 
