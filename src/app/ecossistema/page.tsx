@@ -86,12 +86,12 @@ const featuredBanners: Banner[] = [
     ctaLink: "https://youtu.be/QUNkDh4OKfc"
   },
   {
-    id: "orcamento-bdi",
-    title: "Orçamentação e BDI Lean",
-    subtitle: "Curso em Destaque",
-    description: "Domine a engenharia de custos avançada e elimine de uma vez os desvios de orçamento no seu canteiro de obras.",
-    tag: "CURSO EM DESTAQUE",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=1200",
+    id: "curso-saia-do-improviso",
+    title: "Saia do improviso.",
+    subtitle: "Curso",
+    description: "O Manual completo para empresas saírem do \"Apaga incêndio\" e realmente crescer de forma saudável.",
+    tag: "CURSO",
+    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1200",
     ctaText: "Ver Grade Curricular",
     ctaLink: "/masterclasses"
   },
