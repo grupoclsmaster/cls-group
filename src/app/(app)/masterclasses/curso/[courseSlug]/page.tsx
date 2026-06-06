@@ -496,7 +496,7 @@ export default function CourseDetailPage() {
                 </button>
 
                 <div id={`carousel-${mod.id}`} className="netflix-carousel">
-                  {moduleLessons.map((lesson) => {
+                  {moduleLessons.map((lesson, lessonIndex) => {
                     const progress = lesson.progress || 0;
                     const isCompleted = lesson.completed || false;
                     return (
@@ -555,8 +555,8 @@ export default function CourseDetailPage() {
                             </span>
                           )}
 
-                          {/* Duration Badge */}
-                          {lesson.duration && (
+                          {/* Duration Badge - only show if there's a real duration */}
+                          {lesson.duration && lesson.duration !== "15 MIN" && (
                             <span style={{
                               position: "absolute",
                               bottom: "8px",
@@ -584,7 +584,7 @@ export default function CourseDetailPage() {
                               marginBottom: "4px"
                             }}
                           >
-                            AULA {lesson.sequence_order}
+                            AULA {lessonIndex + 1}
                           </span>
                           <h4
                             style={{
