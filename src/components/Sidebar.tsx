@@ -223,13 +223,15 @@ export default function Sidebar() {
           }}
         >
           {[
-            { icon: "help_outline", label: "Suporte", href: "#", onClick: undefined },
+            { icon: "help_outline", label: "Suporte", href: "https://wa.me/5511965066820", onClick: undefined, external: true },
             { icon: "logout", label: "Sair", href: "/login", onClick: handleLogout },
           ].map((item) => (
             <Link
               key={item.label}
               href={item.href}
               onClick={item.onClick}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noopener noreferrer" : undefined}
               className="nav-link"
               style={{ 
                 textDecoration: "none",
