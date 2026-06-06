@@ -56,10 +56,10 @@ interface Episode {
 const featuredBanners: Banner[] = [
   {
     id: "club-pro",
-    title: "",
-    subtitle: "",
-    description: "",
-    tag: "",
+    title: "CLUB CLS PRO",
+    subtitle: "Programa de Aceleração",
+    description: "CLUB CLS PRO é o Master Mind, Mentoria para empresários.",
+    tag: "FECHADO",
     image: "/bg-club-cls-pro.PNG",
     ctaText: "Indisponível no momento",
     ctaLink: "#",
@@ -419,11 +419,13 @@ export default function EcossistemaPage() {
         .slider-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.6) 50%, transparent 100%);
+          background: linear-gradient(to right, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.6) 60%, transparent 100%);
+          z-index: 2;
+          pointer-events: none;
         }
         @media (max-width: 768px) {
           .slider-overlay {
-            background: linear-gradient(to top, rgba(19, 19, 22, 0.98) 0%, rgba(19, 19, 22, 0.4) 100%);
+            background: linear-gradient(to top, rgba(19, 19, 22, 0.98) 0%, rgba(19, 19, 22, 0.6) 60%, transparent 100%);
           }
         }
         .slider-content {
