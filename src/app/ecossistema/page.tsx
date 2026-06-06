@@ -12,6 +12,7 @@ interface Banner {
   subtitle: string;
   description: string;
   tag: string;
+  image: string;
   ctaText: string;
   ctaLink: string;
   disabled?: boolean;
