@@ -71,7 +71,7 @@ const featuredBanners: Banner[] = [
     subtitle: "2ª Edição • Outubro 2026",
     description: "O maior evento de engenharia, negócios e incorporação imobiliária do Brasil está de volta. Garanta sua vaga no lote de pré-lançamento com condições exclusivas.",
     tag: "EVENTO PRINCIPAL",
-    image: "/banner-codigo.png",
+    image: "/ocdc2.png",
     ctaText: "Garantir Ingresso",
     ctaLink: "https://www.ocodigodaconstrucao.com.br/#planos-2-edicao"
   },
