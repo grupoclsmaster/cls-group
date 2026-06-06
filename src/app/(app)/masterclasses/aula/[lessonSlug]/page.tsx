@@ -199,7 +199,7 @@ export default function WatchLessonPage() {
             id: dbLesson.id,
             module: dbLesson.module_id,
             moduleTitle: moduleTitle,
-            code: `AULA ${dbLesson.sequence_order}`,
+            code: `AULA ${dbLesson.sequence_order + 1}`,
             title: dbLesson.title,
             desc: dbLesson.description,
             duration: dbLesson.duration,
@@ -244,7 +244,7 @@ export default function WatchLessonPage() {
               return {
                 id: sib.id,
                 slug: sib.slug,
-                code: `AULA ${sib.sequence_order}`,
+                code: `AULA ${sib.sequence_order + 1}`,
                 title: sib.title,
                 duration: sib.duration,
                 status: prog?.completed ? "completed" : (prog?.percent_complete > 0 ? "active" : "locked")
