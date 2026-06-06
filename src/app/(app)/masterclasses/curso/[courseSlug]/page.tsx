@@ -193,6 +193,9 @@ export default function CourseDetailPage() {
           transform: scale(1.03);
           border-color: rgba(145, 179, 225, 0.3);
         }
+        .netflix-card:hover .mux-gif-hover {
+          opacity: 1 !important;
+        }
         .carousel-container {
           position: relative;
         }
@@ -512,6 +515,24 @@ export default function CourseDetailPage() {
                             className="course-card-img"
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                           />
+                          {lesson.mux_playback_id && (
+                            <img
+                              src={`https://image.mux.com/${lesson.mux_playback_id}/animated.gif`}
+                              alt={`${lesson.title} preview`}
+                              className="mux-gif-hover"
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                opacity: 0,
+                                transition: "opacity 0.4s ease",
+                                zIndex: 1
+                              }}
+                            />
+                          )}
 
                           {/* Play overlay hover indicator */}
                           <div style={{
