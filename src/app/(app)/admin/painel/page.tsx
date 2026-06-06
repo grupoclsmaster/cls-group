@@ -1688,7 +1688,7 @@ export default function AdminPage() {
                             style={{ 
                               fontSize: "11px", 
                               color: "var(--color-secondary)", 
-                              backgroundColor: "rgba(10, 82, 185, 0.1)", 
+                              backgroundColor: "rgba(37, 99, 235, 0.1)", 
                               padding: "4px 8px", 
                               borderRadius: "2px",
                               fontWeight: 600
@@ -1772,7 +1772,7 @@ export default function AdminPage() {
                                     alignItems: "center", 
                                     padding: "12px 20px", 
                                     borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
-                                    backgroundColor: draggedLessonId === l.id ? "rgba(10, 82, 185, 0.08)" : "transparent",
+                                    backgroundColor: draggedLessonId === l.id ? "rgba(37, 99, 235, 0.08)" : "transparent",
                                     cursor: "grab",
                                     opacity: draggedLessonId === l.id ? 0.5 : 1
                                   }}
@@ -1980,7 +1980,7 @@ export default function AdminPage() {
                 <div 
                   style={{
                     backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(10, 82, 185, 0.3)",
+                    border: "1px solid rgba(37, 99, 235, 0.3)",
                     borderRadius: "12px",
                     width: "100%",
                     maxWidth: "450px",
@@ -2096,7 +2096,7 @@ export default function AdminPage() {
 
                       <div 
                         style={{ 
-                          border: "1px dashed rgba(10, 82, 185, 0.3)", 
+                          border: "1px dashed rgba(37, 99, 235, 0.3)", 
                           borderRadius: "6px", 
                           padding: "16px", 
                           textAlign: "center",
@@ -2156,7 +2156,7 @@ export default function AdminPage() {
                 <div 
                   style={{
                     backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(10, 82, 185, 0.3)",
+                    border: "1px solid rgba(37, 99, 235, 0.3)",
                     borderRadius: "12px",
                     width: "100%",
                     maxWidth: "450px",
@@ -2221,7 +2221,7 @@ export default function AdminPage() {
                 <div 
                   style={{
                     backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(10, 82, 185, 0.3)",
+                    border: "1px solid rgba(37, 99, 235, 0.3)",
                     borderRadius: "12px",
                     width: "100%",
                     maxWidth: "500px",
@@ -2347,7 +2347,7 @@ export default function AdminPage() {
                 <div 
                   style={{
                     backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(10, 82, 185, 0.3)",
+                    border: "1px solid rgba(37, 99, 235, 0.3)",
                     borderRadius: "12px",
                     width: "100%",
                     maxWidth: "500px",
@@ -2502,12 +2502,12 @@ export default function AdminPage() {
                               textTransform: "uppercase",
                               letterSpacing: "0.5px",
                               backgroundColor: m.member_type === "admin" || m.member_type === "master"
-                                ? "rgba(10, 82, 185, 0.15)" 
+                                ? "rgba(37, 99, 235, 0.15)" 
                                 : "rgba(124, 77, 255, 0.15)",
                               color: m.member_type === "admin" || m.member_type === "master"
-                                ? "#0A52B9" 
+                                ? "#2563EB" 
                                 : "#B388FF",
-                              border: `1px solid ${m.member_type === "admin" || m.member_type === "master" ? "rgba(10, 82, 185, 0.3)" : "rgba(124, 77, 255, 0.3)"}`
+                              border: `1px solid ${m.member_type === "admin" || m.member_type === "master" ? "rgba(37, 99, 235, 0.3)" : "rgba(124, 77, 255, 0.3)"}`
                             }}>
                               {m.member_type === "admin" 
                                 ? (m.name.toLowerCase().includes("magno") ? "Mentor" : m.name.toLowerCase().includes("mayara") ? "Mentora" : "Admin") 
@@ -2653,7 +2653,7 @@ export default function AdminPage() {
                       
                       <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "16px" }}>
                         {Object.entries(modData.lessons).map(([lessId, lessData]) => (
-                          <div key={lessId} style={{ borderLeft: "2px solid rgba(10, 82, 185, 0.3)", paddingLeft: "16px" }}>
+                          <div key={lessId} style={{ borderLeft: "2px solid rgba(37, 99, 235, 0.3)", paddingLeft: "16px" }}>
                             <h4 style={{ color: "#ffffff", fontSize: "14px", fontWeight: 600, margin: "0 0 12px 0" }}>
                               {lessData.lessonTitle}
                             </h4>
@@ -2888,9 +2888,9 @@ export default function AdminPage() {
                   fontSize: "12px", 
                   fontWeight: 600, 
                   color: viewingMember.member_type === "admin" 
-                    ? "#0A52B9" 
+                    ? "#2563EB" 
                     : viewingMember.member_type === "master" 
-                      ? "#0A52B9" 
+                      ? "#2563EB" 
                       : viewingMember.member_type === "mentor"
                         ? "#B388FF"
                         : "#C0C0C0"
@@ -3045,7 +3045,7 @@ export default function AdminPage() {
           transform: "translateX(-50%)",
           backgroundColor: "rgba(20, 20, 25, 0.95)",
           backdropFilter: "blur(10px)",
-          border: "1px solid rgba(10, 82, 185, 0.3)",
+          border: "1px solid rgba(37, 99, 235, 0.3)",
           borderRadius: "50px",
           padding: "12px 24px",
           display: "flex",

@@ -12,9 +12,9 @@ interface Banner {
   subtitle: string;
   description: string;
   tag: string;
-  image: string;
   ctaText: string;
   ctaLink: string;
+  disabled?: boolean;
 }
 
 interface Product {
@@ -59,9 +59,10 @@ const featuredBanners: Banner[] = [
     subtitle: "Programa de Aceleração",
     description: "O ecossistema definitivo para construtores, incorporadores e engenheiros. Acesso imediato a masterclasses, ferramentas e networking.",
     tag: "FECHADO",
-    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200",
-    ctaText: "Entrar na Lista de Espera",
-    ctaLink: "#"
+    image: "/bg-club-cls-pro.PNG",
+    ctaText: "Indisponível no momento",
+    ctaLink: "#",
+    disabled: true
   },
   {
     id: "codigo-construcao",
@@ -472,12 +473,12 @@ export default function EcossistemaPage() {
         }
         .sidebar-select-item:hover {
           background-color: var(--dropdown-item-hover);
-          border-color: rgba(10, 82, 185, 0.3);
+          border-color: rgba(37, 99, 235, 0.3);
         }
         .sidebar-select-item.active {
           border-color: var(--color-secondary);
           background-color: var(--dropdown-item-hover);
-          box-shadow: 0 0 15px rgba(10, 82, 185, 0.05);
+          box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
         }
         .sidebar-item-thumb {
           width: 50px;
@@ -544,7 +545,7 @@ export default function EcossistemaPage() {
         }
         .store-card:hover {
           transform: translateY(-4px);
-          border-color: rgba(10, 82, 185, 0.3);
+          border-color: rgba(37, 99, 235, 0.3);
           box-shadow: 0 10px 20px rgba(0,0,0,0.06);
         }
         .store-card-img-wrapper {
@@ -715,12 +716,23 @@ export default function EcossistemaPage() {
               </p>
               <div>
                 <button
-                  onClick={() => handleCtaClick(featuredBanners[currentSlide].ctaLink)}
-                  className="btn-primary"
-                  style={{ padding: "12px 24px", fontSize: "11px" }}
+                  onClick={() => !featuredBanners[currentSlide].disabled && handleCtaClick(featuredBanners[currentSlide].ctaLink)}
+                  className={featuredBanners[currentSlide].disabled ? "btn-outline" : "btn-primary"}
+                  style={{ 
+                    padding: "12px 24px", 
+                    fontSize: "11px",
+                    opacity: featuredBanners[currentSlide].disabled ? 0.6 : 1,
+                    cursor: featuredBanners[currentSlide].disabled ? "not-allowed" : "pointer",
+                    backgroundColor: featuredBanners[currentSlide].disabled ? "var(--color-surface-container)" : undefined,
+                    color: featuredBanners[currentSlide].disabled ? "var(--color-on-surface-variant)" : undefined,
+                    borderColor: featuredBanners[currentSlide].disabled ? "var(--border-color)" : undefined
+                  }}
+                  disabled={featuredBanners[currentSlide].disabled}
                 >
                   {featuredBanners[currentSlide].ctaText}
-                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_forward</span>
+                  {!featuredBanners[currentSlide].disabled && (
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px", marginLeft: "8px" }}>arrow_forward</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -769,7 +781,7 @@ export default function EcossistemaPage() {
                   key={tab}
                   onClick={() => setProductFilter(tab)}
                   style={{
-                    backgroundColor: productFilter === tab ? "rgba(10, 82, 185, 0.15)" : "transparent",
+                    backgroundColor: productFilter === tab ? "rgba(37, 99, 235, 0.15)" : "transparent",
                     color: productFilter === tab ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                     border: "none",
                     padding: "8px 16px",

@@ -125,8 +125,8 @@ export default function MasterclassesPage() {
         }
         .course-card:hover {
           transform: translateY(-5px);
-          border-color: rgba(10, 82, 185, 0.25);
-          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(10, 82, 185, 0.06);
+          border-color: rgba(37, 99, 235, 0.25);
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(37, 99, 235, 0.06);
         }
         .course-card-img-wrapper {
           position: relative;

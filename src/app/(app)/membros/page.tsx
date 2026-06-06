@@ -946,7 +946,7 @@ export default function FeedComunidadePage() {
           transition: border-color 0.2s ease;
         }
         .feed-post-card:hover {
-          border-color: rgba(10, 82, 185, 0.25);
+          border-color: rgba(37, 99, 235, 0.25);
         }
         .post-action-btn {
           flex: 1;
@@ -1451,7 +1451,7 @@ export default function FeedComunidadePage() {
                         <div style={{
                           width: "100%",
                           height: "100%",
-                          backgroundColor: "rgba(10, 82, 185, 0.1)",
+                          backgroundColor: "rgba(37, 99, 235, 0.1)",
                           color: "var(--color-secondary)",
                           display: "flex",
                           alignItems: "center",
@@ -1490,7 +1490,7 @@ export default function FeedComunidadePage() {
               </div>
 
               {/* Create Post Box */}
-              <div className="feed-post-card" style={{ border: "1px solid rgba(10, 82, 185, 0.2)" }}>
+              <div className="feed-post-card" style={{ border: "1px solid rgba(37, 99, 235, 0.2)" }}>
             <form onSubmit={handleCreatePost}>
               <div style={{ display: "flex", gap: "16px" }}>
                 <MemberBadge
@@ -1532,9 +1532,9 @@ export default function FeedComunidadePage() {
                         borderRadius: "20px",
                         fontSize: "11px",
                         fontWeight: 600,
-                        backgroundColor: postType === "standard" ? "rgba(10, 82, 185, 0.15)" : "transparent",
+                        backgroundColor: postType === "standard" ? "rgba(37, 99, 235, 0.15)" : "transparent",
                         color: postType === "standard" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "standard" ? "1px solid rgba(10, 82, 185, 0.3)" : "1px solid var(--border-color)",
+                        border: postType === "standard" ? "1px solid rgba(37, 99, 235, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1553,9 +1553,9 @@ export default function FeedComunidadePage() {
                         borderRadius: "20px",
                         fontSize: "11px",
                         fontWeight: 600,
-                        backgroundColor: postType === "status" ? "rgba(10, 82, 185, 0.15)" : "transparent",
+                        backgroundColor: postType === "status" ? "rgba(37, 99, 235, 0.15)" : "transparent",
                         color: postType === "status" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "status" ? "1px solid rgba(10, 82, 185, 0.3)" : "1px solid var(--border-color)",
+                        border: postType === "status" ? "1px solid rgba(37, 99, 235, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1574,9 +1574,9 @@ export default function FeedComunidadePage() {
                         borderRadius: "20px",
                         fontSize: "11px",
                         fontWeight: 600,
-                        backgroundColor: postType === "reels" ? "rgba(10, 82, 185, 0.15)" : "transparent",
+                        backgroundColor: postType === "reels" ? "rgba(37, 99, 235, 0.15)" : "transparent",
                         color: postType === "reels" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "reels" ? "1px solid rgba(10, 82, 185, 0.3)" : "1px solid var(--border-color)",
+                        border: postType === "reels" ? "1px solid rgba(37, 99, 235, 0.3)" : "1px solid var(--border-color)",
                         cursor: "pointer",
                         transition: "all 0.2s"
                       }}
@@ -1653,11 +1653,11 @@ export default function FeedComunidadePage() {
                           cursor: "pointer",
                           padding: "6px 12px",
                           borderRadius: "4px",
-                          backgroundColor: "rgba(10, 82, 185, 0.08)",
+                          backgroundColor: "rgba(37, 99, 235, 0.08)",
                           transition: "background-color 0.2s"
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(10, 82, 185, 0.15)"}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(10, 82, 185, 0.08)"}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.15)"}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.08)"}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>perm_media</span>
                         Adicionar Mídia
@@ -2276,7 +2276,7 @@ export default function FeedComunidadePage() {
 
                       {/* Add comment form */}
                       <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(10, 82, 185, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(37, 99, 235, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           {currentMemberInfo?.img ? (
                             <img src={currentMemberInfo.img} alt="Você" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                           ) : (
@@ -2464,12 +2464,12 @@ export default function FeedComunidadePage() {
                             ? "rgba(16, 185, 129, 0.1)" 
                             : isPending 
                               ? "rgba(255, 255, 255, 0.04)" 
-                              : "rgba(10, 82, 185, 0.08)",
+                              : "rgba(37, 99, 235, 0.08)",
                           border: isAccepted 
                             ? "1px solid rgba(16, 185, 129, 0.3)" 
                             : isPending 
                               ? "1px solid rgba(255, 255, 255, 0.1)" 
-                              : "1px solid rgba(10, 82, 185, 0.25)",
+                              : "1px solid rgba(37, 99, 235, 0.25)",
                           borderRadius: "4px",
                           color: isAccepted 
                             ? "#10b981" 
@@ -2490,7 +2490,7 @@ export default function FeedComunidadePage() {
                         }}
                         onMouseLeave={(e) => {
                           if (!isPending && !isAccepted) {
-                            e.currentTarget.style.backgroundColor = "rgba(10, 82, 185, 0.08)";
+                            e.currentTarget.style.backgroundColor = "rgba(37, 99, 235, 0.08)";
                             e.currentTarget.style.color = "var(--color-secondary)";
                           }
                         }}

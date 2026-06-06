@@ -649,7 +649,7 @@ export default function CalendarioPage() {
           style={{
             minHeight: "120px",
             padding: "12px",
-            backgroundColor: isSelected ? "rgba(10, 82, 185, 0.06)" : "var(--color-surface)",
+            backgroundColor: isSelected ? "rgba(37, 99, 235, 0.06)" : "var(--color-surface)",
             border: isSelected
               ? "1px solid var(--color-secondary)"
               : "1px solid rgba(255, 255, 255, 0.05)",
@@ -684,9 +684,9 @@ export default function CalendarioPage() {
                     borderRadius: "2px",
                     fontSize: "9px",
                     fontWeight: 600,
-                    backgroundColor: e.type === "mentoria" ? "rgba(10, 82, 185, 0.15)" : "rgba(194, 194, 245, 0.15)",
+                    backgroundColor: e.type === "mentoria" ? "rgba(37, 99, 235, 0.15)" : "rgba(194, 194, 245, 0.15)",
                     color: e.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
-                    border: e.type === "mentoria" ? "1px solid rgba(10, 82, 185, 0.25)" : "1px solid rgba(194, 194, 245, 0.25)",
+                    border: e.type === "mentoria" ? "1px solid rgba(37, 99, 235, 0.25)" : "1px solid rgba(194, 194, 245, 0.25)",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -774,7 +774,7 @@ export default function CalendarioPage() {
                 padding: "16px",
                 cursor: "pointer",
                 border: isSelected ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.05)",
-                backgroundColor: isSelected ? "rgba(10, 82, 185, 0.04)" : "var(--color-surface)",
+                backgroundColor: isSelected ? "rgba(37, 99, 235, 0.04)" : "var(--color-surface)",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
@@ -811,9 +811,9 @@ export default function CalendarioPage() {
                       fontSize: "8px",
                       padding: "2px 6px",
                       borderRadius: "2px",
-                      backgroundColor: e.type === "mentoria" ? "rgba(10, 82, 185, 0.1)" : "rgba(194, 194, 245, 0.1)",
+                      backgroundColor: e.type === "mentoria" ? "rgba(37, 99, 235, 0.1)" : "rgba(194, 194, 245, 0.1)",
                       color: e.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
-                      border: e.type === "mentoria" ? "1px solid rgba(10, 82, 185, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
+                      border: e.type === "mentoria" ? "1px solid rgba(37, 99, 235, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
                       marginBottom: "4px",
                       display: "inline-block",
                     }}
@@ -992,7 +992,7 @@ export default function CalendarioPage() {
             
             {/* Event selected detailed card */}
             <div className="glass-panel" style={{ borderRadius: "4px", padding: "24px", border: "1px solid rgba(255,255,255,0.05)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px", backgroundColor: "rgba(10, 82, 185,0.03)", borderRadius: "50%", filter: "blur(20px)" }} />
+              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px", backgroundColor: "rgba(37, 99, 235,0.03)", borderRadius: "50%", filter: "blur(20px)" }} />
 
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: selectedEvent ? (selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)") : "var(--color-outline)" }} />
@@ -1010,9 +1010,9 @@ export default function CalendarioPage() {
                         fontSize: "8px",
                         padding: "2px 6px",
                         borderRadius: "2px",
-                        backgroundColor: selectedEvent.type === "mentoria" ? "rgba(10, 82, 185, 0.1)" : "rgba(194, 194, 245, 0.1)",
+                        backgroundColor: selectedEvent.type === "mentoria" ? "rgba(37, 99, 235, 0.1)" : "rgba(194, 194, 245, 0.1)",
                         color: selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
-                        border: selectedEvent.type === "mentoria" ? "1px solid rgba(10, 82, 185, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
+                        border: selectedEvent.type === "mentoria" ? "1px solid rgba(37, 99, 235, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
                         marginBottom: "8px",
                         display: "inline-block",
                       }}
@@ -1031,7 +1031,7 @@ export default function CalendarioPage() {
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
                     <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "8px" }} className="font-label-caps">Mentor Responsável</p>
                     <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(10, 82, 185,0.3)", flexShrink: 0 }}>
+                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(37, 99, 235,0.3)", flexShrink: 0 }}>
                         <img src={selectedEvent.mentor.avatar} alt={selectedEvent.mentor.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       </div>
                       <div>

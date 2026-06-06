@@ -90,12 +90,15 @@ export default function Sidebar() {
               cursor: "pointer"
             }}
           >
-            <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "clamp(16px, 3vw, 24px)" }}>diamond</span>
-            {!isCollapsed && (
-              <h1 className="font-headline-sm" style={{ color: "var(--color-secondary-fixed)", letterSpacing: "-0.01em", margin: 0, fontSize: "clamp(12px, 2.5vw, 18px)" }}>
-                CLUB PRO CLS
-              </h1>
-            )}
+            <img 
+              src="/logo-cls.png" 
+              alt="CLUB PRO CLS" 
+              style={{ 
+                height: isCollapsed ? "24px" : "32px",
+                width: isCollapsed ? "24px" : "auto",
+                objectFit: "contain"
+              }} 
+            />
           </Link>
           
           <button
@@ -143,7 +146,7 @@ export default function Sidebar() {
                   <span
                     style={{
                       fontSize: "9px",
-                      backgroundColor: "rgba(10, 82, 185, 0.15)",
+                      backgroundColor: "rgba(37, 99, 235, 0.15)",
                       color: "var(--color-secondary)",
                       padding: "2px 6px",
                       borderRadius: "2px",

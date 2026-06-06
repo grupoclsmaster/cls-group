@@ -357,7 +357,7 @@ export default function RecursosPage() {
             borderRadius: "6px",
             cursor: "pointer",
             border: activeCategory === "todos" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
-            backgroundColor: activeCategory === "todos" ? "rgba(10, 82, 185, 0.05)" : "transparent"
+            backgroundColor: activeCategory === "todos" ? "rgba(37, 99, 235, 0.05)" : "transparent"
           }}
         >
           <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "32px", marginBottom: "16px" }}>folder</span>
@@ -374,7 +374,7 @@ export default function RecursosPage() {
             borderRadius: "6px",
             cursor: "pointer",
             border: activeCategory === "pdf" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
-            backgroundColor: activeCategory === "pdf" ? "rgba(10, 82, 185, 0.05)" : "transparent"
+            backgroundColor: activeCategory === "pdf" ? "rgba(37, 99, 235, 0.05)" : "transparent"
           }}
         >
           <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "32px", marginBottom: "16px" }}>picture_as_pdf</span>
@@ -391,7 +391,7 @@ export default function RecursosPage() {
             borderRadius: "6px",
             cursor: "pointer",
             border: activeCategory === "spreadsheet" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
-            backgroundColor: activeCategory === "spreadsheet" ? "rgba(10, 82, 185, 0.05)" : "transparent"
+            backgroundColor: activeCategory === "spreadsheet" ? "rgba(37, 99, 235, 0.05)" : "transparent"
           }}
         >
           <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "32px", marginBottom: "16px" }}>table_view</span>
@@ -408,7 +408,7 @@ export default function RecursosPage() {
             borderRadius: "6px",
             cursor: "pointer",
             border: activeCategory === "template" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
-            backgroundColor: activeCategory === "template" ? "rgba(10, 82, 185, 0.05)" : "transparent"
+            backgroundColor: activeCategory === "template" ? "rgba(37, 99, 235, 0.05)" : "transparent"
           }}
         >
           <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "32px", marginBottom: "16px" }}>dashboard_customize</span>
@@ -488,7 +488,7 @@ export default function RecursosPage() {
                       style={{ 
                         borderBottom: "1px solid rgba(255,255,255,0.05)", 
                         transition: "background-color 0.2s",
-                        backgroundColor: isSelected ? "rgba(10, 82, 185, 0.03)" : "transparent"
+                        backgroundColor: isSelected ? "rgba(37, 99, 235, 0.03)" : "transparent"
                       }}
                     >
                       {/* Bulk Select Checkbox */}
@@ -511,11 +511,11 @@ export default function RecursosPage() {
                               width: "36px",
                               height: "36px",
                               borderRadius: "4px",
-                              backgroundColor: "rgba(10, 82, 185, 0.1)",
+                              backgroundColor: "rgba(37, 99, 235, 0.1)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              border: "1px solid rgba(10, 82, 185, 0.2)"
+                              border: "1px solid rgba(37, 99, 235, 0.2)"
                             }}
                           >
                             <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "20px" }}>
@@ -675,7 +675,7 @@ export default function RecursosPage() {
               {/* Upload Dropzone */}
               {uploadMode === "upload" && (
                 <div style={{
-                  border: "2px dashed rgba(10, 82, 185, 0.3)",
+                  border: "2px dashed rgba(37, 99, 235, 0.3)",
                   borderRadius: "6px",
                   padding: "24px",
                   textAlign: "center",
