@@ -474,12 +474,12 @@ export default function EcossistemaPage() {
         }
         .sidebar-select-item:hover {
           background-color: var(--dropdown-item-hover);
-          border-color: rgba(37, 99, 235, 0.3);
+          border-color: rgba(145, 179, 225, 0.3);
         }
         .sidebar-select-item.active {
           border-color: var(--color-secondary);
           background-color: var(--dropdown-item-hover);
-          box-shadow: 0 0 15px rgba(37, 99, 235, 0.05);
+          box-shadow: 0 0 15px rgba(145, 179, 225, 0.05);
         }
         .sidebar-item-thumb {
           width: 50px;
@@ -546,7 +546,7 @@ export default function EcossistemaPage() {
         }
         .store-card:hover {
           transform: translateY(-4px);
-          border-color: rgba(37, 99, 235, 0.3);
+          border-color: rgba(145, 179, 225, 0.3);
           box-shadow: 0 10px 20px rgba(0,0,0,0.06);
         }
         .store-card-img-wrapper {
@@ -782,7 +782,7 @@ export default function EcossistemaPage() {
                   key={tab}
                   onClick={() => setProductFilter(tab)}
                   style={{
-                    backgroundColor: productFilter === tab ? "rgba(37, 99, 235, 0.15)" : "transparent",
+                    backgroundColor: productFilter === tab ? "rgba(145, 179, 225, 0.15)" : "transparent",
                     color: productFilter === tab ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                     border: "none",
                     padding: "8px 16px",

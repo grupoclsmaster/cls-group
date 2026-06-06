@@ -345,7 +345,7 @@ export default function ProjetosPage() {
           padding: "40px",
           position: "relative",
           overflow: "hidden",
-          border: "1px solid rgba(37, 99, 235, 0.2)"
+          border: "1px solid rgba(145, 179, 225, 0.2)"
         }}
       >
         <div style={{ position: "relative", zIndex: 10, maxWidth: "700px" }}>
@@ -361,7 +361,7 @@ export default function ProjetosPage() {
           </p>
         </div>
         {/* Glow decoration */}
-        <div style={{ position: "absolute", right: "-10%", bottom: "-20%", width: "300px", height: "300px", borderRadius: "50%", background: "radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, transparent 70%)" }} />
+        <div style={{ position: "absolute", right: "-10%", bottom: "-20%", width: "300px", height: "300px", borderRadius: "50%", background: "radial-gradient(circle, rgba(145, 179, 225, 0.08) 0%, transparent 70%)" }} />
       </section>
 
       {/* Tabs Filter */}
@@ -398,7 +398,7 @@ export default function ProjetosPage() {
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "24px" }}>
         {filteredProjects.length > 0 ? (
           filteredProjects.map((project) => {
-            let badgeStyle = { backgroundColor: "rgba(37, 99, 235, 0.15)", color: "var(--color-secondary)", border: "1px solid rgba(37, 99, 235, 0.3)" };
+            let badgeStyle = { backgroundColor: "rgba(145, 179, 225, 0.15)", color: "var(--color-secondary)", border: "1px solid rgba(145, 179, 225, 0.3)" };
             if (project.badgeColor === "primary") {
               badgeStyle = { backgroundColor: "rgba(194, 194, 245, 0.15)", color: "var(--color-primary)", border: "1px solid rgba(194, 194, 245, 0.3)" };
             } else if (project.badgeColor === "tertiary") {
@@ -421,7 +421,7 @@ export default function ProjetosPage() {
                 onClick={() => setSelectedProject(project)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-4px)";
-                  e.currentTarget.style.borderColor = "rgba(37, 99, 235, 0.35)";
+                  e.currentTarget.style.borderColor = "rgba(145, 179, 225, 0.35)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = "translateY(0)";
@@ -512,7 +512,7 @@ export default function ProjetosPage() {
         className="glass-panel"
         style={{
           borderRadius: "8px",
-          border: "1px solid rgba(37, 99, 235, 0.25)",
+          border: "1px solid rgba(145, 179, 225, 0.25)",
           padding: "40px",
           marginTop: "20px"
         }}
@@ -631,7 +631,7 @@ export default function ProjetosPage() {
               padding: "32px",
               display: "flex",
               flexDirection: "column",
-              border: "1px solid rgba(37, 99, 235, 0.15)",
+              border: "1px solid rgba(145, 179, 225, 0.15)",
               backgroundColor: "rgba(7, 7, 50, 0.4)",
               justifyContent: "space-between"
             }}
@@ -670,8 +670,8 @@ export default function ProjetosPage() {
               {/* Economy Highlights */}
               <div
                 style={{
-                  backgroundColor: "rgba(37, 99, 235, 0.08)",
-                  border: "1px solid rgba(37, 99, 235, 0.2)",
+                  backgroundColor: "rgba(145, 179, 225, 0.08)",
+                  border: "1px solid rgba(145, 179, 225, 0.2)",
                   borderRadius: "4px",
                   padding: "16px",
                   marginBottom: "24px",
@@ -807,7 +807,7 @@ export default function ProjetosPage() {
                   position: "absolute",
                   bottom: "20px",
                   left: "24px",
-                  backgroundColor: "rgba(37, 99, 235, 0.2)",
+                  backgroundColor: "rgba(145, 179, 225, 0.2)",
                   border: "1px solid var(--color-secondary)",
                   color: "var(--color-secondary)",
                   padding: "4px 12px",

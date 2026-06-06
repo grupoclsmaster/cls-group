@@ -179,9 +179,9 @@ export default function ManutencaoPage() {
                   className="btn-primary"
                   style={{
                     padding: "0 12px",
-                    backgroundColor: "rgba(37, 99, 235, 0.1)",
+                    backgroundColor: "rgba(145, 179, 225, 0.1)",
                     color: "var(--color-secondary)",
-                    border: "1px solid rgba(37, 99, 235, 0.3)",
+                    border: "1px solid rgba(145, 179, 225, 0.3)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -239,9 +239,9 @@ export default function ManutencaoPage() {
                   className="btn-primary"
                   style={{
                     padding: "0 12px",
-                    backgroundColor: "rgba(37, 99, 235, 0.1)",
+                    backgroundColor: "rgba(145, 179, 225, 0.1)",
                     color: "var(--color-secondary)",
-                    border: "1px solid rgba(37, 99, 235, 0.3)",
+                    border: "1px solid rgba(145, 179, 225, 0.3)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -316,9 +316,9 @@ export default function ManutencaoPage() {
                           fontWeight: 700,
                           padding: "2px 6px",
                           borderRadius: "2px",
-                          backgroundColor: log.type === "customer.member_added" ? "rgba(37, 99, 235, 0.15)" : "rgba(255,100,100,0.15)",
+                          backgroundColor: log.type === "customer.member_added" ? "rgba(145, 179, 225, 0.15)" : "rgba(255,100,100,0.15)",
                           color: log.type === "customer.member_added" ? "var(--color-secondary)" : "#ffb4ab",
-                          border: log.type === "customer.member_added" ? "1px solid rgba(37, 99, 235, 0.3)" : "1px solid rgba(255, 100, 100, 0.3)",
+                          border: log.type === "customer.member_added" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid rgba(255, 100, 100, 0.3)",
                         }}
                       >
                         {log.type}
@@ -407,7 +407,7 @@ export default function ManutencaoPage() {
                   filter: member.status === "Inativo" ? "grayscale(40%)" : "none",
                 }}
               >
-                <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(37, 99, 235,0.2)" }}>
+                <div style={{ width: "40px", height: "40px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(145, 179, 225,0.2)" }}>
                   <img src={member.img} alt={member.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -425,9 +425,9 @@ export default function ManutencaoPage() {
                     textTransform: "uppercase",
                     padding: "2px 6px",
                     borderRadius: "2px",
-                    backgroundColor: member.status === "Inativo" ? "rgba(255, 100, 100, 0.15)" : "rgba(37, 99, 235, 0.15)",
+                    backgroundColor: member.status === "Inativo" ? "rgba(255, 100, 100, 0.15)" : "rgba(145, 179, 225, 0.15)",
                     color: member.status === "Inativo" ? "#ffb4ab" : "var(--color-secondary)",
-                    border: member.status === "Inativo" ? "1px solid rgba(255, 100, 100, 0.3)" : "1px solid rgba(37, 99, 235, 0.3)"
+                    border: member.status === "Inativo" ? "1px solid rgba(255, 100, 100, 0.3)" : "1px solid rgba(145, 179, 225, 0.3)"
                   }}
                 >
                   {member.status || "Ativo"}
@@ -462,7 +462,7 @@ export default function ManutencaoPage() {
               borderRadius: "4px",
               padding: "32px",
               boxShadow: "0 24px 48px rgba(0,0,0,0.6)",
-              border: "1px solid rgba(37, 99, 235, 0.2)",
+              border: "1px solid rgba(145, 179, 225, 0.2)",
               position: "relative",
             }}
           >

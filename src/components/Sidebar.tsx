@@ -94,8 +94,8 @@ export default function Sidebar() {
               src="/logo-cls.png" 
               alt="CLUB PRO CLS" 
               style={{ 
-                height: isCollapsed ? "24px" : "32px",
-                width: isCollapsed ? "24px" : "auto",
+                height: isCollapsed ? "40px" : "72px",
+                width: isCollapsed ? "40px" : "auto",
                 objectFit: "contain"
               }} 
             />
@@ -146,7 +146,7 @@ export default function Sidebar() {
                   <span
                     style={{
                       fontSize: "9px",
-                      backgroundColor: "rgba(37, 99, 235, 0.15)",
+                      backgroundColor: "rgba(145, 179, 225, 0.15)",
                       color: "var(--color-secondary)",
                       padding: "2px 6px",
                       borderRadius: "2px",

@@ -360,7 +360,7 @@ export default function DashboardPage() {
               top: "-40px",
               width: "128px",
               height: "128px",
-              backgroundColor: "rgba(37, 99, 235, 0.1)",
+              backgroundColor: "rgba(145, 179, 225, 0.1)",
               borderRadius: "50%",
               filter: "blur(32px)",
             }}
@@ -640,7 +640,7 @@ export default function DashboardPage() {
                 width: `${coords.width}px`,
                 height: `${coords.height}px`,
                 border: "3px solid var(--color-secondary)",
-                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 25px rgba(37, 99, 235, 0.4)",
+                boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.75), 0 0 25px rgba(145, 179, 225, 0.4)",
                 borderRadius: "8px",
                 pointerEvents: "none",
                 zIndex: 9999,

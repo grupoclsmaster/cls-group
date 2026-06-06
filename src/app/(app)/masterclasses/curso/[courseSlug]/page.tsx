@@ -176,7 +176,7 @@ export default function CourseDetailPage() {
           border-radius: 4px;
         }
         .netflix-carousel::-webkit-scrollbar-thumb:hover {
-          background: rgba(37, 99, 235, 0.3);
+          background: rgba(145, 179, 225, 0.3);
         }
         .netflix-card {
           flex: 0 0 280px;
@@ -191,7 +191,7 @@ export default function CourseDetailPage() {
         }
         .netflix-card:hover {
           transform: scale(1.03);
-          border-color: rgba(37, 99, 235, 0.3);
+          border-color: rgba(145, 179, 225, 0.3);
         }
         .carousel-container {
           position: relative;
@@ -218,7 +218,7 @@ export default function CourseDetailPage() {
           opacity: 1;
         }
         .carousel-arrow:hover {
-          background-color: rgba(37, 99, 235, 0.1);
+          background-color: rgba(145, 179, 225, 0.1);
           border-color: var(--color-secondary);
           color: var(--color-secondary);
         }
@@ -247,7 +247,7 @@ export default function CourseDetailPage() {
         }
         .hero-action-btn:hover {
           background-color: var(--color-secondary-fixed-dim);
-          box-shadow: 0 0 20px rgba(37, 99, 235, 0.25);
+          box-shadow: 0 0 20px rgba(145, 179, 225, 0.25);
         }
         .control-circle-btn {
           width: 40px;

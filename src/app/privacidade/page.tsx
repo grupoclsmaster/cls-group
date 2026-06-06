@@ -97,7 +97,7 @@ export default function PrivacyPage() {
           width: 600px;
           height: 600px;
           border-radius: 50%;
-          background-color: rgba(37, 99, 235, 0.03);
+          background-color: rgba(145, 179, 225, 0.03);
           filter: blur(140px);
           pointer-events: none;
           z-index: 1;
@@ -118,9 +118,9 @@ export default function PrivacyPage() {
         }
         .back-btn:hover {
           color: var(--color-secondary);
-          border-color: rgba(37, 99, 235, 0.3);
-          background-color: rgba(37, 99, 235, 0.05);
-          box-shadow: 0 0 15px rgba(37, 99, 235, 0.1);
+          border-color: rgba(145, 179, 225, 0.3);
+          background-color: rgba(145, 179, 225, 0.05);
+          box-shadow: 0 0 15px rgba(145, 179, 225, 0.1);
         }
         @media (max-width: 768px) {
           .document-panel {
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
           }}
         >
           <Link href="/login" style={{ display: "flex", alignItems: "center", textDecoration: "none" }}>
-            <img src="/logo-cls.png" alt="CLUB PRO CLS" style={{ height: "32px", width: "auto", objectFit: "contain" }} />
+            <img src="/logo-cls.png" alt="CLUB PRO CLS" style={{ height: "64px", width: "auto", objectFit: "contain" }} />
           </Link>
 
           <Link href="/login" className="back-btn">
@@ -291,7 +291,7 @@ export default function PrivacyPage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center" }}>
-            <img src="/logo-cls.png" alt="CLUB PRO CLS" style={{ height: "24px", width: "auto", objectFit: "contain" }} />
+            <img src="/logo-cls.png" alt="CLUB PRO CLS" style={{ height: "48px", width: "auto", objectFit: "contain" }} />
           </div>
           <div style={{ display: "flex", gap: "24px" }}>
             <Link href="/termos" style={{ color: "inherit", textDecoration: "none" }} className="hover-gold-text">Termos</Link>

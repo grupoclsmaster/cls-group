@@ -28,11 +28,11 @@ const MEMBER_CONFIG = {
     shadow: 'rgba(124, 77, 255, 0.45)',
   },
   admin: {
-    color: '#2563EB',
+    color: '#91B3E1',
     label: 'Admin',
     icon: '✓',
-    gradient: 'linear-gradient(135deg, #2563EB, #3B82F6, #1E40AF)',
-    shadow: 'rgba(37, 99, 235, 0.45)',
+    gradient: 'linear-gradient(135deg, #91B3E1, #3B82F6, #1E40AF)',
+    shadow: 'rgba(145, 179, 225, 0.45)',
   },
   mentorado: {
     color: '#C0C0C0',
