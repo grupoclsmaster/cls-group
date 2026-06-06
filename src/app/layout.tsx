@@ -4,6 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "CLUB PRO CLS",
   description: "Plataforma exclusiva de educação e mentoria para membros CLS",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CLS PRO",
+  },
   openGraph: {
     title: "CLUB PRO CLS",
     description: "Plataforma exclusiva de educação e mentoria para membros CLS",
@@ -36,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="dark" data-theme="dark" suppressHydrationWarning>
       <head>
+        {/* Theme & PWA init */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -46,9 +53,28 @@ export default function RootLayout({
                   document.documentElement.setAttribute('data-theme', saved);
                 } catch (e) {}
               })();
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function() {});
+                });
+              }
             `,
           }}
         />
+        {/* Viewport with safe-area support */}
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        {/* PWA meta tags */}
+        <meta name="theme-color" content="#070732" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="CLS PRO" />
+        {/* Apple touch icons */}
+        <link rel="apple-touch-icon" href="/icons/icon-cls.png" />
+        <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-cls.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-cls.png" />
+        <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-cls.png" />
+        {/* Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -59,7 +85,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
         />
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2391B3E1'%3E%3Cpath d='M12 2L2 9l10 13 10-13z'/%3E%3C/svg%3E" />
+        <link rel="icon" href="/icons/favicon.png" type="image/png" />
       </head>
       <body>{children}</body>
     </html>

@@ -454,13 +454,12 @@ export default function RecursosPage() {
             {filteredResources.length} {filteredResources.length === 1 ? "recurso disponível" : "recursos disponíveis"}
           </span>
         </div>
-
-        <div style={{ overflowX: "auto" }}>
+        <div style={{ overflowX: "auto" }} className="resources-table-wrapper">
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", backgroundColor: "rgba(255,255,255,0.02)" }}>
                 {isAdmin && (
-                  <th style={{ padding: "16px 24px", width: "40px" }}>
+                  <th style={{ padding: "16px 24px", width: "40px" }} className="hide-on-mobile">
                     <input
                       type="checkbox"
                       checked={filteredResources.length > 0 && filteredResources.every(r => selectedIds.includes(r.id))}
@@ -470,10 +469,10 @@ export default function RecursosPage() {
                   </th>
                 )}
                 <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps">NOME DO MATERIAL</th>
-                <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps">DESCRIÇÃO</th>
-                <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps">CATEGORIA / FORMATO</th>
-                {isAdmin && <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps">STATUS DE AGENDAMENTO</th>}
-                <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)", textAlign: "right" }} className="font-label-caps">AÇÕES</th>
+                <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps hide-on-mobile">DESCRIÇÃO</th>
+                <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps hide-on-mobile">CATEGORIA / FORMATO</th>
+                {isAdmin && <th style={{ padding: "16px 24px", color: "var(--color-on-surface-variant)" }} className="font-label-caps hide-on-mobile">STATUS DE AGENDAMENTO</th>}
+                <th style={{ padding: "16px 20px", color: "var(--color-on-surface-variant)", textAlign: "right" }} className="font-label-caps">AÇÕES</th>
               </tr>
             </thead>
             <tbody>
@@ -493,7 +492,7 @@ export default function RecursosPage() {
                     >
                       {/* Bulk Select Checkbox */}
                       {isAdmin && (
-                        <td style={{ padding: "20px 24px" }}>
+                        <td style={{ padding: "20px 24px" }} className="hide-on-mobile">
                           <input
                             type="checkbox"
                             checked={isSelected}
@@ -504,7 +503,7 @@ export default function RecursosPage() {
                       )}
 
                       {/* Name */}
-                      <td style={{ padding: "20px 24px" }}>
+                      <td style={{ padding: "16px 20px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                           <div
                             style={{
@@ -534,12 +533,12 @@ export default function RecursosPage() {
                       </td>
 
                       {/* Description */}
-                      <td style={{ padding: "20px 24px", color: "var(--color-on-surface-variant)", fontSize: "13px", maxWidth: "350px" }}>
+                      <td style={{ padding: "20px 24px", color: "var(--color-on-surface-variant)", fontSize: "13px", maxWidth: "350px" }} className="hide-on-mobile">
                         {file.description || <span style={{ color: "var(--color-outline)", fontStyle: "italic" }}>Sem descrição</span>}
                       </td>
 
                       {/* Type and Size */}
-                      <td style={{ padding: "20px 24px", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
+                      <td style={{ padding: "20px 24px", color: "var(--color-on-surface-variant)", fontSize: "13px" }} className="hide-on-mobile">
                         <span className="font-label-caps" style={{ fontSize: "10px", backgroundColor: "rgba(255,255,255,0.05)", padding: "3px 6px", borderRadius: "2px", marginRight: "8px" }}>
                           {file.category}
                         </span>
@@ -548,7 +547,7 @@ export default function RecursosPage() {
 
                       {/* Scheduled Status */}
                       {isAdmin && (
-                        <td style={{ padding: "20px 24px", fontSize: "12px" }}>
+                        <td style={{ padding: "20px 24px", fontSize: "12px" }} className="hide-on-mobile">
                           {isScheduled ? (
                             <span style={{ color: "var(--color-secondary)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
                               <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>schedule</span>
@@ -569,10 +568,10 @@ export default function RecursosPage() {
                       )}
 
                       {/* Actions */}
-                      <td style={{ padding: "20px 24px", textAlign: "right" }}>
+                      <td style={{ padding: "16px 20px", textAlign: "right" }}>
                         <div style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
                           {isAdmin && (
-                            <>
+                            <div className="hide-on-mobile" style={{ display: "inline-flex", gap: "8px" }}>
                               <button
                                 onClick={() => openEditModal(file)}
                                 className="btn-outline"
@@ -589,14 +588,14 @@ export default function RecursosPage() {
                               >
                                 <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
                               </button>
-                            </>
+                            </div>
                           )}
                           <button
                             onClick={() => handleDownload(file)}
                             className="btn-primary"
                             style={{
                               display: "inline-flex",
-                              padding: "8px 16px",
+                              padding: "8px 12px",
                               fontSize: "11px",
                               gap: "4px",
                               backgroundColor: file.category === "link" ? "transparent" : "var(--color-secondary)",
@@ -607,7 +606,7 @@ export default function RecursosPage() {
                             <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
                               {file.category === "link" ? "open_in_new" : "download"}
                             </span>
-                            {file.category === "link" ? "ACESSAR" : "BAIXAR"}
+                            <span className="hide-on-mobile">{file.category === "link" ? "ACESSAR" : "BAIXAR"}</span>
                           </button>
                         </div>
                       </td>
@@ -624,6 +623,18 @@ export default function RecursosPage() {
             </tbody>
           </table>
         </div>
+
+        <style jsx global>{`
+          @media (max-width: 767px) {
+            .hide-on-mobile {
+              display: none !important;
+            }
+            .resources-table-wrapper table {
+              width: 100% !important;
+              display: table !important;
+            }
+          }
+        `}</style>
       </section>
 
       {/* CREATE RESOURCE MODAL */}

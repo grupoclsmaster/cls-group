@@ -146,14 +146,14 @@ export default function MasterclassesPage() {
       `}} />
 
       {/* SEARCH AND BAR */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }} className="masterclasses-header-row">
         <div>
           <h1 className="font-headline-md" style={{ color: "var(--color-on-surface)", marginBottom: "4px" }}>Masterclasses</h1>
           <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>Trilhas especializadas do ecossistema de incorporação imobiliária.</p>
         </div>
 
         {/* Search Input Pill */}
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative" }} className="masterclasses-search-wrapper">
           <span
             className="material-symbols-outlined"
             style={{
@@ -173,7 +173,7 @@ export default function MasterclassesPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              width: "220px",
+              width: "100%",
               padding: "10px 16px 10px 42px",
               backgroundColor: "var(--search-input-bg)",
               border: "1px solid var(--search-input-border)",
@@ -186,6 +186,24 @@ export default function MasterclassesPage() {
           />
         </div>
       </div>
+
+      <style jsx>{`
+        @media (max-width: 767px) {
+          .masterclasses-header-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 16px !important;
+          }
+          .masterclasses-search-wrapper {
+            width: 100% !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .masterclasses-search-wrapper {
+            width: 220px !important;
+          }
+        }
+      `}</style>
 
       {/* COURSES GRID VIEW */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "28px", marginTop: "20px" }}>

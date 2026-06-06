@@ -638,6 +638,14 @@ export default function WatchLessonPage() {
 
   return (
     <div className="animate-fadeIn">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (max-width: 900px) {
+          .hide-sidebar-at-900 {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+          }
+        }
+      `}} />
       {/* Toast Notification Component */}
       {toast && (
         <div style={{

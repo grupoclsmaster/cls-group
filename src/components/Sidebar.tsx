@@ -20,6 +20,7 @@ export default function Sidebar() {
   const supabase = createClient();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -27,8 +28,25 @@ export default function Sidebar() {
     router.push("/login");
   };
 
+  // Detect tablet breakpoint
+  useEffect(() => {
+    const checkTablet = () => {
+      const width = window.innerWidth;
+      setIsTablet(width >= 768 && width < 1024);
+    };
+    checkTablet();
+    window.addEventListener("resize", checkTablet);
+    return () => window.removeEventListener("resize", checkTablet);
+  }, []);
+
   // Sync state with localStorage on mount and listen to changes
   useEffect(() => {
+    // On tablet, always force collapsed
+    if (isTablet) {
+      setIsCollapsed(true);
+      return;
+    }
+
     const collapsed = localStorage.getItem("cls_sidebar_collapsed") === "true";
     setIsCollapsed(collapsed);
 
@@ -47,7 +65,7 @@ export default function Sidebar() {
 
     window.addEventListener("cls_sidebar_toggle", handleToggle);
     return () => window.removeEventListener("cls_sidebar_toggle", handleToggle);
-  }, [supabase]);
+  }, [supabase, isTablet]);
 
   const handleToggleClick = () => {
     const nextState = !isCollapsed;
@@ -55,7 +73,9 @@ export default function Sidebar() {
     window.dispatchEvent(new Event("cls_sidebar_toggle"));
   };
 
-  const sidebarWidth = isCollapsed ? "80px" : "280px";
+  // On tablet, always use 72px collapsed width
+  const effectiveCollapsed = isTablet ? true : isCollapsed;
+  const sidebarWidth = effectiveCollapsed ? "72px" : "280px";
 
   return (
     <nav 
@@ -71,13 +91,13 @@ export default function Sidebar() {
         {/* Brand & Toggle Button Header */}
         <div 
           style={{ 
-            padding: isCollapsed ? "0 12px" : "0 24px", 
+            padding: effectiveCollapsed ? "0 12px" : "0 24px", 
             marginBottom: "40px",
             display: "flex",
-            flexDirection: isCollapsed ? "column" : "row",
+            flexDirection: effectiveCollapsed ? "column" : "row",
             alignItems: "center",
-            justifyContent: isCollapsed ? "center" : "space-between",
-            gap: isCollapsed ? "16px" : "8px"
+            justifyContent: effectiveCollapsed ? "center" : "space-between",
+            gap: effectiveCollapsed ? "16px" : "8px"
           }}
         >
           <Link 
@@ -94,34 +114,37 @@ export default function Sidebar() {
               src="/logo-cls.png" 
               alt="CLUB PRO CLS" 
               style={{ 
-                height: isCollapsed ? "40px" : "72px",
-                width: isCollapsed ? "40px" : "auto",
+                height: effectiveCollapsed ? "36px" : "72px",
+                width: effectiveCollapsed ? "36px" : "auto",
                 objectFit: "contain"
               }} 
             />
           </Link>
           
-          <button
-            onClick={handleToggleClick}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--color-on-surface-variant)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "6px",
-              borderRadius: "50%",
-              backgroundColor: "rgba(255,255,255,0.03)"
-            }}
-            className="hover-gold-text"
-            title={isCollapsed ? "Expandir Menu" : "Recolher Menu"}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-              {isCollapsed ? "menu" : "menu_open"}
-            </span>
-          </button>
+          {/* Hide toggle button on tablet — tablet is always collapsed */}
+          {!isTablet && (
+            <button
+              onClick={handleToggleClick}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--color-on-surface-variant)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "6px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(255,255,255,0.03)"
+              }}
+              className="hover-gold-text"
+              title={effectiveCollapsed ? "Expandir Menu" : "Recolher Menu"}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                {effectiveCollapsed ? "menu" : "menu_open"}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Nav Links */}
@@ -134,15 +157,15 @@ export default function Sidebar() {
                   className="material-symbols-outlined"
                   style={{ 
                     fontSize: "22px", 
-                    fontVariationSettings: "'FILL' 0", 
+                    fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0", 
                     fontWeight: 300,
-                    marginRight: isCollapsed ? "0" : "12px"
+                    marginRight: effectiveCollapsed ? "0" : "12px"
                   }}
                 >
                   {item.icon}
                 </span>
-                {!isCollapsed && <span className="font-body-md" style={{ flexGrow: 1 }}>{item.label}</span>}
-                {!isCollapsed && item.comingSoon && (
+                {!effectiveCollapsed && <span className="font-body-md" style={{ flexGrow: 1 }}>{item.label}</span>}
+                {!effectiveCollapsed && item.comingSoon && (
                   <span
                     style={{
                       fontSize: "9px",
@@ -169,12 +192,12 @@ export default function Sidebar() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: isCollapsed ? "center" : "flex-start",
-                    padding: isCollapsed ? "12px 0" : "12px 16px",
+                    justifyContent: effectiveCollapsed ? "center" : "flex-start",
+                    padding: effectiveCollapsed ? "12px 0" : "12px 16px",
                     cursor: "not-allowed",
                     opacity: isActive ? 1 : 0.6,
                   }}
-                  title={isCollapsed ? `${item.label} (Em Breve)` : undefined}
+                  title={effectiveCollapsed ? `${item.label} (Em Breve)` : undefined}
                 >
                   {content}
                 </div>
@@ -190,10 +213,10 @@ export default function Sidebar() {
                   textDecoration: "none",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: isCollapsed ? "center" : "flex-start",
-                  padding: isCollapsed ? "12px 0" : "12px 16px",
+                  justifyContent: effectiveCollapsed ? "center" : "flex-start",
+                  padding: effectiveCollapsed ? "12px 0" : "12px 16px",
                 }}
-                title={isCollapsed ? item.label : undefined}
+                title={effectiveCollapsed ? item.label : undefined}
               >
                 {content}
               </Link>
@@ -201,8 +224,8 @@ export default function Sidebar() {
           })}
         </div>
 
-        {/* Ecosystem CTA */}
-        {!isCollapsed && (
+        {/* Ecosystem CTA — hidden on tablet */}
+        {!effectiveCollapsed && (
           <div style={{ padding: "0 16px", marginBottom: "24px" }}>
             <Link href="/ecossistema" style={{ textDecoration: "none", width: "100%" }}>
               <button className="btn-outline" style={{ width: "100%" }}>
@@ -237,10 +260,10 @@ export default function Sidebar() {
                 textDecoration: "none",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: isCollapsed ? "center" : "flex-start",
-                padding: isCollapsed ? "12px 0" : "12px 16px",
+                justifyContent: effectiveCollapsed ? "center" : "flex-start",
+                padding: effectiveCollapsed ? "12px 0" : "12px 16px",
               }}
-              title={isCollapsed ? item.label : undefined}
+              title={effectiveCollapsed ? item.label : undefined}
             >
               <span
                 className="material-symbols-outlined"
@@ -248,12 +271,12 @@ export default function Sidebar() {
                   fontSize: "20px", 
                   fontVariationSettings: "'FILL' 0", 
                   fontWeight: 300,
-                  marginRight: isCollapsed ? "0" : "12px"
+                  marginRight: effectiveCollapsed ? "0" : "12px"
                 }}
               >
                 {item.icon}
               </span>
-              {!isCollapsed && <span className="font-body-md">{item.label}</span>}
+              {!effectiveCollapsed && <span className="font-body-md">{item.label}</span>}
             </Link>
           ))}
         </div>

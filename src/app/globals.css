@@ -90,6 +90,12 @@
 
   /* Sidebar */
   --sidebar-width: 280px;
+  --sidebar-width-collapsed: 72px;
+
+  /* Tab Bar (mobile) */
+  --tabbar-height: 64px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
 
   /* Custom component theme variables */
   --topbar-bg: rgba(19, 19, 22, 0.7);
@@ -311,10 +317,64 @@ body {
   100% { background-position: 200% 0; }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
+/* =========================================
+   RESPONSIVE — Mobile & Tablet
+   ========================================= */
+
+/* Mobile: < 768px */
+@media (max-width: 767px) {
+  .sidebar { display: none !important; }
   .main-with-sidebar { margin-left: 0 !important; }
+
+  /* Adjust main padding for tab bar */
+  main {
+    padding-bottom: calc(var(--tabbar-height) + var(--safe-area-bottom) + 16px) !important;
+  }
+
+  /* Reduce font sizes for mobile */
+  .font-display { font-size: 28px; }
+  .font-headline-md { font-size: 22px; }
+  .font-headline-sm { font-size: 18px; }
+  .font-title-lg { font-size: 16px; }
+
+  /* Full-width cards on mobile */
+  .card-mobile-full {
+    border-radius: 0 !important;
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+  }
+
+  /* Dropdowns take more width on mobile */
+  .dropdown-mobile {
+    width: calc(100vw - 32px) !important;
+    right: -8px !important;
+  }
+}
+
+/* Tablet: 768px — 1023px */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Sidebar always collapsed on tablet */
+  .sidebar {
+    width: var(--sidebar-width-collapsed) !important;
+  }
+
+  .main-with-sidebar {
+    margin-left: var(--sidebar-width-collapsed) !important;
+  }
+
+  /* Slightly reduce padding on tablet */
+  main {
+    padding: 24px !important;
+  }
+
+  .font-display { font-size: 36px; }
+  .font-headline-md { font-size: 26px; }
+}
+
+/* Desktop: >= 1024px (default styles apply) */
+@media (min-width: 1024px) {
+  /* Ensure tab bar is never visible on desktop */
+  .bottom-tabbar { display: none !important; }
 }
 
 /* Hover effects to avoid JS event listeners in server/client component boundaries */
@@ -468,7 +528,29 @@ body {
 }
 
 [data-theme='light'] .premium-gradient-bg {
-  background: linear-gradient(135deg, #fdfbf7 0%, #f5ecd7 100%);
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2eaf4 100%);
 }
 
+/* =========================================
+   BOTTOM TAB BAR — Light Theme Override
+   ========================================= */
+[data-theme='light'] .bottom-tabbar-nav {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06) !important;
+}
 
+/* =========================================
+   UTILITY: Touch scrolling & overscroll
+   ========================================= */
+@media (max-width: 767px) {
+  body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent content from hiding behind status bar on iOS */
+  .topbar-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}

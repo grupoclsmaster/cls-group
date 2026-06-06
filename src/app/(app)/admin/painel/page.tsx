@@ -1445,15 +1445,7 @@ export default function AdminPage() {
                   </button>
                 ) : selectedCourseId ? (
                   <>
-                    <button 
-                      type="button" 
-                      onClick={() => alert("Fazer upload de vídeos em massa ou link direto de hospedagem.")}
-                      className="btn-secondary"
-                      style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 18px", fontSize: "13px", fontWeight: 600 }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>cloud_upload</span>
-                      Upload de vídeos
-                    </button>
+
 
                     <button 
                       type="button" 

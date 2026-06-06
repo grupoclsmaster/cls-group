@@ -1,0 +1,50 @@
+{
+  "name": "CLUB PRO CLS",
+  "short_name": "CLS PRO",
+  "description": "Plataforma exclusiva de educação e mentoria para membros CLS",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#070732",
+  "background_color": "#131316",
+  "lang": "pt-BR",
+  "categories": ["education", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-cls.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-cls.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Painel",
+      "short_name": "Painel",
+      "description": "Ir ao painel principal",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icons/icon-cls.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Masterclasses",
+      "short_name": "Aulas",
+      "description": "Assistir masterclasses",
+      "url": "/masterclasses",
+      "icons": [{ "src": "/icons/icon-cls.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Feed",
+      "short_name": "Feed",
+      "description": "Ver feed de membros",
+      "url": "/membros",
+      "icons": [{ "src": "/icons/icon-cls.png", "sizes": "192x192" }]
+    }
+  ]
+}

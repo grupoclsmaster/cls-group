@@ -223,6 +223,20 @@ export default function CalendarioPage() {
   const [loading, setLoading] = useState(true);
   const [userType, setUserType] = useState<string>("master"); // default to master
 
+  // Detect mobile device
+  const [isMobile, setIsMobile] = useState(false);
+  // Bottom sheet control for mobile view event detail
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   // Dynamic state list for events (loaded from localstorage)
   const [events, setEvents] = useState<CalendarEvent[]>([]);
 
@@ -274,6 +288,7 @@ export default function CalendarioPage() {
           if (error) throw error;
           const updated = events.filter(e => e.id !== eventId);
           setEvents(updated);
+          setShowBottomSheet(false);
           showToast("Evento excluído com sucesso!", "success");
         } catch (err: any) {
           showToast("Erro ao excluir evento: " + err.message, "error");
@@ -346,6 +361,9 @@ export default function CalendarioPage() {
               if (matchedMonth) {
                 setActiveMonth(matchedMonth);
                 setSelectedDay(targetEvent.day);
+                if (window.innerWidth < 768) {
+                  setShowBottomSheet(true);
+                }
               }
             }
           } else {
@@ -362,6 +380,9 @@ export default function CalendarioPage() {
               if (matchedMonth) {
                 setActiveMonth(matchedMonth);
                 setSelectedDay(d);
+                if (window.innerWidth < 768) {
+                  setShowBottomSheet(true);
+                }
               }
             } else {
               // Default to current local month and day if no params are present
@@ -610,8 +631,8 @@ export default function CalendarioPage() {
         <div
           key={`prev-${prevDay}`}
           style={{
-            minHeight: "120px",
-            padding: "12px",
+            minHeight: isMobile ? "50px" : "120px",
+            padding: isMobile ? "6px" : "12px",
             backgroundColor: "var(--color-surface-dim)",
             border: "1px solid rgba(255, 255, 255, 0.02)",
             opacity: 0.3,
@@ -621,7 +642,7 @@ export default function CalendarioPage() {
             cursor: "not-allowed",
           }}
         >
-          <span style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", fontWeight: 500 }}>
+          <span style={{ fontSize: isMobile ? "12px" : "14px", color: "var(--color-on-surface-variant)", fontWeight: 500 }}>
             {prevDay}
           </span>
         </div>
@@ -644,11 +665,16 @@ export default function CalendarioPage() {
       cells.push(
         <div
           key={`day-${day}`}
-          onClick={() => setSelectedDay(day)}
+          onClick={() => {
+            setSelectedDay(day);
+            if (isMobile) {
+              setShowBottomSheet(true);
+            }
+          }}
           className={`card-hover`}
           style={{
-            minHeight: "120px",
-            padding: "12px",
+            minHeight: isMobile ? "50px" : "120px",
+            padding: isMobile ? "6px" : "12px",
             backgroundColor: isSelected ? "rgba(145, 179, 225, 0.06)" : "var(--color-surface)",
             border: isSelected
               ? "1px solid var(--color-secondary)"
@@ -666,38 +692,60 @@ export default function CalendarioPage() {
             style={{
               fontWeight: isSelected ? 700 : 500,
               color: isSelected ? "var(--color-secondary)" : "var(--color-on-surface)",
-              fontSize: "14px",
-              alignSelf: "flex-start",
-              marginBottom: "8px",
+              fontSize: isMobile ? "12px" : "14px",
+              alignSelf: isMobile ? "center" : "flex-start",
+              marginBottom: isMobile ? "0px" : "8px",
             }}
           >
             {day}
           </span>
 
           {hasEvents && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%" }}>
-              {filteredDayEvents.map((e, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    padding: "3px 6px",
-                    borderRadius: "2px",
-                    fontSize: "9px",
-                    fontWeight: 600,
-                    backgroundColor: e.type === "mentoria" ? "rgba(145, 179, 225, 0.15)" : "rgba(194, 194, 245, 0.15)",
-                    color: e.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
-                    border: e.type === "mentoria" ? "1px solid rgba(145, 179, 225, 0.25)" : "1px solid rgba(194, 194, 245, 0.25)",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    width: "100%",
-                  }}
-                  title={e.title}
-                >
-                  {e.title}
-                </div>
-              ))}
-            </div>
+            isMobile ? (
+              <div style={{
+                display: "flex",
+                gap: "3px",
+                justifyContent: "center",
+                marginTop: "auto",
+                width: "100%"
+              }}>
+                {filteredDayEvents.slice(0, 3).map((e, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      width: "6px",
+                      height: "6px",
+                      borderRadius: "50%",
+                      backgroundColor: e.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px", width: "100%" }}>
+                {filteredDayEvents.map((e, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: "3px 6px",
+                      borderRadius: "2px",
+                      fontSize: "9px",
+                      fontWeight: 600,
+                      backgroundColor: e.type === "mentoria" ? "rgba(145, 179, 225, 0.15)" : "rgba(194, 194, 245, 0.15)",
+                      color: e.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
+                      border: e.type === "mentoria" ? "1px solid rgba(145, 179, 225, 0.25)" : "1px solid rgba(194, 194, 245, 0.25)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      width: "100%",
+                    }}
+                    title={e.title}
+                  >
+                    {e.title}
+                  </div>
+                ))}
+              </div>
+            )
           )}
 
           {isSelected && (
@@ -725,8 +773,8 @@ export default function CalendarioPage() {
         <div
           key={`next-${day}`}
           style={{
-            minHeight: "120px",
-            padding: "12px",
+            minHeight: isMobile ? "50px" : "120px",
+            padding: isMobile ? "6px" : "12px",
             backgroundColor: "var(--color-surface-dim)",
             border: "1px solid rgba(255, 255, 255, 0.02)",
             opacity: 0.3,
@@ -736,7 +784,7 @@ export default function CalendarioPage() {
             cursor: "not-allowed",
           }}
         >
-          <span style={{ fontSize: "14px", color: "var(--color-on-surface-variant)", fontWeight: 500 }}>
+          <span style={{ fontSize: isMobile ? "12px" : "14px", color: "var(--color-on-surface-variant)", fontWeight: 500 }}>
             {day}
           </span>
         </div>
@@ -767,7 +815,12 @@ export default function CalendarioPage() {
           return (
             <div
               key={e.id}
-              onClick={() => setSelectedDay(e.day)}
+              onClick={() => {
+                setSelectedDay(e.day);
+                if (isMobile) {
+                  setShowBottomSheet(true);
+                }
+              }}
               className="glass-panel card-hover"
               style={{
                 borderRadius: "4px",
@@ -836,39 +889,164 @@ export default function CalendarioPage() {
     );
   };
 
+  const renderDetailsContent = () => {
+    if (!selectedEvent) return null;
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        <div>
+          <span
+            className="font-label-caps"
+            style={{
+              fontSize: "8px",
+              padding: "2px 6px",
+              borderRadius: "2px",
+              backgroundColor: selectedEvent.type === "mentoria" ? "rgba(145, 179, 225, 0.1)" : "rgba(194, 194, 245, 0.1)",
+              color: selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
+              border: selectedEvent.type === "mentoria" ? "1px solid rgba(145, 179, 225, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
+              marginBottom: "8px",
+              display: "inline-block",
+            }}
+          >
+            {selectedEvent.type === "mentoria" ? "Mentoria" : "Atualização"}
+          </span>
+          <h4 className="font-headline-sm" style={{ fontSize: "20px", color: "var(--color-on-surface)", marginBottom: "4px" }}>
+            {selectedEvent.title}
+          </h4>
+          <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 600 }}>
+            {selectedEvent.time}
+          </span>
+        </div>
+
+        {/* Mentor profile section */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+          <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "8px" }} className="font-label-caps">Mentor Responsável</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+            <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(145, 179, 225,0.3)", flexShrink: 0 }}>
+              <img src={selectedEvent.mentor.avatar} alt={selectedEvent.mentor.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+            <div>
+              <h5 style={{ fontWeight: 600, color: "var(--color-on-surface)", fontSize: "13px" }}>{selectedEvent.mentor.name}</h5>
+              <p style={{ fontSize: "10px", color: "var(--color-on-surface-variant)" }}>{selectedEvent.mentor.role}</p>
+            </div>
+          </div>
+          <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
+            {selectedEvent.mentor.bio}
+          </p>
+        </div>
+
+        {/* Topic description */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+          <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "4px" }} className="font-label-caps">Tópico da Reunião</p>
+          <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
+            {selectedEvent.topic}
+          </p>
+        </div>
+
+        {/* Action buttons (Zoom/Meet Link & Delete) */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+          {(() => {
+            const lower = (selectedEvent.zoomLink || "").toLowerCase();
+            const isZoom = lower.includes("zoom.us");
+            const isMeet = lower.includes("meet.google.com");
+            return (
+              <a
+                href={selectedEvent.zoomLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary"
+                style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                  {isZoom ? "videocam" : isMeet ? "groups" : "link"}
+                </span>
+                {isZoom ? "ENTRAR NO ZOOM" : isMeet ? "ENTRAR NO GOOGLE MEET" : "ACESSAR REUNIÃO"}
+              </a>
+            );
+          })()}
+
+          {(userType === "admin" || userType === "mentor") && (
+            <button
+              onClick={() => handleDeleteEvent(selectedEvent.id)}
+              className="btn-outline"
+              style={{
+                width: "100%",
+                fontSize: "10px",
+                padding: "12px",
+                border: "1px solid var(--color-error)",
+                color: "var(--color-error)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                backgroundColor: "transparent",
+                cursor: "pointer",
+                borderRadius: "4px",
+                transition: "all 0.2s ease"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(179, 38, 30, 0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+              EXCLUIR EVENTO
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return <SkeletonCalendario />;
   }
 
   return (
-    <div className="animate-fadeIn" style={{ paddingTop: "12px" }}>
+    <div className="animate-fadeIn" style={{ paddingTop: "12px", paddingBottom: isMobile ? "80px" : "24px" }}>
       {/* Dynamic Header */}
-      <section style={{ marginBottom: "28px", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+      <section style={{ marginBottom: "20px" }}>
         <div>
-          <h2 className="font-display-mobile" style={{ color: "var(--color-on-surface)", marginBottom: "4px" }}>
+          <h2 className="font-display-mobile" style={{ color: "var(--color-on-surface)", marginBottom: "4px", fontSize: isMobile ? "22px" : "28px" }}>
             Calendário de Mentorias
           </h2>
-          <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>
+          <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", fontSize: isMobile ? "12px" : "14px" }}>
             Fuso Horário: Brasília (GMT-3). Agende suas mentorias e adicione-as ao seu dia a dia.
           </p>
         </div>
       </section>
 
       {/* Filters, View Toggle and Month Switchers */}
-      <section style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
+      <section style={{ 
+        display: "flex", 
+        flexDirection: isMobile ? "column" : "row", 
+        justifyContent: "space-between", 
+        alignItems: isMobile ? "stretch" : "center", 
+        gap: "12px", 
+        marginBottom: "20px" 
+      }}>
         {/* Type filters */}
-        <div className="glass-panel" style={{ padding: "4px", borderRadius: "4px", display: "flex", gap: "4px" }}>
+        <div className="glass-panel" style={{ 
+          padding: "4px", 
+          borderRadius: "4px", 
+          display: "flex", 
+          gap: "4px",
+          overflowX: "auto",
+          whiteSpace: "nowrap"
+        }}>
           {[
-            { id: "todos", label: "Todos os eventos" },
+            { id: "todos", label: isMobile ? "Todos" : "Todos os eventos" },
             { id: "mentoria", label: "Mentorias" },
-            { id: "atualizacao", label: "Atualizações" },
+            { id: "atualizacao", label: isMobile ? "Novidades" : "Atualizações" },
           ].map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveFilter(item.id as "todos" | "mentoria" | "atualizacao")}
               className="font-label-caps"
               style={{
-                padding: "8px 16px",
+                padding: isMobile ? "8px 12px" : "8px 16px",
                 borderRadius: "2px",
                 border: "none",
                 backgroundColor: activeFilter === item.id ? "rgba(255, 255, 255, 0.08)" : "transparent",
@@ -876,6 +1054,8 @@ export default function CalendarioPage() {
                 fontSize: "10px",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
+                flex: isMobile ? 1 : "initial",
+                textAlign: "center"
               }}
             >
               {item.label}
@@ -884,7 +1064,12 @@ export default function CalendarioPage() {
         </div>
 
         {/* View mode toggle & Month switches */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between",
+          gap: "16px" 
+        }}>
           {/* Grade/Lista toggle */}
           <div className="glass-panel" style={{ padding: "4px", borderRadius: "4px", display: "flex", gap: "4px" }}>
             <button
@@ -935,7 +1120,7 @@ export default function CalendarioPage() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>chevron_left</span>
             </button>
-            <span className="font-title-lg" style={{ minWidth: "110px", textAlign: "center", color: "var(--color-on-surface)" }}>
+            <span className="font-title-lg" style={{ minWidth: isMobile ? "90px" : "110px", fontSize: isMobile ? "13px" : "16px", textAlign: "center", color: "var(--color-on-surface)", fontWeight: 600 }}>
               {activeMonth.name}
             </span>
             <button
@@ -962,7 +1147,7 @@ export default function CalendarioPage() {
 
       {/* Main Grid and Details Panel layout */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "3fr 1.3fr", gap: "24px" }} className="hide-sidebar-at-900">
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "3fr 1.3fr", gap: "24px" }}>
           
           {/* Main display (Calendar Grid or List View) */}
           <div>
@@ -971,8 +1156,8 @@ export default function CalendarioPage() {
                 {/* Weekdays names */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid rgba(255,255,255,0.05)", backgroundColor: "rgba(255,255,255,0.01)" }}>
                   {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d) => (
-                    <div key={d} style={{ padding: "12px", textAlign: "center", color: "var(--color-on-surface-variant)", fontSize: "11px", fontWeight: 700 }} className="font-label-caps">
-                      {d}
+                    <div key={d} style={{ padding: isMobile ? "8px 4px" : "12px", textAlign: "center", color: "var(--color-on-surface-variant)", fontSize: isMobile ? "10px" : "11px", fontWeight: 700 }} className="font-label-caps">
+                      {isMobile ? d.slice(0, 1) : d}
                     </div>
                   ))}
                 </div>
@@ -987,159 +1172,138 @@ export default function CalendarioPage() {
             )}
           </div>
 
-          {/* Right sidebar for event details */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            
-            {/* Event selected detailed card */}
-            <div className="glass-panel" style={{ borderRadius: "4px", padding: "24px", border: "1px solid rgba(255,255,255,0.05)", position: "relative", overflow: "hidden" }}>
-              <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px", backgroundColor: "rgba(145, 179, 225,0.03)", borderRadius: "50%", filter: "blur(20px)" }} />
+          {/* Right sidebar for event details - hidden on Mobile main layout */}
+          {!isMobile && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              
+              {/* Event selected detailed card */}
+              <div className="glass-panel" style={{ borderRadius: "4px", padding: "24px", border: "1px solid rgba(255,255,255,0.05)", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px", backgroundColor: "rgba(145, 179, 225,0.03)", borderRadius: "50%", filter: "blur(20px)" }} />
 
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+                  <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: selectedEvent ? (selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)") : "var(--color-outline)" }} />
+                  <span className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", fontSize: "9px" }}>
+                    Dia {selectedDay} de {activeMonth.name.split(" ")[0]}
+                  </span>
+                </div>
+
+                {selectedEvent ? (
+                  renderDetailsContent()
+                ) : (
+                  <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
+                    <p style={{ marginBottom: "16px", lineHeight: "1.5" }}>Nenhum evento agendado para este dia.</p>
+                    {(userType === "admin" || userType === "mentor") && (
+                      <button
+                        onClick={() => handleOpenCreateModal(selectedDay)}
+                        className="btn-primary"
+                        style={{ margin: "0 auto", fontSize: "10px", padding: "10px 16px" }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
+                        CRIAR EVENTO
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Rules */}
+              <div className="glass-panel" style={{ borderRadius: "4px", padding: "20px", border: "1px solid rgba(255,255,255,0.05)" }}>
+                <h4 className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", marginBottom: "12px", fontSize: "10px" }}>
+                  REQUISITOS
+                </h4>
+                <ul style={{ color: "var(--color-on-surface-variant)", fontSize: "11px", paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "8px", lineHeight: "1.5" }}>
+                  <li>Mantenha sua câmera ligada durante as discussões de mentoria.</li>
+                  <li>As gravações estarão na biblioteca de Masterclasses em até 24 horas.</li>
+                  <li>Dúvidas específicas podem ser enviadas por e-mail antes do início da sessão.</li>
+                </ul>
+              </div>
+
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Bottom Sheet for Event Details */}
+      {isMobile && showBottomSheet && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          backdropFilter: "blur(4px)",
+          zIndex: 9900,
+          display: "flex",
+          alignItems: "flex-end"
+        }}
+        onClick={() => setShowBottomSheet(false)}
+        >
+          <div style={{
+            width: "100%",
+            backgroundColor: "var(--dropdown-bg)",
+            borderTop: "1px solid var(--dropdown-border)",
+            borderTopLeftRadius: "16px",
+            borderTopRightRadius: "16px",
+            padding: "24px 20px calc(80px + env(safe-area-inset-bottom, 0px)) 20px",
+            maxHeight: "75vh",
+            overflowY: "auto",
+            animation: "slideUp 0.3s ease-out",
+            boxShadow: "0 -8px 24px rgba(0,0,0,0.3)"
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar for sliding visual */}
+            <div style={{
+              width: "40px",
+              height: "4px",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              borderRadius: "2px",
+              margin: "-12px auto 20px auto"
+            }} />
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: selectedEvent ? (selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)") : "var(--color-outline)" }} />
                 <span className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", fontSize: "9px" }}>
                   Dia {selectedDay} de {activeMonth.name.split(" ")[0]}
                 </span>
               </div>
-
-              {selectedEvent ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                  <div>
-                    <span
-                      className="font-label-caps"
-                      style={{
-                        fontSize: "8px",
-                        padding: "2px 6px",
-                        borderRadius: "2px",
-                        backgroundColor: selectedEvent.type === "mentoria" ? "rgba(145, 179, 225, 0.1)" : "rgba(194, 194, 245, 0.1)",
-                        color: selectedEvent.type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)",
-                        border: selectedEvent.type === "mentoria" ? "1px solid rgba(145, 179, 225, 0.15)" : "1px solid rgba(194, 194, 245, 0.15)",
-                        marginBottom: "8px",
-                        display: "inline-block",
-                      }}
-                    >
-                      {selectedEvent.type === "mentoria" ? "Mentoria" : "Atualização"}
-                    </span>
-                    <h4 className="font-headline-sm" style={{ fontSize: "20px", color: "var(--color-on-surface)", marginBottom: "4px" }}>
-                      {selectedEvent.title}
-                    </h4>
-                    <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 600 }}>
-                      {selectedEvent.time}
-                    </span>
-                  </div>
-
-                  {/* Mentor profile section */}
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
-                    <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "8px" }} className="font-label-caps">Mentor Responsável</p>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-                      <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(145, 179, 225,0.3)", flexShrink: 0 }}>
-                        <img src={selectedEvent.mentor.avatar} alt={selectedEvent.mentor.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      </div>
-                      <div>
-                        <h5 style={{ fontWeight: 600, color: "var(--color-on-surface)", fontSize: "13px" }}>{selectedEvent.mentor.name}</h5>
-                        <p style={{ fontSize: "10px", color: "var(--color-on-surface-variant)" }}>{selectedEvent.mentor.role}</p>
-                      </div>
-                    </div>
-                    <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
-                      {selectedEvent.mentor.bio}
-                    </p>
-                  </div>
-
-                  {/* Topic description */}
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
-                    <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "4px" }} className="font-label-caps">Tópico da Reunião</p>
-                    <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
-                      {selectedEvent.topic}
-                    </p>
-                  </div>
-
-                  {/* Action buttons (Zoom/Meet Link & Delete) */}
-                  <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                    {(() => {
-                      const lower = (selectedEvent.zoomLink || "").toLowerCase();
-                      const isZoom = lower.includes("zoom.us");
-                      const isMeet = lower.includes("meet.google.com");
-                      return (
-                        <a
-                          href={selectedEvent.zoomLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="btn-primary"
-                          style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-                            {isZoom ? "videocam" : isMeet ? "groups" : "link"}
-                          </span>
-                          {isZoom ? "ENTRAR NO ZOOM" : isMeet ? "ENTRAR NO GOOGLE MEET" : "ACESSAR REUNIÃO"}
-                        </a>
-                      );
-                    })()}
-
-                    {(userType === "admin" || userType === "mentor") && (
-                      <button
-                        onClick={() => handleDeleteEvent(selectedEvent.id)}
-                        className="btn-outline"
-                        style={{
-                          width: "100%",
-                          fontSize: "10px",
-                          padding: "12px",
-                          border: "1px solid var(--color-error)",
-                          color: "var(--color-error)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "8px",
-                          backgroundColor: "transparent",
-                          cursor: "pointer",
-                          borderRadius: "4px",
-                          transition: "all 0.2s ease"
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.backgroundColor = "rgba(179, 38, 30, 0.1)";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor = "transparent";
-                        }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
-                        EXCLUIR EVENTO
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: "32px 0", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
-                  <p style={{ marginBottom: "16px", lineHeight: "1.5" }}>Nenhum evento agendado para este dia.</p>
-                  {(userType === "admin" || userType === "mentor") && (
-                    <button
-                      onClick={() => handleOpenCreateModal(selectedDay)}
-                      className="btn-primary"
-                      style={{ margin: "0 auto", fontSize: "10px", padding: "10px 16px" }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
-                      CRIAR EVENTO
-                    </button>
-                  )}
-                </div>
-              )}
+              <button 
+                onClick={() => setShowBottomSheet(false)}
+                style={{ 
+                  background: "transparent", 
+                  border: "none", 
+                  color: "var(--color-on-surface-variant)", 
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+              </button>
             </div>
 
-            {/* Quick Rules */}
-            <div className="glass-panel" style={{ borderRadius: "4px", padding: "20px", border: "1px solid rgba(255,255,255,0.05)" }}>
-              <h4 className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", marginBottom: "12px", fontSize: "10px" }}>
-                REQUISITOS
-              </h4>
-              <ul style={{ color: "var(--color-on-surface-variant)", fontSize: "11px", paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "8px", lineHeight: "1.5" }}>
-                <li>Mantenha sua câmera ligada durante as discussões de mentoria.</li>
-                <li>As gravações estarão na biblioteca de Masterclasses em até 24 horas.</li>
-                <li>Dúvidas específicas podem ser enviadas por e-mail antes do início da sessão.</li>
-              </ul>
-            </div>
-
+            {selectedEvent ? (
+              renderDetailsContent()
+            ) : (
+              <div style={{ textAlign: "center", padding: "24px 0", color: "var(--color-on-surface-variant)", fontSize: "13px" }}>
+                <p style={{ marginBottom: "16px", lineHeight: "1.5" }}>Nenhum evento agendado para este dia.</p>
+                {(userType === "admin" || userType === "mentor") && (
+                  <button
+                    onClick={() => {
+                      setShowBottomSheet(false);
+                      handleOpenCreateModal(selectedDay);
+                    }}
+                    className="btn-primary"
+                    style={{ margin: "0 auto", fontSize: "10px", padding: "10px 16px" }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>add_circle</span>
+                    CRIAR EVENTO
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      </div>
-
-
+      )}
 
       {/* Event Creation Modal */}
       {showCreateEventModal && (
@@ -1152,19 +1316,23 @@ export default function CalendarioPage() {
           alignItems: "center",
           justifyContent: "center",
           zIndex: 9990,
+          padding: "16px"
         }}>
           <form
             onSubmit={handleCreateEvent}
             className="glass-panel"
             style={{
-              width: "480px",
-              padding: "32px",
+              width: "100%",
+              maxWidth: "480px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: isMobile ? "20px" : "32px",
               borderRadius: "4px",
               border: "1px solid var(--dropdown-border)",
               backgroundColor: "var(--dropdown-bg)",
               display: "flex",
               flexDirection: "column",
-              gap: "20px",
+              gap: "16px",
               boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
             }}
           >
@@ -1173,7 +1341,7 @@ export default function CalendarioPage() {
                 <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "20px" }}>event_available</span>
                 <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px" }}>Criar Novo Evento</span>
               </div>
-              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", margin: 0 }}>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", margin: 0, fontSize: isMobile ? "18px" : "22px" }}>
                 Dia {selectedDay} de {activeMonth.name}
               </h3>
             </div>
@@ -1190,7 +1358,7 @@ export default function CalendarioPage() {
               />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Tipo</label>
                 <select
@@ -1242,7 +1410,7 @@ export default function CalendarioPage() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 2fr", gap: "16px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.2fr 2fr", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Plataforma</label>
                 <div style={{ position: "relative" }}>
@@ -1350,8 +1518,9 @@ export default function CalendarioPage() {
           className="glass-panel"
           style={{
             position: "fixed",
-            bottom: "24px",
-            right: "24px",
+            bottom: isMobile ? "calc(80px + env(safe-area-inset-bottom, 0px))" : "24px",
+            right: isMobile ? "16px" : "24px",
+            left: isMobile ? "16px" : "auto",
             padding: "16px 24px",
             borderRadius: "4px",
             border: toast.type === "success" ? "1px solid #a3e635" : "1px solid var(--color-error)",
@@ -1470,6 +1639,10 @@ export default function CalendarioPage() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
         }
       `}</style>
     </div>

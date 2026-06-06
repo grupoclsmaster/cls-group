@@ -60,10 +60,19 @@ export default function TopBar() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [member, setMember] = useState<{ name: string; initials?: string; img?: string; member_type?: 'admin' | 'master' | 'mentor' | null; theme?: string } | null>(null);
   const [loadingMember, setLoadingMember] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Search states
   const [searchOpen, setSearchOpen] = useState(false);
@@ -193,7 +202,7 @@ export default function TopBar() {
     return () => window.removeEventListener("cls_sidebar_toggle", handleToggle);
   }, []);
 
-  const sidebarWidth = isCollapsed ? "80px" : "280px";
+  const sidebarWidth = isCollapsed ? "72px" : "280px";
 
   useEffect(() => {
     const loadNotifications = async () => {
@@ -301,10 +310,11 @@ export default function TopBar() {
         position: "fixed",
         top: 0,
         right: 0,
-        width: `calc(100% - ${sidebarWidth})`,
-        transition: "width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
-        height: "80px",
-        padding: "0 40px",
+        left: isMobile ? 0 : sidebarWidth,
+        width: isMobile ? "100%" : `calc(100% - ${sidebarWidth})`,
+        transition: "width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        height: isMobile ? "60px" : "80px",
+        padding: isMobile ? "0 16px" : "0 40px",
         backgroundColor: "var(--topbar-bg)",
         backdropFilter: "blur(20px)",
         display: "flex",
@@ -316,7 +326,14 @@ export default function TopBar() {
       }}
     >
       <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
-        {isAdmin && (
+        {/* Logo on mobile (since sidebar is hidden) */}
+        {isMobile && (
+          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", textDecoration: "none", marginRight: "8px" }}>
+            <img src="/logo-cls.png" alt="CLS PRO" style={{ height: "32px", objectFit: "contain" }} />
+          </Link>
+        )}
+        {/* Admin badge — hide on mobile to save space */}
+        {isAdmin && !isMobile && (
           <Link
             href="/admin/painel"
             style={{
@@ -350,7 +367,7 @@ export default function TopBar() {
           </Link>
         )}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: isMobile ? "8px" : "24px" }}>
         <div style={{ position: "relative", display: "flex", alignItems: "center", zIndex: searchOpen ? 48 : 1 }}>
           {searchOpen && (
             <>
@@ -574,10 +591,12 @@ export default function TopBar() {
               <div
                 className="glass-panel"
                 style={{
-                  position: "absolute",
-                  top: "48px",
-                  right: 0,
-                  width: "360px",
+                  position: isMobile ? "fixed" : "absolute",
+                  top: isMobile ? "70px" : "48px",
+                  right: isMobile ? "16px" : 0,
+                  left: isMobile ? "16px" : "auto",
+                  width: isMobile ? "auto" : "360px",
+                  maxWidth: isMobile ? "calc(100vw - 32px)" : "360px",
                   maxHeight: "450px",
                   borderRadius: "4px",
                   border: "1px solid var(--dropdown-border)",

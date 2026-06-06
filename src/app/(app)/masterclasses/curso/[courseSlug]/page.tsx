@@ -287,19 +287,42 @@ export default function CourseDetailPage() {
         .back-nav-btn:hover {
           color: var(--color-secondary);
         }
+        
+        /* Minimalist global scrollbar customizer */
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.01);
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(145, 179, 225, 0.25);
+        }
       `}} />
 
       {/* Back Button and Search Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "28px",
+        flexWrap: "wrap",
+        gap: "16px"
+      }} className="course-header-row">
         <div>
-          <button onClick={() => router.push("/masterclasses")} className="back-nav-btn">
+          <button onClick={() => router.push("/masterclasses")} className="back-nav-btn" style={{ marginBottom: 0 }}>
             <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>arrow_back</span>
             Voltar para os Cursos
           </button>
         </div>
 
         {/* Search Input Pill */}
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative" }} className="course-search-wrapper">
           <span
             className="material-symbols-outlined"
             style={{
@@ -319,7 +342,7 @@ export default function CourseDetailPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
-              width: "220px",
+              width: "100%",
               padding: "10px 16px 10px 42px",
               backgroundColor: "var(--search-input-bg)",
               border: "1px solid var(--search-input-border)",
@@ -333,13 +356,43 @@ export default function CourseDetailPage() {
         </div>
       </div>
 
+      <style jsx>{`
+        @media (max-width: 767px) {
+          .course-header-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+          }
+          .course-search-wrapper {
+            width: 100% !important;
+          }
+          .netflix-hero {
+            margin: -20px -16px 24px -16px !important;
+          }
+          .netflix-hero-content {
+            padding: 0 16px 24px 16px !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .course-search-wrapper {
+            width: 220px !important;
+          }
+          .netflix-hero {
+            margin: -20px -40px 36px -40px !important;
+          }
+          .netflix-hero-content {
+            padding: 0 40px 40px 40px !important;
+          }
+        }
+      `}</style>
+
       {/* Course detail view */}
       <div>
         {/* Hero Banner (Only shown if a lesson is available and search is empty) */}
         {currentHeroLesson && searchQuery === "" && (
           <section
+            className="netflix-hero"
             style={{
-              margin: "-20px -40px 36px -40px",
               height: "45vh",
               minHeight: "380px",
               position: "relative",
@@ -377,10 +430,10 @@ export default function CourseDetailPage() {
             />
 
             <div
+              className="netflix-hero-content"
               style={{
                 position: "relative",
                 zIndex: 5,
-                padding: "0 40px 40px 40px",
                 maxWidth: "600px",
                 display: "flex",
                 flexDirection: "column",

@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 
 /* ──────────────────────────────────────────────────────────────
    SkeletonLoading — premium shimmer skeleton for CLS Community
@@ -23,6 +24,25 @@ const shimmerCSS = `
     border-radius: 4px;
   }
 `;
+
+/* ── Hooks ──────────────────────────────────────────────────── */
+function useDeviceType() {
+  const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("desktop");
+
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      if (w < 768) setDevice("mobile");
+      else if (w < 1024) setDevice("tablet");
+      else setDevice("desktop");
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return device;
+}
 
 /* ── Primitives ─────────────────────────────────────────────── */
 
@@ -144,10 +164,13 @@ function SkeletonSidebarMember() {
 
 /* ══════════════════════════════════════════════════════════════
    PAGE-LEVEL SKELETONS
-══════════════════════════════════════════════════════════════ */
+ ══════════════════════════════════════════════════════════════ */
 
 /* ── Dashboard ──────────────────────────────────────────────── */
 export function SkeletonDashboard() {
+  const device = useDeviceType();
+  const cols = device === "mobile" ? "1fr" : device === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)";
+  
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
@@ -159,27 +182,27 @@ export function SkeletonDashboard() {
       </div>
 
       {/* Bento grid row 1 */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", marginBottom: "40px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: cols, gap: "20px", marginBottom: "32px" }}>
         <SkeletonStatCard />
         <SkeletonStatCard />
-        <SkeletonStatCard />
+        {device !== "mobile" && <SkeletonStatCard />}
       </div>
 
       {/* Masterclasses row */}
       <SkeletonBox h="18px" w="200px" style={{ marginBottom: "24px" }} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px", marginBottom: "40px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: cols, gap: "20px", marginBottom: "32px" }}>
         <SkeletonCard />
         <SkeletonCard />
-        <SkeletonCard />
+        {device !== "mobile" && <SkeletonCard />}
       </div>
 
       {/* Bottom row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "1fr 1fr" : "1fr", gap: "20px" }}>
         <div style={{
           backgroundColor: "var(--color-surface-container-low)",
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: "8px",
-          padding: "24px",
+          padding: "20px",
           display: "flex", flexDirection: "column", gap: "12px"
         }}>
           <SkeletonBox h="16px" w="40%" />
@@ -190,7 +213,7 @@ export function SkeletonDashboard() {
           backgroundColor: "var(--color-surface-container-low)",
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: "8px",
-          padding: "24px",
+          padding: "20px",
           display: "flex", flexDirection: "column", gap: "16px"
         }}>
           <SkeletonBox h="16px" w="40%" />
@@ -211,17 +234,19 @@ export function SkeletonDashboard() {
 
 /* ── Feed / Membros ─────────────────────────────────────────── */
 export function SkeletonFeed() {
+  const device = useDeviceType();
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
       {/* Header */}
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: "24px" }}>
         <SkeletonBox h="28px" w="45%" style={{ marginBottom: "10px" }} />
         <SkeletonBox h="13px" w="65%" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "32px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "2fr 1fr" : "1fr", gap: "24px" }}>
         {/* Left: posts */}
         <div>
           {/* New post box */}
@@ -229,8 +254,8 @@ export function SkeletonFeed() {
             backgroundColor: "var(--color-surface-container-low)",
             border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: "8px",
-            padding: "20px",
-            marginBottom: "24px",
+            padding: "16px",
+            marginBottom: "20px",
             display: "flex", flexDirection: "column", gap: "12px"
           }}>
             <div style={{ display: "flex", gap: "12px" }}>
@@ -244,17 +269,19 @@ export function SkeletonFeed() {
           {/* Post cards */}
           <SkeletonPostCard />
           <SkeletonPostCard />
-          <SkeletonPostCard />
+          {device === "desktop" && <SkeletonPostCard />}
         </div>
 
         {/* Right: sidebar */}
-        <div>
-          <SkeletonBox h="16px" w="70px" style={{ marginBottom: "16px" }} />
-          <SkeletonBox h="36px" style={{ marginBottom: "20px" }} />
-          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            {[1, 2, 3, 4, 5].map(i => <SkeletonSidebarMember key={i} />)}
+        {device === "desktop" && (
+          <div>
+            <SkeletonBox h="16px" w="70px" style={{ marginBottom: "16px" }} />
+            <SkeletonBox h="36px" style={{ marginBottom: "20px" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              {[1, 2, 3, 4, 5].map(i => <SkeletonSidebarMember key={i} />)}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -262,27 +289,30 @@ export function SkeletonFeed() {
 
 /* ── Masterclasses list ─────────────────────────────────────── */
 export function SkeletonMasterclasses() {
+  const device = useDeviceType();
+  const cols = device === "mobile" ? "1fr" : device === "tablet" ? "repeat(2, 1fr)" : "repeat(3, 1fr)";
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
       {/* Header */}
-      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-          <SkeletonBox h="28px" w="250px" />
-          <SkeletonBox h="13px" w="400px" />
+      <div style={{ marginBottom: "28px", display: "flex", flexDirection: device === "mobile" ? "column" : "row", justifyContent: "space-between", alignItems: device === "mobile" ? "flex-start" : "flex-end", gap: "16px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+          <SkeletonBox h="28px" w="200px" />
+          <SkeletonBox h="13px" w="300px" />
         </div>
         <SkeletonBox h="36px" w="120px" />
       </div>
 
       {/* Filter tabs */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "32px" }}>
-        {[80, 110, 100, 90].map((w, i) => <SkeletonBox key={i} h="32px" w={`${w}px`} radius="4px" />)}
+      <div style={{ display: "flex", gap: "8px", marginBottom: "24px", overflowX: "auto", paddingBottom: "8px" }}>
+        {[80, 110, 100, 90].map((w, i) => <SkeletonBox key={i} h="32px" w={`${w}px`} radius="4px" style={{ flexShrink: 0 }} />)}
       </div>
 
       {/* Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-        {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+      <div style={{ display: "grid", gridTemplateColumns: cols, gap: "20px" }}>
+        {Array.from({ length: device === "mobile" ? 3 : 6 }).map((_, i) => <SkeletonCard key={i} />)}
       </div>
     </div>
   );
@@ -290,18 +320,20 @@ export function SkeletonMasterclasses() {
 
 /* ── Single Masterclass ─────────────────────────────────────── */
 export function SkeletonMasterclassDetail() {
+  const device = useDeviceType();
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
       {/* Back button */}
-      <SkeletonBox h="20px" w="120px" style={{ marginBottom: "24px" }} />
+      <SkeletonBox h="20px" w="120px" style={{ marginBottom: "20px" }} />
 
       {/* Hero */}
-      <SkeletonBox h="400px" radius="8px" style={{ marginBottom: "32px" }} />
+      <SkeletonBox h={device === "mobile" ? "200px" : "350px"} radius="8px" style={{ marginBottom: "24px" }} />
 
       {/* Content grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "32px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "2fr 1fr" : "1fr", gap: "24px" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <SkeletonBox h="28px" w="70%" />
           <SkeletonText lines={4} gap="8px" />
@@ -314,7 +346,7 @@ export function SkeletonMasterclassDetail() {
             backgroundColor: "var(--color-surface-container-low)",
             border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: "8px",
-            padding: "24px",
+            padding: "20px",
             display: "flex", flexDirection: "column", gap: "16px"
           }}>
             <div style={{ display: "flex", gap: "12px" }}>
@@ -335,17 +367,19 @@ export function SkeletonMasterclassDetail() {
 
 /* ── Perfil / Profile ───────────────────────────────────────── */
 export function SkeletonPerfil() {
+  const device = useDeviceType();
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "340px 1fr" : "1fr", gap: "24px" }}>
         {/* Left: profile card */}
         <div style={{
           backgroundColor: "var(--color-surface-container-low)",
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: "12px",
-          padding: "32px",
+          padding: "24px",
           display: "flex", flexDirection: "column", gap: "20px",
           alignItems: "center",
           alignSelf: "start",
@@ -356,7 +390,7 @@ export function SkeletonPerfil() {
             <SkeletonBox h="12px" w="45%" />
           </div>
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
-            {[1, 2, 3, 4].map(i => (
+            {[1, 2, 3].map(i => (
               <div key={i} style={{ display: "flex", gap: "10px" }}>
                 <SkeletonBox h="14px" w="14px" radius="3px" />
                 <SkeletonBox h="12px" w="70%" />
@@ -369,8 +403,8 @@ export function SkeletonPerfil() {
         {/* Right: tabs + content */}
         <div>
           {/* Tab bar */}
-          <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "28px", paddingBottom: "2px" }}>
-            {[100, 140, 130].map((w, i) => <SkeletonBox key={i} h="32px" w={`${w}px`} radius="4px 4px 0 0" />)}
+          <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "20px", paddingBottom: "2px", overflowX: "auto" }}>
+            {[100, 140, 130].map((w, i) => <SkeletonBox key={i} h="32px" w={`${w}px`} radius="4px 4px 0 0" style={{ flexShrink: 0 }} />)}
           </div>
 
           {/* Cards */}
@@ -380,16 +414,17 @@ export function SkeletonPerfil() {
                 backgroundColor: "var(--color-surface-container-low)",
                 border: "1px solid rgba(255,255,255,0.06)",
                 borderRadius: "8px",
-                padding: "20px",
+                padding: "16px",
                 display: "flex", gap: "12px",
+                alignItems: "center",
+                flexWrap: device === "mobile" ? "wrap" : "nowrap"
               }}>
                 <SkeletonAvatar size="44px" />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px" }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "8px", minWidth: "150px" }}>
                   <SkeletonBox h="14px" w="40%" />
                   <SkeletonBox h="11px" w="60%" />
-                  <SkeletonBox h="11px" w="30%" />
                 </div>
-                <SkeletonBox h="32px" w="100px" radius="4px" />
+                <SkeletonBox h="32px" w="100px" radius="4px" style={{ width: device === "mobile" ? "100%" : "100px", marginTop: device === "mobile" ? "8px" : "0" }} />
               </div>
             ))}
           </div>
@@ -401,26 +436,28 @@ export function SkeletonPerfil() {
 
 /* ── Calendário ─────────────────────────────────────────────── */
 export function SkeletonCalendario() {
+  const device = useDeviceType();
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: "24px" }}>
         <SkeletonBox h="28px" w="220px" style={{ marginBottom: "10px" }} />
-        <SkeletonBox h="13px" w="380px" />
+        <SkeletonBox h="13px" w="300px" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "32px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "1fr 340px" : "1fr", gap: "24px" }}>
         {/* Calendar grid */}
         <div style={{
           backgroundColor: "var(--color-surface-container-low)",
           border: "1px solid rgba(255,255,255,0.06)",
           borderRadius: "8px",
-          padding: "24px",
+          padding: device === "mobile" ? "12px" : "24px",
         }}>
           {/* Month nav */}
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "24px" }}>
-            <SkeletonBox h="20px" w="160px" />
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+            <SkeletonBox h="20px" w="120px" />
             <div style={{ display: "flex", gap: "8px" }}>
               <SkeletonBox h="32px" w="32px" radius="4px" />
               <SkeletonBox h="32px" w="32px" radius="4px" />
@@ -432,33 +469,34 @@ export function SkeletonCalendario() {
           </div>
           {/* Day cells */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "4px" }}>
-            {Array.from({ length: 35 }).map((_, i) => <SkeletonBox key={i} h="56px" w="100%" />)}
+            {Array.from({ length: 35 }).map((_, i) => <SkeletonBox key={i} h={device === "mobile" ? "50px" : "75px"} w="100%" />)}
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          <div style={{
-            backgroundColor: "var(--color-surface-container-low)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: "8px",
-            padding: "24px",
-            display: "flex", flexDirection: "column", gap: "16px"
-          }}>
-            <SkeletonBox h="16px" w="150px" />
-            {[1, 2, 3].map(i => (
-              <div key={i} style={{ display: "flex", gap: "12px" }}>
-                <SkeletonBox h="48px" w="48px" radius="4px" />
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <SkeletonBox h="13px" w="80%" />
-                  <SkeletonBox h="10px" w="50%" />
-                  <SkeletonBox h="10px" w="40%" />
+        {/* Sidebar - hidden on mobile main, similar to the main calendar layout */}
+        {device === "desktop" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{
+              backgroundColor: "var(--color-surface-container-low)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: "8px",
+              padding: "24px",
+              display: "flex", flexDirection: "column", gap: "16px"
+            }}>
+              <SkeletonBox h="16px" w="150px" />
+              {[1, 2, 3].map(i => (
+                <div key={i} style={{ display: "flex", gap: "12px" }}>
+                  <SkeletonBox h="48px" w="48px" radius="4px" />
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <SkeletonBox h="13px" w="80%" />
+                    <SkeletonBox h="10px" w="50%" />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <SkeletonBox h="40px" w="100%" />
           </div>
-          <SkeletonBox h="40px" w="100%" />
-        </div>
+        )}
       </div>
     </div>
   );
@@ -466,26 +504,29 @@ export function SkeletonCalendario() {
 
 /* ── Oportunidades / Recursos / Projetos (generic grid) ─────── */
 export function SkeletonGenericGrid({ cols = 2, rows = 3 }: { cols?: number; rows?: number }) {
+  const device = useDeviceType();
+  const responsiveCols = device === "mobile" ? 1 : device === "tablet" ? Math.min(cols, 2) : cols;
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
-      <div style={{ marginBottom: "32px" }}>
+      <div style={{ marginBottom: "28px" }}>
         <SkeletonBox h="28px" w="40%" style={{ marginBottom: "10px" }} />
         <SkeletonBox h="13px" w="60%" />
       </div>
 
       <div style={{
         display: "grid",
-        gridTemplateColumns: `repeat(${cols}, 1fr)`,
-        gap: "24px",
+        gridTemplateColumns: `repeat(${responsiveCols}, 1fr)`,
+        gap: "20px",
       }}>
-        {Array.from({ length: cols * rows }).map((_, i) => (
+        {Array.from({ length: responsiveCols * rows }).map((_, i) => (
           <div key={i} style={{
             backgroundColor: "var(--color-surface-container-low)",
             border: "1px solid rgba(255,255,255,0.06)",
             borderRadius: "8px",
-            padding: "24px",
+            padding: "20px",
             display: "flex", flexDirection: "column", gap: "14px",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -506,37 +547,38 @@ export function SkeletonGenericGrid({ cols = 2, rows = 3 }: { cols?: number; row
 
 /* ── Manutenção ─────────────────────────────────────────────── */
 export function SkeletonManutencao() {
+  const device = useDeviceType();
+
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
 
-      <div style={{ marginBottom: "32px", display: "flex", justifyContent: "space-between" }}>
+      <div style={{ marginBottom: "28px", display: "flex", flexDirection: device === "mobile" ? "column" : "row", justifyContent: "space-between", gap: "16px" }}>
         <div>
-          <SkeletonBox h="28px" w="280px" style={{ marginBottom: "10px" }} />
-          <SkeletonBox h="13px" w="420px" />
+          <SkeletonBox h="28px" w="240px" style={{ marginBottom: "10px" }} />
+          <SkeletonBox h="13px" w="320px" />
         </div>
-        <SkeletonBox h="40px" w="200px" />
+        <SkeletonBox h="40px" w="180px" />
       </div>
 
       <div style={{
         backgroundColor: "var(--color-surface-container-low)",
         border: "1px solid rgba(255,255,255,0.06)",
         borderRadius: "8px",
-        padding: "32px",
-        marginBottom: "32px",
+        padding: "24px",
+        marginBottom: "24px",
       }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "40px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: device === "desktop" ? "1fr 1fr" : "1fr", gap: "32px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             <SkeletonBox h="18px" w="60%" />
             <SkeletonText lines={3} gap="8px" />
             <SkeletonBox h="40px" w="100%" />
             <SkeletonBox h="40px" w="100%" />
-            <SkeletonBox h="44px" w="100%" />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: device === "desktop" ? "0" : "16px" }}>
             <SkeletonBox h="18px" w="55%" />
             <SkeletonText lines={2} gap="8px" />
-            {[1, 2, 3].map(i => (
+            {[1, 2].map(i => (
               <div key={i} style={{
                 backgroundColor: "rgba(255,255,255,0.02)",
                 border: "1px solid rgba(255,255,255,0.05)",

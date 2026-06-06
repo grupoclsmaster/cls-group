@@ -274,6 +274,18 @@ export default function DashboardPage() {
 
   return (
     <div className="animate-fadeIn">
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media (min-width: 768px) {
+          .dashboard-bento-card {
+            grid-column: span 4 !important;
+          }
+        }
+        @media (max-width: 767px) {
+          .dashboard-bento-card {
+            grid-column: span 12 !important;
+          }
+        }
+      `}} />
       {/* Welcome */}
       <section id="welcome-section" style={{ marginBottom: "40px" }}>
         <h2
@@ -298,19 +310,17 @@ export default function DashboardPage() {
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(12, 1fr)",
-          gap: "24px",
+          gap: "20px",
         }}
       >
-        {/* === Row 1: Metrics (8 cols) + Events (4 cols) === */}
-
+        {/* === Row 1: Metrics / Events === */}
         {/* Progress Card */}
         <div
           id="progress-card"
-          className="glass-panel metallic-edge"
+          className="glass-panel dashboard-bento-card"
           style={{
-            gridColumn: "span 4",
             borderRadius: "4px",
-            padding: "24px",
+            padding: "20px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
@@ -318,11 +328,11 @@ export default function DashboardPage() {
         >
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Módulo Atual</h3>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px" }}>Módulo Atual</h3>
               <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>trending_up</span>
             </div>
             <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "4px" }}>{activeModuleName}</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "24px" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "20px" }}>
               <span className="font-headline-md" style={{ color: "var(--color-on-surface)" }}>{progressPercent}%</span>
               <span className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>Concluído</span>
             </div>
@@ -335,16 +345,15 @@ export default function DashboardPage() {
         {/* Next Mentorship Card */}
         <div
           id="mentorship-card"
-          className="premium-gradient-bg metallic-edge"
+          className="premium-gradient-bg dashboard-bento-card"
           onClick={() => {
             if (nextMentorship) {
               router.push(`/calendario?event_id=${nextMentorship.id}`);
             }
           }}
           style={{
-            gridColumn: "span 4",
             borderRadius: "4px",
-            padding: "24px",
+            padding: "20px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
@@ -367,7 +376,7 @@ export default function DashboardPage() {
           />
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
-              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Próxima Mentoria</h3>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px" }}>Próxima Mentoria</h3>
               <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>event</span>
             </div>
             {nextMentorship ? (
@@ -415,15 +424,14 @@ export default function DashboardPage() {
         {/* Events Panel */}
         <div
           id="events-card"
-          className="glass-panel"
+          className="glass-panel dashboard-bento-card"
           style={{
-            gridColumn: "span 4",
             borderRadius: "4px",
-            padding: "24px",
+            padding: "20px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Próximos Eventos</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px" }}>Próximos Eventos</h3>
             <button style={{ background: "transparent", border: "none", color: "var(--color-on-surface-variant)", cursor: "pointer" }}>
               <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>more_horiz</span>
             </button>
@@ -477,21 +485,21 @@ export default function DashboardPage() {
 
         {/* === Row 2: Latest Masterclasses === */}
         <div id="masterclasses-card" style={{ gridColumn: "span 12", marginTop: "16px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "24px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "20px" }}>
             <div>
-              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)" }}>Últimas Masterclasses</h3>
-              <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginTop: "4px" }}>Adicionadas recentemente ao seu currículo.</p>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px" }}>Últimas Masterclasses</h3>
+              <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginTop: "4px", fontSize: "12px" }}>Adicionadas recentemente ao seu currículo.</p>
             </div>
             <Link
               href="/masterclasses"
               className="font-label-caps"
-              style={{ color: "var(--color-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px", transition: "color 0.2s" }}
+              style={{ color: "var(--color-secondary)", textDecoration: "none", display: "flex", alignItems: "center", gap: "4px", transition: "color 0.2s", fontSize: "11px" }}
             >
               VER TUDO
               <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_forward</span>
             </Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "20px" }}>
             {latestCourses.length > 0 ? (
               latestCourses.map((mc) => (
                 <Link
@@ -526,11 +534,11 @@ export default function DashboardPage() {
                       />
                       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(14,14,17,1) 0%, transparent 60%)" }} />
                     </div>
-                    <div style={{ padding: "20px", flex: 1, display: "flex", flexDirection: "column" }}>
-                      <h4 className="font-body-lg" style={{ color: "var(--color-on-surface)", fontWeight: 600, marginBottom: "8px" }}>
+                    <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column" }}>
+                      <h4 className="font-body-lg" style={{ color: "var(--color-on-surface)", fontWeight: 600, marginBottom: "8px", fontSize: "14px" }}>
                         {mc.title}
                       </h4>
-                      <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                      <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", fontSize: "12px", overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
                         {mc.description || "Masterclass exclusiva do ecossistema de engenharia e construção."}
                       </p>
                     </div>
@@ -574,6 +582,7 @@ export default function DashboardPage() {
 
           const viewportTop = coords.top - scrollY;
           const viewportLeft = coords.left - scrollX;
+          const isMobileViewport = innerWidth < 768;
 
           let top = viewportTop + coords.height + 16;
           let left = viewportLeft + (coords.width / 2) - 230; // Center popover under target
@@ -583,12 +592,22 @@ export default function DashboardPage() {
           if (left + 460 > innerWidth - 20) left = innerWidth - 460 - 20;
 
           const estimatedHeight = 260; // Approximate onboarding box height
-          if (top + estimatedHeight > innerHeight - 20) {
+          if (isMobileViewport) {
+            popoverStyle = {
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 10001,
+              width: "92vw",
+              transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+            };
+          } else if (top + estimatedHeight > innerHeight - 20) {
             // Place it above if no space below
             top = viewportTop - estimatedHeight - 16;
             if (top < 20) {
               // Centered fallback
-              popoverStyle = {
+               popoverStyle = {
                 position: "fixed",
                 top: "50%",
                 left: "50%",
@@ -658,7 +677,7 @@ export default function DashboardPage() {
 
             {/* Instruction popover */}
             <div className="glass-panel metallic-edge" style={popoverStyle}>
-              <div style={{ padding: "32px", position: "relative" }}>
+              <div style={{ padding: "24px 20px", position: "relative" }}>
                 {/* Step indicator */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px" }}>
@@ -673,15 +692,15 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Content */}
-                <h3 className="font-headline-sm" style={{ color: "#fff", marginBottom: "12px", fontSize: "20px" }}>
+                <h3 className="font-headline-sm" style={{ color: "#fff", marginBottom: "12px", fontSize: "18px" }}>
                   {tutorialSteps[tutorialStep].title}
                 </h3>
-                <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "24px", lineHeight: "1.6" }}>
+                <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "20px", fontSize: "13px", lineHeight: "1.6" }}>
                   {tutorialSteps[tutorialStep].description}
                 </p>
 
                 {/* Checkbox Don't show again */}
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "24px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
                   <input 
                     type="checkbox" 
                     id="dontShow" 
@@ -689,7 +708,7 @@ export default function DashboardPage() {
                     onChange={(e) => setDontShowAgain(e.target.checked)}
                     style={{ accentColor: "var(--color-secondary)", cursor: "pointer" }}
                   />
-                  <label htmlFor="dontShow" style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", cursor: "pointer", userSelect: "none" }}>
+                  <label htmlFor="dontShow" style={{ fontSize: "11px", color: "var(--color-on-surface-variant)", cursor: "pointer", userSelect: "none" }}>
                     Não mostrar este tutorial novamente
                   </label>
                 </div>
