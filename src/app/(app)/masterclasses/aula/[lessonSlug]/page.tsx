@@ -217,8 +217,6 @@ export default function WatchLessonPage() {
           };
         }
 
-        setLesson(currentLesson);
-
         // 2. Fetch sibling lessons (all lessons from the same module)
         let siblings: any[] = [];
         let progressList: any[] = [];
@@ -239,21 +237,29 @@ export default function WatchLessonPage() {
             .order('sequence_order', { ascending: true });
 
           if (dbSiblings && dbSiblings.length > 0) {
-            siblings = dbSiblings.map((sib: any) => {
+            siblings = dbSiblings.map((sib: any, index: number) => {
               const prog = progressList.find(p => p.lesson_id === sib.id);
               return {
                 id: sib.id,
                 slug: sib.slug,
-                code: `AULA ${sib.sequence_order + 1}`,
+                code: `AULA ${index + 1}`,
                 title: sib.title,
                 duration: sib.duration,
                 status: prog?.completed ? "completed" : (prog?.percent_complete > 0 ? "active" : "locked")
               };
             });
+            
+            if (currentLesson) {
+              const cIdx = siblings.findIndex(s => s.id === currentLesson.id);
+              if (cIdx !== -1) {
+                currentLesson.code = `AULA ${cIdx + 1}`;
+              }
+            }
           }
-        }
 
-        setSiblingLessons(siblings);
+          setLesson(currentLesson);
+          setSiblingLessons(siblings);
+        }
 
         // 3. Set watch percentage if exists in db
         if (currentLesson) {
