@@ -344,8 +344,6 @@ export default function EditLessonPage() {
             />
           </div>
 
-          </div>
-
           {/* Video Link only — Duration is auto-detected from Mux */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
             <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (VIMEO, YOUTUBE, ETC.)</label>
