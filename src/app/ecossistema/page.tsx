@@ -56,10 +56,10 @@ interface Episode {
 const featuredBanners: Banner[] = [
   {
     id: "club-pro",
-    title: "CLUB CLS PRO",
-    subtitle: "Programa de Aceleração",
-    description: "O ecossistema definitivo para construtores, incorporadores e engenheiros. Acesso imediato a masterclasses, ferramentas e networking.",
-    tag: "FECHADO",
+    title: "",
+    subtitle: "",
+    description: "",
+    tag: "",
     image: "/bg-club-cls-pro.PNG",
     ctaText: "Indisponível no momento",
     ctaLink: "#",
@@ -82,8 +82,8 @@ const featuredBanners: Banner[] = [
     description: "Neste episódio destrinchamos as regras cruciais de estruturação societária (SPE) para captação de recursos com investidores no podcast Concreto & Conversa.",
     tag: "NOVO EPISÓDIO",
     image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&q=80&w=1200",
-    ctaText: "Ouvir Agora",
-    ctaLink: "#podcast"
+    ctaText: "Assistir Agora",
+    ctaLink: "https://youtu.be/QUNkDh4OKfc"
   },
   {
     id: "orcamento-bdi",
@@ -693,28 +693,36 @@ export default function EcossistemaPage() {
             ))}
             <div className="slider-overlay" />
             <div className="slider-content">
-              <span style={{
-                alignSelf: "flex-start",
-                backgroundColor: "var(--color-secondary)",
-                color: "#000000",
-                fontSize: "9px",
-                fontWeight: 800,
-                padding: "4px 10px",
-                borderRadius: "20px",
-                marginBottom: "16px",
-                letterSpacing: "0.05em"
-              }} className="font-label-caps">
-                {featuredBanners[currentSlide].tag}
-              </span>
-              <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
-                {featuredBanners[currentSlide].subtitle}
-              </span>
-              <h2 className="font-display" style={{ fontSize: "32px", color: "#ffffff", fontWeight: 800, margin: "6px 0 12px 0", lineHeight: "1.1" }}>
-                {featuredBanners[currentSlide].title}
-              </h2>
-              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: "1.5", marginBottom: "24px" }}>
-                {featuredBanners[currentSlide].description}
-              </p>
+              {featuredBanners[currentSlide].tag && (
+                <span style={{
+                  alignSelf: "flex-start",
+                  backgroundColor: "var(--color-secondary)",
+                  color: "#000000",
+                  fontSize: "9px",
+                  fontWeight: 800,
+                  padding: "4px 10px",
+                  borderRadius: "20px",
+                  marginBottom: "16px",
+                  letterSpacing: "0.05em"
+                }} className="font-label-caps">
+                  {featuredBanners[currentSlide].tag}
+                </span>
+              )}
+              {featuredBanners[currentSlide].subtitle && (
+                <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
+                  {featuredBanners[currentSlide].subtitle}
+                </span>
+              )}
+              {featuredBanners[currentSlide].title && (
+                <h2 className="font-display" style={{ fontSize: "32px", color: "#ffffff", fontWeight: 800, margin: "6px 0 12px 0", lineHeight: "1.1" }}>
+                  {featuredBanners[currentSlide].title}
+                </h2>
+              )}
+              {featuredBanners[currentSlide].description && (
+                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: "1.5", marginBottom: "24px" }}>
+                  {featuredBanners[currentSlide].description}
+                </p>
+              )}
               <div>
                 <button
                   onClick={() => !featuredBanners[currentSlide].disabled && handleCtaClick(featuredBanners[currentSlide].ctaLink)}
@@ -768,6 +776,7 @@ export default function EcossistemaPage() {
         {/* Content Discovery Grid Category Tiles removed as requested */}
 
         {/* Digital Products Marketplace Section */}
+        {false && (
         <section id="produtos" style={{ marginBottom: "64px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px", marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
             <div>
@@ -852,8 +861,10 @@ export default function EcossistemaPage() {
             ))}
           </div>
         </section>
+        )}
 
         {/* Ready to Use Construction Projects Section */}
+        {false && (
         <section id="projetos" style={{ marginBottom: "64px" }}>
           <div style={{ marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
             <h3 className="font-headline-sm" style={{ color: "var(--color-on-surface)" }}>Projetos e Templates Prontos</h3>
@@ -897,6 +908,7 @@ export default function EcossistemaPage() {
             ))}
           </div>
         </section>
+        )}
         {/* Smart Site Map Footer */}
         <footer style={{ borderTop: "1px solid var(--border-color)", paddingTop: "48px", display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.2fr", gap: "40px" }} className="hide-sidebar-at-900">
           <div>
