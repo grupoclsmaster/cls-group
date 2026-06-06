@@ -77,11 +77,11 @@ const featuredBanners: Banner[] = [
   },
   {
     id: "concreto-conversa-recente",
-    title: "SPE e Equity na Construção",
-    subtitle: "Último Episódio do Concreto & Conversa",
-    description: "Neste episódio destrinchamos as regras cruciais de estruturação societária (SPE) para captação de recursos com investidores no podcast Concreto & Conversa.",
+    title: "EP30 — Incorporação Imobiliária: Como Transformar Terrenos em Negócios",
+    subtitle: "Concreto & Conversa",
+    description: "Neste episódio do Concreto & Conversa, discutimos o passo a passo de como estruturar e transformar terrenos em negócios rentáveis na incorporação imobiliária.",
     tag: "NOVO EPISÓDIO",
-    image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&q=80&w=1200",
+    image: "https://img.youtube.com/vi/QUNkDh4OKfc/maxresdefault.jpg",
     ctaText: "Assistir Agora",
     ctaLink: "https://youtu.be/QUNkDh4OKfc"
   },
