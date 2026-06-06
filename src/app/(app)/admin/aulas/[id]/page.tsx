@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -105,6 +105,51 @@ export default function EditLessonPage() {
       void checkAdminAndLoadLesson();
     }
   }, [idStr, router, supabase]);
+
+  // Auto-detect duration from Mux HLS stream when Playback ID changes
+  const durationDetectRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    if (!muxPlaybackId.trim()) return;
+
+    // Clean up any previous attempt
+    if (durationDetectRef.current) {
+      durationDetectRef.current.src = "";
+      durationDetectRef.current = null;
+    }
+
+    const vid = document.createElement("video");
+    vid.preload = "metadata";
+    vid.crossOrigin = "anonymous";
+    vid.style.display = "none";
+    // Mux HLS URL — works for public (non-signed) playback IDs
+    vid.src = `https://stream.mux.com/${muxPlaybackId.trim()}.m3u8`;
+    durationDetectRef.current = vid;
+
+    const onLoaded = () => {
+      const secs = vid.duration;
+      if (secs && isFinite(secs) && secs > 0) {
+        const totalMin = Math.floor(secs / 60);
+        const hours = Math.floor(totalMin / 60);
+        const mins = totalMin % 60;
+        if (hours > 0) {
+          setDuration(`${hours}H ${mins > 0 ? mins + " MIN" : ""}`.trim());
+        } else {
+          setDuration(`${totalMin} MIN`);
+        }
+      }
+      vid.remove();
+    };
+
+    vid.addEventListener("loadedmetadata", onLoaded);
+    document.body.appendChild(vid);
+
+    return () => {
+      vid.removeEventListener("loadedmetadata", onLoaded);
+      vid.src = "";
+      vid.remove();
+      durationDetectRef.current = null;
+    };
+  }, [muxPlaybackId]);
 
   const handleSaveLesson = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,29 +344,18 @@ export default function EditLessonPage() {
             />
           </div>
 
-          {/* Duration & Video Link */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DURAÇÃO (Ex: 18 MIN)</label>
-              <input
-                type="text"
-                className="input-dark"
-                placeholder="15 MIN"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              />
-            </div>
+          </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (VIMEO, YOUTUBE, ETC.)</label>
-              <input
-                type="text"
-                className="input-dark"
-                placeholder="https://vimeo.com/..."
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-              />
-            </div>
+          {/* Video Link only — Duration is auto-detected from Mux */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (VIMEO, YOUTUBE, ETC.)</label>
+            <input
+              type="text"
+              className="input-dark"
+              placeholder="https://vimeo.com/..."
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
           </div>
 
           {/* Mux Playback ID */}
@@ -341,7 +375,7 @@ export default function EditLessonPage() {
             {muxPlaybackId && (
               <p style={{ fontSize: "11px", color: "#81C784", margin: "6px 0 0 0", display: "flex", alignItems: "center", gap: "4px" }}>
                 <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>check_circle</span>
-                Player Mux será utilizado nesta aula.
+                Player Mux será utilizado nesta aula.{duration ? ` • Duração detectada: ${duration}` : " • Detectando duração..."}
               </p>
             )}
           </div>
