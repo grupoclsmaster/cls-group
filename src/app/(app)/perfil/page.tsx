@@ -323,7 +323,6 @@ export default function PerfilPage() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchProfileData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -579,7 +578,7 @@ export default function PerfilPage() {
         }
         .profile-card {
           background-color: var(--color-surface-container-low);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 24px;
           display: flex;
@@ -594,12 +593,12 @@ export default function PerfilPage() {
           gap: 16px;
           text-align: left;
           margin-top: 20px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          border-top: 1px solid var(--border-color);
           padding-top: 20px;
         }
         .stat-badge {
           background-color: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          border: 1px solid var(--border-color);
           padding: 12px;
           border-radius: 6px;
           text-align: center;
@@ -630,7 +629,7 @@ export default function PerfilPage() {
         }
         .conn-card {
           background-color: var(--color-surface-container-low);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border-color);
           border-radius: 6px;
           padding: 16px;
           display: flex;
@@ -644,7 +643,7 @@ export default function PerfilPage() {
         }
         .req-card {
           background-color: var(--color-surface-container-low);
-          border: 1px solid rgba(145, 179, 225, 0.25);
+          border: 1px solid var(--border-color);
           border-radius: 6px;
           padding: 16px;
           display: flex;
@@ -661,7 +660,7 @@ export default function PerfilPage() {
         }
         .feed-post-card {
           background-color: var(--color-surface-container-low);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 20px;
           margin-bottom: 24px;
@@ -731,7 +730,7 @@ export default function PerfilPage() {
             </div>
           </div>
           <div>
-            <div style={{ display: "flex", gap: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", marginBottom: "24px" }}>
+            <div style={{ display: "flex", gap: "16px", borderBottom: "1px solid var(--border-color)", marginBottom: "24px" }}>
               <div className="skeleton" style={{ width: "120px", height: "36px", borderBottom: "2px solid transparent" }} />
               <div className="skeleton" style={{ width: "140px", height: "36px" }} />
             </div>
@@ -791,9 +790,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="LinkedIn"
@@ -816,9 +815,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="Instagram"
@@ -841,9 +840,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="Facebook"
@@ -866,9 +865,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="X"
@@ -891,9 +890,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="Website"
@@ -916,9 +915,9 @@ export default function PerfilPage() {
                         width: "32px",
                         height: "32px",
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255, 255, 255, 0.04)",
+                        backgroundColor: "var(--color-surface-container-high)",
                         color: "var(--color-outline)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
+                        border: "1px solid var(--border-color)",
                         transition: "all 0.2s ease"
                       }}
                       title="E-mail"
@@ -1697,7 +1696,7 @@ export default function PerfilPage() {
                         {post.image_url && (
                           <div 
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
-                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
+                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid var(--border-color)", cursor: "pointer" }}
                           >
                             <img 
                               src={post.image_url} 
@@ -1712,7 +1711,7 @@ export default function PerfilPage() {
                         {post.video_url && (
                           <div 
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
-                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
+                            style={{ width: "100%", maxHeight: "250px", borderRadius: "4px", overflow: "hidden", marginBottom: "14px", border: "1px solid var(--border-color)", backgroundColor: "#000", cursor: "pointer" }}
                           >
                             <video src={post.video_url} controls playsInline style={{ width: "100%", height: "100%", objectFit: "contain", cursor: "pointer" }} />
                           </div>
@@ -1784,7 +1783,7 @@ export default function PerfilPage() {
               display: "flex",
               flexDirection: "row",
               boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
-              border: "1px solid rgba(255,255,255,0.05)",
+              border: "1px solid var(--border-color)",
             }}
             onClick={e => e.stopPropagation()}
           >
@@ -1824,9 +1823,9 @@ export default function PerfilPage() {
             </div>
 
             {/* Right side: Comments & Likes */}
-            <div style={{ flex: 1, backgroundColor: "var(--color-surface)", display: "flex", flexDirection: "column", borderLeft: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ flex: 1, backgroundColor: "var(--color-surface)", display: "flex", flexDirection: "column", borderLeft: "1px solid var(--border-color)" }}>
               {/* Header */}
-              <div style={{ padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ padding: "16px", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <MemberBadge
                   name={lightboxPost.author_name}
                   img={lightboxPost.author_avatar}
@@ -1836,7 +1835,7 @@ export default function PerfilPage() {
               </div>
 
               {/* Tabs */}
-              <div style={{ display: "flex", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+              <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)" }}>
                 <button
                   onClick={() => setLightboxTab("comments")}
                   style={{ flex: 1, padding: "12px", background: "transparent", border: "none", borderBottom: lightboxTab === "comments" ? "2px solid var(--color-secondary)" : "2px solid transparent", color: lightboxTab === "comments" ? "var(--color-secondary)" : "var(--color-outline)", fontWeight: 600, cursor: "pointer", fontSize: "12px" }}
@@ -1856,7 +1855,7 @@ export default function PerfilPage() {
                 {lightboxTab === "comments" ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                     {lightboxPost.content && (lightboxPost.image_url || lightboxPost.video_url) && (
-                      <div style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <div style={{ marginBottom: "16px", paddingBottom: "16px", borderBottom: "1px solid var(--border-color)" }}>
                         <MemberBadge
                           name={lightboxPost.author_name}
                           img={lightboxPost.author_avatar}
@@ -1874,7 +1873,7 @@ export default function PerfilPage() {
                           <div key={comment.id} style={{ display: "flex", gap: "10px" }}>
                             <img src={comment.author_avatar} alt={comment.author_name} style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} />
                             <div>
-                              <span style={{ fontSize: "12px", fontWeight: 700, color: "#fff" }}>{comment.author_name}</span>
+                              <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-on-surface)" }}>{comment.author_name}</span>
                               <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", marginTop: "2px", lineHeight: "1.4" }}>
                                 {comment.content}
                               </p>
@@ -1901,7 +1900,7 @@ export default function PerfilPage() {
                           <div key={idx} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                             <img src={liker?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} alt="Avatar" style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }} />
                             <div>
-                              <span style={{ fontSize: "13px", fontWeight: 600, color: "#fff" }}>{liker?.name || "Usuário"}</span>
+                              <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--color-on-surface)" }}>{liker?.name || "Usuário"}</span>
                               <p style={{ fontSize: "11px", color: "var(--color-outline)", margin: 0 }}>{liker?.role || "Membro"}</p>
                             </div>
                           </div>
@@ -1915,7 +1914,7 @@ export default function PerfilPage() {
               </div>
 
               {/* Input for new comment */}
-              <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: "10px", alignItems: "center" }}>
+              <div style={{ padding: "16px", borderTop: "1px solid var(--border-color)", display: "flex", gap: "10px", alignItems: "center" }}>
                 <img 
                   src={memberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} 
                   alt="Você" 
@@ -1936,9 +1935,9 @@ export default function PerfilPage() {
                     padding: "10px 14px",
                     fontSize: "12px",
                     borderRadius: "100px",
-                    backgroundColor: "rgba(255,255,255,0.08)",
+                    backgroundColor: "var(--color-surface-container-high)",
                     border: "none",
-                    color: "#ffffff",
+                    color: "var(--color-on-surface)",
                     outline: "none"
                   }}
                 />

@@ -634,7 +634,7 @@ export default function CalendarioPage() {
             minHeight: isMobile ? "50px" : "120px",
             padding: isMobile ? "6px" : "12px",
             backgroundColor: "var(--color-surface-dim)",
-            border: "1px solid rgba(255, 255, 255, 0.02)",
+            border: "1px solid var(--border-color)",
             opacity: 0.3,
             display: "flex",
             flexDirection: "column",
@@ -678,7 +678,7 @@ export default function CalendarioPage() {
             backgroundColor: isSelected ? "rgba(145, 179, 225, 0.06)" : "var(--color-surface)",
             border: isSelected
               ? "1px solid var(--color-secondary)"
-              : "1px solid rgba(255, 255, 255, 0.05)",
+              : "1px solid var(--border-color)",
             cursor: "pointer",
             position: "relative",
             display: "flex",
@@ -776,7 +776,7 @@ export default function CalendarioPage() {
             minHeight: isMobile ? "50px" : "120px",
             padding: isMobile ? "6px" : "12px",
             backgroundColor: "var(--color-surface-dim)",
-            border: "1px solid rgba(255, 255, 255, 0.02)",
+            border: "1px solid var(--border-color)",
             opacity: 0.3,
             display: "flex",
             flexDirection: "column",
@@ -826,7 +826,7 @@ export default function CalendarioPage() {
                 borderRadius: "4px",
                 padding: "16px",
                 cursor: "pointer",
-                border: isSelected ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.05)",
+                border: isSelected ? "1px solid var(--color-secondary)" : "1px solid var(--border-color)",
                 backgroundColor: isSelected ? "rgba(145, 179, 225, 0.04)" : "var(--color-surface)",
                 display: "flex",
                 justifyContent: "space-between",
@@ -846,7 +846,7 @@ export default function CalendarioPage() {
                     height: "48px",
                     backgroundColor: "var(--color-surface-container)",
                     borderRadius: "2px",
-                    border: "1px solid rgba(255,255,255,0.05)",
+                    border: "1px solid var(--border-color)",
                     flexShrink: 0,
                   }}
                 >
@@ -919,7 +919,7 @@ export default function CalendarioPage() {
         </div>
 
         {/* Mentor profile section */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+        <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "14px" }}>
           <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "8px" }} className="font-label-caps">Mentor Responsável</p>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
             <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(145, 179, 225,0.3)", flexShrink: 0 }}>
@@ -936,7 +936,7 @@ export default function CalendarioPage() {
         </div>
 
         {/* Topic description */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "14px" }}>
+        <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "14px" }}>
           <p style={{ color: "var(--color-outline)", fontSize: "9px", marginBottom: "4px" }} className="font-label-caps">Tópico da Reunião</p>
           <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5" }}>
             {selectedEvent.topic}
@@ -944,7 +944,7 @@ export default function CalendarioPage() {
         </div>
 
         {/* Action buttons (Zoom/Meet Link & Delete) */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
           {(() => {
             const lower = (selectedEvent.zoomLink || "").toLowerCase();
             const isZoom = lower.includes("zoom.us");
@@ -1049,7 +1049,7 @@ export default function CalendarioPage() {
                 padding: isMobile ? "8px 12px" : "8px 16px",
                 borderRadius: "2px",
                 border: "none",
-                backgroundColor: activeFilter === item.id ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                backgroundColor: activeFilter === item.id ? "var(--color-surface-container-highest)" : "transparent",
                 color: activeFilter === item.id ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                 fontSize: "10px",
                 cursor: "pointer",
@@ -1077,7 +1077,7 @@ export default function CalendarioPage() {
               className="topbar-btn"
               style={{
                 borderRadius: "2px",
-                backgroundColor: viewMode === "grade" ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                backgroundColor: viewMode === "grade" ? "var(--color-surface-container-highest)" : "transparent",
                 color: viewMode === "grade" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                 padding: "6px 12px",
               }}
@@ -1090,7 +1090,7 @@ export default function CalendarioPage() {
               className="topbar-btn"
               style={{
                 borderRadius: "2px",
-                backgroundColor: viewMode === "lista" ? "rgba(255, 255, 255, 0.08)" : "transparent",
+                backgroundColor: viewMode === "lista" ? "var(--color-surface-container-highest)" : "transparent",
                 color: viewMode === "lista" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
                 padding: "6px 12px",
               }}
@@ -1108,7 +1108,7 @@ export default function CalendarioPage() {
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid var(--border-color)",
                 backgroundColor: "transparent",
                 color: "var(--color-on-surface-variant)",
                 display: "flex",
@@ -1129,7 +1129,7 @@ export default function CalendarioPage() {
                 width: "36px",
                 height: "36px",
                 borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: "1px solid var(--border-color)",
                 backgroundColor: "transparent",
                 color: "var(--color-on-surface-variant)",
                 display: "flex",
@@ -1152,9 +1152,9 @@ export default function CalendarioPage() {
           {/* Main display (Calendar Grid or List View) */}
           <div>
             {viewMode === "grade" ? (
-              <div className="glass-panel" style={{ borderRadius: "4px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div className="glass-panel" style={{ borderRadius: "4px", overflow: "hidden", border: "1px solid var(--border-color)" }}>
                 {/* Weekdays names */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid rgba(255,255,255,0.05)", backgroundColor: "rgba(255,255,255,0.01)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid var(--border-color)", backgroundColor: "rgba(255,255,255,0.01)" }}>
                   {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d) => (
                     <div key={d} style={{ padding: isMobile ? "8px 4px" : "12px", textAlign: "center", color: "var(--color-on-surface-variant)", fontSize: isMobile ? "10px" : "11px", fontWeight: 700 }} className="font-label-caps">
                       {isMobile ? d.slice(0, 1) : d}
@@ -1163,7 +1163,7 @@ export default function CalendarioPage() {
                 </div>
 
                 {/* Days Grid cells */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "1px", backgroundColor: "rgba(255, 255, 255, 0.05)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "1px", backgroundColor: "var(--border-color)" }}>
                   {renderDays()}
                 </div>
               </div>
@@ -1177,7 +1177,7 @@ export default function CalendarioPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               
               {/* Event selected detailed card */}
-              <div className="glass-panel" style={{ borderRadius: "4px", padding: "24px", border: "1px solid rgba(255,255,255,0.05)", position: "relative", overflow: "hidden" }}>
+              <div className="glass-panel" style={{ borderRadius: "4px", padding: "24px", border: "1px solid var(--border-color)", position: "relative", overflow: "hidden" }}>
                 <div style={{ position: "absolute", top: "-20px", right: "-20px", width: "100px", height: "100px", backgroundColor: "rgba(145, 179, 225,0.03)", borderRadius: "50%", filter: "blur(20px)" }} />
 
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
@@ -1207,7 +1207,7 @@ export default function CalendarioPage() {
               </div>
 
               {/* Quick Rules */}
-              <div className="glass-panel" style={{ borderRadius: "4px", padding: "20px", border: "1px solid rgba(255,255,255,0.05)" }}>
+              <div className="glass-panel" style={{ borderRadius: "4px", padding: "20px", border: "1px solid var(--border-color)" }}>
                 <h4 className="font-label-caps" style={{ color: "var(--color-on-surface-variant)", marginBottom: "12px", fontSize: "10px" }}>
                   REQUISITOS
                 </h4>

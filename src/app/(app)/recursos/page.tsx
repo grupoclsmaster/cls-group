@@ -81,7 +81,8 @@ export default function RecursosPage() {
   };
 
   useEffect(() => {
-    loadData();
+    void loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const detectCategory = (urlOrFormat: string): "pdf" | "spreadsheet" | "template" | "link" => {
@@ -356,7 +357,7 @@ export default function RecursosPage() {
             padding: "24px",
             borderRadius: "6px",
             cursor: "pointer",
-            border: activeCategory === "todos" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
+            border: activeCategory === "todos" ? "1px solid var(--color-secondary)" : "1px solid var(--border-color)",
             backgroundColor: activeCategory === "todos" ? "rgba(145, 179, 225, 0.05)" : "transparent"
           }}
         >
@@ -373,7 +374,7 @@ export default function RecursosPage() {
             padding: "24px",
             borderRadius: "6px",
             cursor: "pointer",
-            border: activeCategory === "pdf" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
+            border: activeCategory === "pdf" ? "1px solid var(--color-secondary)" : "1px solid var(--border-color)",
             backgroundColor: activeCategory === "pdf" ? "rgba(145, 179, 225, 0.05)" : "transparent"
           }}
         >
@@ -390,7 +391,7 @@ export default function RecursosPage() {
             padding: "24px",
             borderRadius: "6px",
             cursor: "pointer",
-            border: activeCategory === "spreadsheet" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
+            border: activeCategory === "spreadsheet" ? "1px solid var(--color-secondary)" : "1px solid var(--border-color)",
             backgroundColor: activeCategory === "spreadsheet" ? "rgba(145, 179, 225, 0.05)" : "transparent"
           }}
         >
@@ -407,7 +408,7 @@ export default function RecursosPage() {
             padding: "24px",
             borderRadius: "6px",
             cursor: "pointer",
-            border: activeCategory === "template" ? "1px solid var(--color-secondary)" : "1px solid rgba(255,255,255,0.1)",
+            border: activeCategory === "template" ? "1px solid var(--color-secondary)" : "1px solid var(--border-color)",
             backgroundColor: activeCategory === "template" ? "rgba(145, 179, 225, 0.05)" : "transparent"
           }}
         >
@@ -419,7 +420,7 @@ export default function RecursosPage() {
 
       {/* Resource Table List */}
       <section className="glass-panel" style={{ borderRadius: "8px", overflow: "hidden" }}>
-        <div style={{ padding: "24px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+        <div style={{ padding: "24px", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", fontSize: "18px", margin: 0 }}>
               Recursos de Apoio
@@ -457,7 +458,7 @@ export default function RecursosPage() {
         <div style={{ overflowX: "auto" }} className="resources-table-wrapper">
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", backgroundColor: "rgba(255,255,255,0.02)" }}>
+              <tr style={{ borderBottom: "1px solid var(--border-color)", backgroundColor: "var(--color-surface-container)" }}>
                 {isAdmin && (
                   <th style={{ padding: "16px 24px", width: "40px" }} className="hide-on-mobile">
                     <input
@@ -485,7 +486,7 @@ export default function RecursosPage() {
                       key={file.id}
                       className="card-hover"
                       style={{ 
-                        borderBottom: "1px solid rgba(255,255,255,0.05)", 
+                        borderBottom: "1px solid var(--border-color)", 
                         transition: "background-color 0.2s",
                         backgroundColor: isSelected ? "rgba(145, 179, 225, 0.03)" : "transparent"
                       }}
@@ -539,7 +540,7 @@ export default function RecursosPage() {
 
                       {/* Type and Size */}
                       <td style={{ padding: "20px 24px", color: "var(--color-on-surface-variant)", fontSize: "13px" }} className="hide-on-mobile">
-                        <span className="font-label-caps" style={{ fontSize: "10px", backgroundColor: "rgba(255,255,255,0.05)", padding: "3px 6px", borderRadius: "2px", marginRight: "8px" }}>
+                        <span className="font-label-caps" style={{ fontSize: "10px", backgroundColor: "var(--color-surface-container-highest)", padding: "3px 6px", borderRadius: "2px", marginRight: "8px" }}>
                           {file.category}
                         </span>
                         {file.size && <span>{file.size}</span>}
@@ -655,11 +656,11 @@ export default function RecursosPage() {
             maxWidth: "600px",
             borderRadius: "8px",
             backgroundColor: "#131316",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
             overflow: "hidden"
           }}>
-            <div style={{ padding: "24px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Adicionar Novo Recurso</h3>
               <button onClick={() => setShowCreateModal(false)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
                 <span className="material-symbols-outlined">close</span>
@@ -798,11 +799,11 @@ export default function RecursosPage() {
             maxWidth: "600px",
             borderRadius: "8px",
             backgroundColor: "#131316",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             boxShadow: "0 20px 40px rgba(0,0,0,0.5)",
             overflow: "hidden"
           }}>
-            <div style={{ padding: "24px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid var(--border-color)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Editar Recurso</h3>
               <button onClick={() => setEditingResource(null)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
                 <span className="material-symbols-outlined">close</span>
