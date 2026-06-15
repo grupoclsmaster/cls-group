@@ -21,6 +21,9 @@ export default function DashboardPage() {
   const [latestCourses, setLatestCourses] = useState<any[]>([]);
   const [activeModuleName, setActiveModuleName] = useState("Nenhum módulo iniciado");
   const [progressPercent, setProgressPercent] = useState(0);
+  const [missionsCount, setMissionsCount] = useState(0);
+  const [approvedMissionsCount, setApprovedMissionsCount] = useState(0);
+  const [missionsProgress, setMissionsProgress] = useState(0);
 
   const [tutorialStep, setTutorialStep] = useState<number>(-1);
   const [dontShowAgain, setDontShowAgain] = useState<boolean>(false);
@@ -255,6 +258,22 @@ export default function DashboardPage() {
           setLatestCourses(dbCourses);
         }
 
+        // 5. Fetch missions progress
+        const { data: dbMissions } = await supabase
+          .from("missions")
+          .select("id");
+        const { data: dbSubsubmissions } = await supabase
+          .from("mission_submissions")
+          .select("status")
+          .eq("student_id", user.id)
+          .eq("status", "approved");
+
+        const totalM = dbMissions?.length || 0;
+        const approvedM = dbSubsubmissions?.length || 0;
+        setMissionsCount(totalM);
+        setApprovedMissionsCount(approvedM);
+        setMissionsProgress(totalM > 0 ? Math.round((approvedM / totalM) * 100) : 0);
+
       } catch (err) {
         console.error("Erro ao buscar dados do dashboard:", err);
       } finally {
@@ -275,9 +294,14 @@ export default function DashboardPage() {
   return (
     <div className="animate-fadeIn">
       <style dangerouslySetInnerHTML={{ __html: `
-        @media (min-width: 768px) {
+        @media (min-width: 1024px) {
           .dashboard-bento-card {
-            grid-column: span 4 !important;
+            grid-column: span 3 !important;
+          }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .dashboard-bento-card {
+            grid-column: span 6 !important;
           }
         }
         @media (max-width: 767px) {
@@ -421,7 +445,37 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Events Panel */}
+        <div
+          id="missions-progress-card"
+          className="glass-panel dashboard-bento-card"
+          onClick={() => router.push("/missoes")}
+          style={{
+            borderRadius: "4px",
+            padding: "20px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            cursor: "pointer"
+          }}
+        >
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px" }}>Suas Missões</h3>
+              <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)" }}>military_tech</span>
+            </div>
+            <p className="font-body-md" style={{ color: "var(--color-on-surface-variant)", marginBottom: "4px" }}>
+              {approvedMissionsCount} de {missionsCount} concluídas
+            </p>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginBottom: "20px" }}>
+              <span className="font-headline-md" style={{ color: "var(--color-on-surface)" }}>{missionsProgress}%</span>
+              <span className="font-body-md" style={{ color: "var(--color-on-surface-variant)" }}>Concluído</span>
+            </div>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${missionsProgress}%` }} />
+          </div>
+        </div>
+
         <div
           id="events-card"
           className="glass-panel dashboard-bento-card"

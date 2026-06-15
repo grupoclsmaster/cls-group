@@ -1,0 +1,79 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { createClient } from "@/utils/supabase/server";
+import crypto from "crypto";
+
+export async function POST(req: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
+
+    // 1. Authenticate user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    // 2. Parse form data
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: "Nenhum arquivo enviado" }, { status: 400 });
+    }
+
+    // Enforce 100 MB size limit
+    const MAX_SIZE = 100 * 1024 * 1024; // 100 MB
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json({ error: "O arquivo excede o limite máximo de 100 MB" }, { status: 400 });
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // Keep original file extension and sanitize name
+    const originalName = file.name;
+    const fileExtension = originalName.split('.').pop() || '';
+    const fileId = crypto.randomUUID();
+    const storagePath = `submissions/${user.id}/${fileId}.${fileExtension}`;
+
+    // 3. Upload to Supabase Storage in 'missions' bucket
+    const { error: uploadError } = await supabase.storage
+      .from("missions")
+      .upload(storagePath, buffer, {
+        contentType: file.type || "application/octet-stream",
+        cacheControl: "31536000",
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error("Erro ao subir arquivo para o Storage:", uploadError);
+      return NextResponse.json({ error: "Erro ao subir arquivo para o Storage" }, { status: 500 });
+    }
+
+    // 4. Get Public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from("missions")
+      .getPublicUrl(storagePath);
+
+    // Format size
+    const bytes = file.size;
+    let sizeStr = "0.0 MB";
+    if (bytes < 1024 * 1024) {
+      sizeStr = (bytes / 1024).toFixed(1) + " KB";
+    } else {
+      sizeStr = (bytes / (1024 * 1024)).toFixed(1) + " MB";
+    }
+
+    return NextResponse.json({
+      url: publicUrl,
+      size: sizeStr,
+      format: fileExtension.toUpperCase(),
+      name: originalName
+    });
+
+  } catch (error: any) {
+    console.error("Erro geral no endpoint de upload de missões:", error);
+    return NextResponse.json({ error: "Erro interno do servidor", details: error.message }, { status: 500 });
+  }
+}

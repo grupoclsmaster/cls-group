@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
-import { SkeletonDashboard } from "@/components/SkeletonLoading";
+import { SkeletonEcossistema } from "@/components/SkeletonLoading";
 
 // Interfaces
 interface Banner {
@@ -347,24 +347,30 @@ export default function EcossistemaPage() {
   });
 
   if (loading) {
-    return <SkeletonDashboard />;
+    return <SkeletonEcossistema />;
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "var(--color-primary-container)", color: "var(--color-on-surface)", overflowX: "hidden" }}>
-      {/* CSS overrides for Microsoft/Windows Store layout styling */}
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--color-primary-container)", color: "var(--color-on-surface)", overflowX: "hidden", position: "relative" }}>
+      {/* Decorative Glow Blobs */}
+      <div className="glow-blob" style={{ position: "absolute", top: "10%", left: "5%", width: "400px", height: "400px", backgroundColor: "var(--color-secondary)", borderRadius: "50%", filter: "blur(140px)", opacity: 0.08, pointerEvents: "none", zIndex: 0 }} />
+      <div className="glow-blob" style={{ position: "absolute", bottom: "20%", right: "5%", width: "500px", height: "500px", backgroundColor: "var(--color-primary)", borderRadius: "50%", filter: "blur(140px)", opacity: 0.08, pointerEvents: "none", zIndex: 0 }} />
+
       <style dangerouslySetInnerHTML={{ __html: `
         .windows-container {
           max-width: 1400px;
           margin: 0 auto;
-          padding: 104px 40px 60px 40px;
+          padding: 120px 40px 80px 40px;
+          position: relative;
+          z-index: 1;
         }
         @media (max-width: 768px) {
           .windows-container {
-            padding: 104px 20px 40px 20px;
+            padding: 100px 20px 60px 20px;
           }
         }
-        /* Top Navigation Header bar */
+
+        /* Nav Bar styling */
         .win-nav {
           position: fixed;
           top: 0;
@@ -373,6 +379,7 @@ export default function EcossistemaPage() {
           height: 80px;
           background-color: var(--topbar-bg);
           backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border-bottom: 1px solid var(--topbar-border);
           z-index: 100;
           display: flex;
@@ -385,10 +392,11 @@ export default function EcossistemaPage() {
             padding: 0 20px;
           }
         }
-        /* Grid featured slider (Windows Store Style) */
+
+        /* Hero Grid */
         .store-hero-grid {
           display: grid;
-          grid-template-columns: 2fr 1fr;
+          grid-template-columns: 2.2fr 1fr;
           gap: 24px;
           margin-bottom: 48px;
         }
@@ -400,10 +408,11 @@ export default function EcossistemaPage() {
         .main-slider-card {
           position: relative;
           aspect-ratio: 16/9;
-          border-radius: 8px;
+          border-radius: 12px;
           overflow: hidden;
           border: 1px solid var(--border-color);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+          box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+          background-color: var(--color-surface-container-low);
         }
         @media (max-width: 600px) {
           .main-slider-card {
@@ -419,13 +428,12 @@ export default function EcossistemaPage() {
         .slider-overlay {
           position: absolute;
           inset: 0;
-          background: linear-gradient(to right, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.6) 60%, transparent 100%);
+          background: linear-gradient(to right, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.5) 60%, transparent 100%);
           z-index: 2;
-          pointer-events: none;
         }
         @media (max-width: 768px) {
           .slider-overlay {
-            background: linear-gradient(to top, rgba(19, 19, 22, 0.98) 0%, rgba(19, 19, 22, 0.6) 60%, transparent 100%);
+            background: linear-gradient(to top, rgba(19, 19, 22, 0.98) 0%, rgba(19, 19, 22, 0.5) 60%, transparent 100%);
           }
         }
         .slider-content {
@@ -440,22 +448,12 @@ export default function EcossistemaPage() {
         }
         @media (max-width: 768px) {
           .slider-content {
-            padding: 20px;
+            padding: 24px;
             max-width: 100%;
           }
-          .slider-content h2 {
-            font-size: 20px !important;
-            line-height: 1.1 !important;
-          }
-          .slider-content p {
-            font-size: 11px !important;
-            margin-bottom: 16px !important;
-          }
-          .slider-content span {
-            font-size: 10px !important;
-          }
         }
-        /* Right sidebar selector items */
+
+        /* Sidebar Selector */
         .store-hero-sidebar {
           display: flex;
           flex-direction: column;
@@ -465,220 +463,62 @@ export default function EcossistemaPage() {
           .store-hero-sidebar {
             flex-direction: row;
             overflow-x: auto;
-            padding-bottom: 6px;
+            padding-bottom: 8px;
           }
         }
         .sidebar-select-item {
-          background-color: var(--dropdown-bg);
+          background: rgba(255, 255, 255, 0.01);
           border: 1px solid var(--border-color);
-          border-radius: 6px;
-          padding: 16px;
+          border-radius: 8px;
+          padding: 14px;
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 14px;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           text-align: left;
         }
         @media (max-width: 1024px) {
           .sidebar-select-item {
-            flex: 0 0 240px;
+            flex: 0 0 260px;
           }
         }
         .sidebar-select-item:hover {
-          background-color: var(--dropdown-item-hover);
-          border-color: rgba(145, 179, 225, 0.3);
+          background: rgba(255, 255, 255, 0.03);
+          border-color: rgba(145, 179, 225, 0.2);
         }
         .sidebar-select-item.active {
           border-color: var(--color-secondary);
-          background-color: var(--dropdown-item-hover);
-          box-shadow: 0 0 15px rgba(145, 179, 225, 0.05);
+          background: rgba(145, 179, 225, 0.08);
+          box-shadow: 0 4px 20px rgba(145, 179, 225, 0.05);
         }
         .sidebar-item-thumb {
-          width: 50px;
-          height: 50px;
-          border-radius: 4px;
+          width: 44px;
+          height: 44px;
+          border-radius: 6px;
           background-size: cover;
           background-position: center;
           flex-shrink: 0;
           border: 1px solid var(--border-color);
         }
-        
-        /* Categories cards */
-        .category-tiles-grid {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 16px;
-          margin-bottom: 56px;
-        }
-        @media (max-width: 1024px) {
-          .category-tiles-grid {
-            grid-template-columns: repeat(3, 1fr);
-          }
-        }
-        @media (max-width: 600px) {
-          .category-tiles-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-        .category-tile {
-          background-color: var(--dropdown-bg);
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          padding: 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          text-align: center;
-        }
-        .category-tile:hover {
-          transform: translateY(-4px);
-          border-color: var(--color-secondary);
-          background-color: var(--dropdown-item-hover);
-        }
-        
-        /* Modular Store Cards */
-        .store-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 24px;
-          margin-bottom: 48px;
-        }
-        .store-card {
-          background-color: var(--dropdown-bg);
-          border: 1px solid var(--border-color);
-          border-radius: 8px;
-          overflow: hidden;
-          transition: all 0.3s ease;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
-        }
-        .store-card:hover {
-          transform: translateY(-4px);
-          border-color: rgba(145, 179, 225, 0.3);
-          box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-        }
-        .store-card-img-wrapper {
-          aspect-ratio: 16/10;
-          overflow: hidden;
-          position: relative;
-          background-color: var(--color-surface);
-          border-bottom: 1px solid var(--border-color);
-        }
-        .store-card-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.3s ease;
-        }
-        .store-card:hover .store-card-img {
-          transform: scale(1.03);
-        }
-        .card-tag-badge {
-          position: absolute;
-          top: 12px;
-          left: 12px;
-          font-size: 9px;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-          padding: 4px 8px;
-          border-radius: 2px;
-          color: #ffffff;
-          z-index: 5;
-        }
-        
-        /* Metrics layout for sponsor and studio */
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 20px;
-          margin: 24px 0;
-        }
-        @media (max-width: 768px) {
-          .metrics-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-        .metric-card {
-          background-color: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--border-color);
-          border-radius: 6px;
-          padding: 24px;
-          text-align: center;
-        }
-
-        /* Sponsors/Studio Split Columns */
-        .action-split-section {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 32px;
-          margin-bottom: 64px;
-        }
-        @media (max-width: 1024px) {
-          .action-split-section {
-            grid-template-columns: 1fr;
-          }
-        }
-        
-        /* Partners banner */
-        .partners-row {
-          display: flex;
-          justify-content: space-around;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 32px;
-          padding: 40px 24px;
-          background-color: rgba(255, 255, 255, 0.01);
-          border-radius: 8px;
-          border: 1px solid var(--border-color);
-          margin-bottom: 64px;
-        }
-        .partner-logo {
-          font-family: 'Outfit', sans-serif;
-          font-size: 18px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          color: var(--color-on-surface-variant);
-          opacity: 0.5;
-          transition: opacity 0.2s;
-        }
-        .partner-logo:hover {
-          opacity: 1;
-        }
-
-        /* Forms inputs in Windows Store style */
-        .win-form-input {
-          width: 100%;
-          background-color: var(--search-input-bg);
-          border: 1px solid var(--search-input-border);
-          border-radius: 4px;
-          color: var(--color-on-surface);
-          padding: 10px 14px;
-          font-size: 13px;
-          outline: none;
-          transition: border-color 0.2s;
-        }
-        .win-form-input:focus {
-          border-color: var(--color-secondary);
-        }
       `}} />
 
-      {/* Standalone navigation header */}
+      {/* Standalone Navigation Header */}
       <header className="win-nav">
         <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="font-headline-sm" style={{ color: "var(--color-on-surface)", fontSize: "16px", fontWeight: 700, letterSpacing: "0.05em" }}>
+          <span className="font-headline-sm" style={{ color: "var(--color-on-surface)", fontSize: "18px", fontWeight: 800, letterSpacing: "0.06em" }}>
             GRUPO CLS
           </span>
         </Link>
+
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          {isMember && (
-            <Link href="/dashboard" className="btn-primary" style={{ padding: "8px 16px", fontSize: "10px", textDecoration: "none" }}>
+          {isMember ? (
+            <Link href="/dashboard" className="btn-primary" style={{ padding: "10px 20px", fontSize: "10px", textDecoration: "none" }}>
               ACESSAR PORTAL
+            </Link>
+          ) : (
+            <Link href="/login" className="btn-outline" style={{ padding: "8px 18px", fontSize: "10px", textDecoration: "none", border: "1px solid var(--border-color)", color: "var(--color-on-surface)" }}>
+              ENTRAR
             </Link>
           )}
         </div>
@@ -687,249 +527,119 @@ export default function EcossistemaPage() {
       {/* Main Container */}
       <main className="windows-container">
         
-        {/* Dynamic Big Featured Slider (Windows Store Style) */}
-        <section className="store-hero-grid">
-          
-          {/* Left Large Slide Banner */}
-          <div className="main-slider-card">
-            {featuredBanners.map((banner, i) => (
-              <div
-                key={banner.id}
-                className="slider-bg-img"
-                style={{ 
-                  backgroundImage: `url('${banner.image}')`,
-                  opacity: currentSlide === i ? 1 : 0,
-                  transition: 'opacity 0.8s ease-in-out',
-                  zIndex: currentSlide === i ? 1 : 0
-                }}
-              />
-            ))}
-            <div className="slider-overlay" />
-            <div className="slider-content">
-              {featuredBanners[currentSlide].tag && (
-                <span style={{
-                  alignSelf: "flex-start",
-                  backgroundColor: "var(--color-secondary)",
-                  color: "#000000",
-                  fontSize: "9px",
-                  fontWeight: 800,
-                  padding: "4px 10px",
-                  borderRadius: "20px",
-                  marginBottom: "16px",
-                  letterSpacing: "0.05em"
-                }} className="font-label-caps">
-                  {featuredBanners[currentSlide].tag}
-                </span>
-              )}
-              {featuredBanners[currentSlide].subtitle && (
-                <span style={{ fontSize: "12px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
-                  {featuredBanners[currentSlide].subtitle}
-                </span>
-              )}
-              {featuredBanners[currentSlide].title && (
-                <h2 className="font-display" style={{ fontSize: "32px", color: "#ffffff", fontWeight: 800, margin: "6px 0 12px 0", lineHeight: "1.1" }}>
-                  {featuredBanners[currentSlide].title}
-                </h2>
-              )}
-              {featuredBanners[currentSlide].description && (
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: "1.5", marginBottom: "24px" }}>
-                  {featuredBanners[currentSlide].description}
-                </p>
-              )}
-              <div>
-                <button
-                  onClick={() => !featuredBanners[currentSlide].disabled && handleCtaClick(featuredBanners[currentSlide].ctaLink)}
-                  className={featuredBanners[currentSlide].disabled ? "btn-outline" : "btn-primary"}
-                  style={{ 
-                    padding: "12px 24px", 
-                    fontSize: "11px",
-                    opacity: featuredBanners[currentSlide].disabled ? 0.6 : 1,
-                    cursor: featuredBanners[currentSlide].disabled ? "not-allowed" : "pointer",
-                    backgroundColor: featuredBanners[currentSlide].disabled ? "var(--color-surface-container)" : undefined,
-                    color: featuredBanners[currentSlide].disabled ? "var(--color-on-surface-variant)" : undefined,
-                    borderColor: featuredBanners[currentSlide].disabled ? "var(--border-color)" : undefined
-                  }}
-                  disabled={featuredBanners[currentSlide].disabled}
-                >
-                  {featuredBanners[currentSlide].ctaText}
-                  {!featuredBanners[currentSlide].disabled && (
-                    <span className="material-symbols-outlined" style={{ fontSize: "16px", marginLeft: "8px" }}>arrow_forward</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Selector List Column */}
-          <div className="store-hero-sidebar">
-            {featuredBanners.map((banner, i) => (
-              <div
-                key={banner.id}
-                onClick={() => setCurrentSlide(i)}
-                className={`sidebar-select-item ${currentSlide === i ? 'active' : ''}`}
-              >
-                <div
-                  className="sidebar-item-thumb"
-                  style={{ backgroundImage: `url('${banner.image}')` }}
-                />
-                <div>
-                  <span style={{ fontSize: "9px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
-                    {banner.tag}
-                  </span>
-                  <h4 style={{ fontSize: "13px", color: "var(--color-on-surface)", fontWeight: 600, margin: "2px 0 0 0" }}>
-                    {banner.title}
-                  </h4>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </section>
-
-        {/* Content Discovery Grid Category Tiles removed as requested */}
-
-        {/* Digital Products Marketplace Section */}
-        {false && (
-        <section id="produtos" style={{ marginBottom: "64px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px", marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
-            <div>
-              <h3 className="font-headline-sm" style={{ color: "var(--color-on-surface)" }}>Produtos Digitais</h3>
-              <p style={{ fontSize: "13px", color: "var(--color-on-surface-variant)", marginTop: "4px" }}>Ebooks, planilhas estruturadas, guias práticos e materiais de apoio.</p>
-            </div>
+        {/* Dynamic Featured Slider Section */}
+        <section id="destaques" style={{ marginBottom: "56px", position: "relative", zIndex: 1 }}>
+          <div className="store-hero-grid">
             
-            {/* Horizontal Filter Tabs */}
-            <div style={{ display: "flex", gap: "8px", overflowX: "auto" }}>
-              {["Todos", "Planilhas", "Ebooks", "Checklists", "Guias", "Gratuitos", "Premium"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setProductFilter(tab)}
-                  style={{
-                    backgroundColor: productFilter === tab ? "rgba(145, 179, 225, 0.15)" : "transparent",
-                    color: productFilter === tab ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                    border: "none",
-                    padding: "8px 16px",
-                    borderRadius: "4px",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    transition: "all 0.2s"
+            {/* Left Large Slide Banner */}
+            <div className="main-slider-card">
+              {featuredBanners.map((banner, i) => (
+                <div
+                  key={banner.id}
+                  className="slider-bg-img"
+                  style={{ 
+                    backgroundImage: `url('${banner.image}')`,
+                    opacity: currentSlide === i ? 1 : 0,
+                    transition: 'opacity 0.8s ease-in-out',
+                    zIndex: currentSlide === i ? 1 : 0
                   }}
-                  className="font-label-caps"
-                >
-                  {tab}
-                </button>
+                />
               ))}
-            </div>
-          </div>
-
-          {/* Catalog grid */}
-          <div className="store-grid">
-            {filteredProducts.map((p) => (
-              <div key={p.id} className="store-card">
-                <div className="store-card-img-wrapper">
-                  <img src={p.image} className="store-card-img" alt={p.title} />
-                  {p.badge && (
-                    <span
-                      className="card-tag-badge"
-                      style={{
-                        backgroundColor: p.badge === "Lançamento" ? "var(--color-secondary)" : p.badge === "Destaque" ? "var(--color-primary)" : "#6b7280"
-                      }}
-                    >
-                      {p.badge}
-                    </span>
-                  )}
+              <div className="slider-overlay" style={{ zIndex: currentSlide !== -1 ? 2 : 0 }} />
+              <div className="slider-content">
+                {featuredBanners[currentSlide].tag && (
+                  <span style={{
+                    alignSelf: "flex-start",
+                    backgroundColor: "var(--color-secondary)",
+                    color: "#000000",
+                    fontSize: "9px",
+                    fontWeight: 800,
+                    padding: "4px 10px",
+                    borderRadius: "20px",
+                    marginBottom: "16px",
+                    letterSpacing: "0.06em"
+                  }} className="font-label-caps">
+                    {featuredBanners[currentSlide].tag}
+                  </span>
+                )}
+                {featuredBanners[currentSlide].subtitle && (
+                  <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
+                    {featuredBanners[currentSlide].subtitle}
+                  </span>
+                )}
+                {featuredBanners[currentSlide].title && (
+                  <h2 className="font-display" style={{ fontSize: "32px", color: "#ffffff", fontWeight: 800, margin: "6px 0 12px 0", lineHeight: "1.1" }}>
+                    {featuredBanners[currentSlide].title}
+                  </h2>
+                )}
+                {featuredBanners[currentSlide].description && (
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: "1.5", marginBottom: "24px" }}>
+                    {featuredBanners[currentSlide].description}
+                  </p>
+                )}
+                <div>
+                  <button
+                    onClick={() => !featuredBanners[currentSlide].disabled && handleCtaClick(featuredBanners[currentSlide].ctaLink)}
+                    className={featuredBanners[currentSlide].disabled ? "btn-outline" : "btn-primary"}
+                    style={{ 
+                      padding: "12px 24px", 
+                      fontSize: "11px",
+                      opacity: featuredBanners[currentSlide].disabled ? 0.6 : 1,
+                      cursor: featuredBanners[currentSlide].disabled ? "not-allowed" : "pointer",
+                      backgroundColor: featuredBanners[currentSlide].disabled ? "rgba(255,255,255,0.02)" : undefined,
+                      color: featuredBanners[currentSlide].disabled ? "var(--color-outline)" : undefined,
+                      borderColor: featuredBanners[currentSlide].disabled ? "var(--border-color)" : undefined
+                    }}
+                    disabled={featuredBanners[currentSlide].disabled}
+                  >
+                    {featuredBanners[currentSlide].ctaText}
+                    {!featuredBanners[currentSlide].disabled && (
+                      <span className="material-symbols-outlined" style={{ fontSize: "16px", marginLeft: "8px" }}>arrow_forward</span>
+                    )}
+                  </button>
                 </div>
-                
-                <div style={{ padding: "16px", display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "space-between" }}>
+              </div>
+            </div>
+
+            {/* Right Selector List Column */}
+            <div className="store-hero-sidebar">
+              {featuredBanners.map((banner, i) => (
+                <div
+                  key={banner.id}
+                  onClick={() => setCurrentSlide(i)}
+                  className={`sidebar-select-item ${currentSlide === i ? 'active' : ''}`}
+                >
+                  <div
+                    className="sidebar-item-thumb"
+                    style={{ backgroundImage: `url('${banner.image}')` }}
+                  />
                   <div>
                     <span style={{ fontSize: "9px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
-                      {p.category}
+                      {banner.tag}
                     </span>
-                    <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-on-surface)", margin: "4px 0 6px 0", lineHeight: "1.4" }}>{p.title}</h4>
-                    <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.4", margin: 0 }}>{p.description}</p>
-                  </div>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border-color)", paddingTop: "12px", marginTop: "16px" }}>
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "2px", marginBottom: "4px" }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: "12px", color: "var(--color-secondary)", fontVariationSettings: "'FILL' 1" }}>star</span>
-                        <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--color-on-surface)" }}>{p.rating}</span>
-                      </div>
-                      <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-on-surface)" }}>{p.price}</span>
-                    </div>
-                    
-                    <button
-                      onClick={() => handleCtaClick(p.checkoutUrl)}
-                      className="btn-primary"
-                      style={{ padding: "8px 14px", fontSize: "10px" }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>
-                        {p.type === "gratuito" ? "download" : "shopping_cart"}
-                      </span>
-                      {p.type === "gratuito" ? "BAIXAR" : "COMPRAR"}
-                    </button>
+                    <h4 style={{ fontSize: "13px", color: "var(--color-on-surface)", fontWeight: 600, margin: "2px 0 0 0" }}>
+                      {banner.title}
+                    </h4>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
           </div>
         </section>
-        )}
 
-        {/* Ready to Use Construction Projects Section */}
-        {false && (
-        <section id="projetos" style={{ marginBottom: "64px" }}>
-          <div style={{ marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "16px" }}>
-            <h3 className="font-headline-sm" style={{ color: "var(--color-on-surface)" }}>Projetos e Templates Prontos</h3>
-            <p style={{ fontSize: "13px", color: "var(--color-on-surface-variant)", marginTop: "4px" }}>Projetos arquitetônicos detalhados, memoriais descritivos e pacotes profissionais de documentos.</p>
-          </div>
-
-          <div className="store-grid">
-            {projectsReady.map((proj) => (
-              <div key={proj.id} className="store-card">
-                <div className="store-card-img-wrapper">
-                  <img src={proj.image} className="store-card-img" alt={proj.title} />
-                  {proj.badge && (
-                    <span className="card-tag-badge" style={{ backgroundColor: "var(--color-secondary)" }}>
-                      {proj.badge}
-                    </span>
-                  )}
-                </div>
-                
-                <div style={{ padding: "16px", display: "flex", flexDirection: "column", flexGrow: 1, justifyContent: "space-between" }}>
-                  <div>
-                    <span style={{ fontSize: "9px", color: "var(--color-outline)", fontWeight: 700 }} className="font-label-caps">
-                      {proj.type}
-                    </span>
-                    <h4 style={{ fontSize: "14px", fontWeight: 700, color: "var(--color-on-surface)", margin: "4px 0 2px 0" }}>{proj.title}</h4>
-                    <span style={{ fontSize: "11px", color: "var(--color-on-surface-variant)" }}>{proj.scale}</span>
-                  </div>
-                  
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border-color)", paddingTop: "12px", marginTop: "16px" }}>
-                    <span style={{ fontSize: "13px", fontWeight: 700, color: "var(--color-on-surface)" }}>{proj.price}</span>
-                    <button
-                      onClick={() => handleCtaClick(proj.checkoutUrl)}
-                      className="btn-primary"
-                      style={{ padding: "8px 14px", fontSize: "10px" }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>shopping_cart</span>
-                      ADQUIRIR
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-        )}
         {/* Smart Site Map Footer */}
         <footer style={{ borderTop: "1px solid var(--border-color)", paddingTop: "48px", display: "grid", gridTemplateColumns: "1fr", gap: "40px" }} className="hide-sidebar-at-900">
           <div style={{ textAlign: "center" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "16px" }}>
-              <span className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "14px", fontWeight: 700, letterSpacing: "0.05em" }}>GRUPO CLS</span>
+              <span className="font-title-lg" style={{ color: "var(--color-on-surface)", fontSize: "16px", fontWeight: 700, letterSpacing: "0.05em" }}>GRUPO CLS</span>
             </div>
-            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", maxWidth: "400px", margin: "0 auto" }}>O hub centralizador de conhecimento técnico, ferramentas digitais avançadas e networking de alto nível na construção civil.</p>
-            <span style={{ display: "block", fontSize: "11px", color: "var(--color-outline)", marginTop: "24px" }}>&copy; {new Date().getFullYear()} Grupo CLS. Todos os direitos reservados.</span>
+            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.6", maxWidth: "440px", margin: "0 auto" }}>
+              O hub integrador de inteligência construtiva, ferramentas de suporte para engenharia, produtos digitais de alta performance e networking qualificado.
+            </p>
+            <span style={{ display: "block", fontSize: "11px", color: "var(--color-outline)", marginTop: "24px" }}>
+              &copy; {new Date().getFullYear()} Grupo CLS. Todos os direitos reservados.
+            </span>
           </div>
         </footer>
 

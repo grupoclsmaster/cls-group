@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+
 
 /* ──────────────────────────────────────────────────────────────
    SkeletonLoading — premium shimmer skeleton for CLS Community
@@ -599,3 +601,163 @@ export function SkeletonManutencao() {
     </div>
   );
 }
+
+/* ── Ecossistema (Windows Store style) ─────────────────────── */
+export function SkeletonEcossistema() {
+  const device = useDeviceType();
+  const isMobile = device === "mobile";
+  const isTablet = device === "tablet";
+  const isDesktop = device === "desktop";
+
+  const gridCols = isDesktop ? "2.2fr 1fr" : "1fr";
+  const sidebarDirection = isDesktop ? "column" : "row";
+
+  return (
+    <div className="animate-fadeIn" style={{ minHeight: "100vh", backgroundColor: "var(--color-primary-container)", color: "var(--color-on-surface)", overflowX: "hidden", position: "relative" }}>
+      <style dangerouslySetInnerHTML={{ __html: shimmerCSS }} />
+      
+      {/* Standalone navigation header skeleton matching the live nav bar */}
+      <header style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "80px",
+        backgroundColor: "var(--topbar-bg)",
+        backdropFilter: "blur(20px)",
+        borderBottom: "1px solid var(--topbar-border)",
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: isMobile ? "0 20px" : "0 40px"
+      }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ color: "var(--color-on-surface)", fontSize: "18px", fontWeight: 800, letterSpacing: "0.06em", fontFamily: "'Outfit', sans-serif" }}>
+            GRUPO CLS
+          </span>
+        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <SkeletonBox w="120px" h="34px" radius="4px" />
+        </div>
+      </header>
+
+      {/* Main Container */}
+      <main style={{
+        maxWidth: "1400px",
+        margin: "0 auto",
+        padding: isMobile ? "100px 20px 60px 20px" : "120px 40px 80px 40px",
+        position: "relative",
+        zIndex: 1
+      }}>
+        
+        {/* Featured Slider Grid */}
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: gridCols,
+          gap: "24px",
+          marginBottom: "48px"
+        }}>
+          
+          {/* Left Large Slide Card Shimmer */}
+          <div style={{
+            position: "relative",
+            aspectRatio: isMobile ? "4/3" : "16/9",
+            borderRadius: "12px",
+            overflow: "hidden",
+            border: "1px solid var(--border-color)",
+            boxShadow: "0 15px 35px rgba(0,0,0,0.3)",
+            backgroundColor: "var(--color-surface-container-low)"
+          }}>
+            <SkeletonBox w="100%" h="100%" radius="0" />
+            
+            {/* Gradient Overlay mirroring live slide layout */}
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: isMobile 
+                ? "linear-gradient(to top, rgba(19, 19, 22, 0.98) 0%, rgba(19, 19, 22, 0.5) 60%, transparent 100%)"
+                : "linear-gradient(to right, rgba(19, 19, 22, 0.95) 0%, rgba(19, 19, 22, 0.5) 60%, transparent 100%)",
+              zIndex: 2,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-end",
+              padding: isMobile ? "24px" : "40px"
+            }}>
+              {/* Badge Shimmer */}
+              <SkeletonBox w="80px" h="16px" radius="20px" style={{ marginBottom: "16px" }} />
+              
+              {/* Title Shimmer */}
+              <SkeletonBox w={isMobile ? "85%" : "60%"} h={isMobile ? "24px" : "36px"} style={{ marginBottom: "12px" }} />
+              
+              {/* Description Shimmers */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "24px" }}>
+                <SkeletonBox w={isMobile ? "95%" : "70%"} h="12px" />
+                <SkeletonBox w={isMobile ? "85%" : "60%"} h="12px" />
+                {!isMobile && <SkeletonBox w="45%" h="12px" />}
+              </div>
+
+              {/* Button Shimmer */}
+              <SkeletonBox w="140px" h="38px" radius="4px" />
+            </div>
+          </div>
+
+          {/* Right Selector Column Shimmer */}
+          <div style={{
+            display: "flex",
+            flexDirection: sidebarDirection,
+            gap: "12px",
+            overflowX: isDesktop ? "visible" : "auto",
+            paddingBottom: isDesktop ? "0" : "8px"
+          }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  background: "rgba(255, 255, 255, 0.01)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "8px",
+                  padding: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  flexShrink: isDesktop ? 0 : "0 0 260px",
+                  width: isDesktop ? "100%" : "260px"
+                }}
+              >
+                {/* Image Thumbnail Shimmer */}
+                <SkeletonBox w="44px" h="44px" radius="6px" />
+                
+                {/* Text column Shimmers */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <SkeletonBox w="50px" h="10px" />
+                  <SkeletonBox w="100%" h="12px" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+
+        {/* Footer Skeleton */}
+        <footer style={{
+          borderTop: "1px solid var(--border-color)",
+          paddingTop: "48px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          textAlign: "center"
+        }}>
+          <SkeletonBox w="100px" h="16px" style={{ marginBottom: "16px" }} />
+          <SkeletonBox w="300px" h="12px" style={{ marginBottom: "8px" }} />
+          <SkeletonBox w="240px" h="10px" style={{ marginTop: "16px" }} />
+        </footer>
+
+      </main>
+      
+      <div style={{ height: "40px" }} />
+    </div>
+  );
+}
+
+

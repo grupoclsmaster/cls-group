@@ -23,160 +23,7 @@ interface CalendarEvent {
   zoomLink: string;
 }
 
-const initialEventsList: CalendarEvent[] = [
-  {
-    id: "e1",
-    year: 2026,
-    month: 4, // Maio
-    day: 4,
-    title: "Mentoria de Engenharia & Valuation",
-    type: "mentoria",
-    time: "14:00 - 15:30 BRT",
-    startTime: "14:00",
-    endTime: "15:30",
-    mentor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      avatar: "/magno.jpg",
-      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-    },
-    topic: "Valuation técnico de ativos físicos de grande porte e mitigação de riscos na compra de terrenos e landbanks corporativos.",
-    zoomLink: "https://zoom.us/j/magno-santos-pe"
-  },
-  {
-    id: "e2",
-    year: 2026,
-    month: 4, // Maio
-    day: 13,
-    title: "Mentoria de Arquitetura & Design Premium",
-    type: "mentoria",
-    time: "16:00 - 17:30 BRT",
-    startTime: "16:00",
-    endTime: "17:30",
-    mentor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
-    },
-    topic: "Posicionamento estético como alavanca de valorização e o desenvolvimento conceitual de projetos residenciais e corporativos premium.",
-    zoomLink: "https://zoom.us/j/mayara-costa-design"
-  },
-  {
-    id: "e3",
-    year: 2026,
-    month: 4, // Maio
-    day: 24,
-    title: "Reunião de Alinhamento: Portfólio Q3",
-    type: "atualizacao",
-    time: "11:00 - 12:00 BRT",
-    startTime: "11:00",
-    endTime: "12:00",
-    mentor: {
-      name: "Eng. Magno Santos",
-      role: "CEO & Fundador CLS",
-      avatar: "/magno.jpg",
-      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-    },
-    topic: "Atualização de desempenho das oportunidades vigentes de co-investimento e cronograma de saídas planejadas.",
-    zoomLink: "https://zoom.us/j/cls-portfolio-q3"
-  },
-  {
-    id: "e4",
-    year: 2026,
-    month: 4, // Maio
-    day: 28,
-    title: "Mentoria: Viabilidade de Landbanks",
-    type: "mentoria",
-    time: "14:00 - 15:30 BRT",
-    startTime: "14:00",
-    endTime: "15:30",
-    mentor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      avatar: "/magno.jpg",
-      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-    },
-    topic: "Análise aprofundada de estudos de viabilidade técnica e legal (EVTL) para novos landbanks.",
-    zoomLink: "https://zoom.us/j/magno-santos-pe"
-  },
-  {
-    id: "e5",
-    year: 2026,
-    month: 5, // Junho
-    day: 5,
-    title: "Mastermind: Soluções BIM & ConTech",
-    type: "mentoria",
-    time: "10:00 - 11:30 BRT",
-    startTime: "10:00",
-    endTime: "11:30",
-    mentor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      avatar: "/magno.jpg",
-      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-    },
-    topic: "Discussão em mesa redonda sobre a adoção prática de ferramentas BIM e ConTechs na gestão de suprimentos e obras.",
-    zoomLink: "https://zoom.us/j/magno-santos-pe"
-  },
-  {
-    id: "e6",
-    year: 2026,
-    month: 5, // Junho
-    day: 12,
-    title: "Networking: Visita à Grande Obra SP",
-    type: "atualizacao",
-    time: "09:00 - 18:00 BRT",
-    startTime: "09:00",
-    endTime: "18:00",
-    mentor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
-    },
-    topic: "Visita técnica presencial a um grande empreendimento corporativo de alto padrão em São Paulo com foco em compatibilização BIM e acabamentos.",
-    zoomLink: "https://zoom.us/j/mayara-costa-design"
-  },
-  {
-    id: "e7",
-    year: 2026,
-    month: 6, // Julho
-    day: 10,
-    title: "Mentoria: Estruturação de SPE e SCP",
-    type: "mentoria",
-    time: "14:00 - 15:30 BRT",
-    startTime: "14:00",
-    endTime: "15:30",
-    mentor: {
-      name: "Eng. Magno Santos",
-      role: "Mentor Sênior",
-      avatar: "/magno.jpg",
-      bio: "Engenheiro Sênior e especialista em Private Equity com mais de 20 anos de experiência em incorporações imobiliárias e valuation técnico de landbanks."
-    },
-    topic: "Estruturação societária e financeira de Sociedades de Propósito Específico (SPE) e Sociedades em Conta de Participação (SCP) para captação de recursos.",
-    zoomLink: "https://zoom.us/j/magno-santos-pe"
-  },
-  {
-    id: "e8",
-    year: 2026,
-    month: 6, // Julho
-    day: 22,
-    title: "Workshop: Planejamento Lean Construction",
-    type: "mentoria",
-    time: "16:00 - 17:30 BRT",
-    startTime: "16:00",
-    endTime: "17:30",
-    mentor: {
-      name: "Arq. Mayara Costa",
-      role: "Mentor Sênior",
-      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-      bio: "Arquiteta especialista em design conceitual de luxo e formatação de projetos imobiliários sob medida para clientes Ultra-High-Net-Worth."
-    },
-    topic: "Implementação da metodologia Lean nos fluxos de projeto arquitetônico e interface direta com o planejamento executivo da obra.",
-    zoomLink: "https://zoom.us/j/mayara-costa-design"
-  }
-];
+const initialEventsList: CalendarEvent[] = [];
 
 const monthsList = [
   { name: "Janeiro 2026", month: 0, year: 2026 },
@@ -258,6 +105,198 @@ export default function CalendarioPage() {
   const [eventZoomLink, setEventZoomLink] = useState("https://zoom.us/j/magno-santos-pe");
   const [eventLinkType, setEventLinkType] = useState<"zoom" | "meet" | "other">("zoom");
   const [pendingEventToSync, setPendingEventToSync] = useState<EventFormData | null>(null);
+
+  // Bulk Import CSV states
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [parsedEvents, setParsedEvents] = useState<any[]>([]);
+  const [importFileName, setImportFileName] = useState("");
+  const [importError, setImportError] = useState("");
+
+  const downloadCSVTemplate = () => {
+    const headers = [
+      "title",
+      "type",
+      "date",
+      "start_time",
+      "end_time",
+      "mentor_name",
+      "mentor_role",
+      "topic",
+      "zoom_link"
+    ];
+    const rows = [
+      [
+        "Mentoria de Planejamento Estrategico",
+        "mentoria",
+        "2026-06-20",
+        "19:00",
+        "20:30",
+        "Eng. Magno Santos",
+        "Mentor Senior",
+        "Discussao sobre cronograma e fluxo de caixa de obras de grande porte.",
+        "https://zoom.us/j/magno-santos-pe"
+      ],
+      [
+        "Novidades do CLS Community v2",
+        "atualizacao",
+        "2026-06-25",
+        "15:00",
+        "16:00",
+        "Eng. Magno Santos",
+        "Mentor Senior",
+        "Apresentacao das novas funcionalidades e do ecossistema atualizado.",
+        "https://meet.google.com/abc-defg-hij"
+      ]
+    ];
+    
+    const csvContent = "\uFEFF" + [
+      headers.join(","),
+      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "template_eventos_calendario.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleCSVUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportFileName(file.name);
+    setImportError("");
+    setParsedEvents([]);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        if (!text) throw new Error("O arquivo esta vazio.");
+
+        const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+        if (lines.length <= 1) {
+          throw new Error("O arquivo nao contem linhas de dados alem do cabecalho.");
+        }
+
+        const headers = lines[0].split(",").map(h => h.replace(/^["']|["']$/g, "").trim().toLowerCase());
+        const requiredHeaders = ["title", "type", "date", "start_time", "end_time", "mentor_name"];
+        const missing = requiredHeaders.filter(req => !headers.includes(req));
+        
+        if (missing.length > 0) {
+          throw new Error(`Colunas obrigatorias ausentes no cabecalho: ${missing.join(", ")}`);
+        }
+
+        const eventsList: any[] = [];
+        for (let i = 1; i < lines.length; i++) {
+          const line = lines[i];
+          
+          // Basic CSV parsing for double quotes/comma separated values
+          const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(",");
+          const values = matches.map(val => val.replace(/^["']|["']$/g, "").replace(/""/g, '"').trim());
+
+          if (values.length < headers.length) continue;
+
+          const rowData: any = {};
+          headers.forEach((header, index) => {
+            rowData[header] = values[index] || "";
+          });
+
+          // Validate fields
+          if (!rowData.title) throw new Error(`Linha ${i}: O titulo e obrigatorio.`);
+          if (rowData.type !== "mentoria" && rowData.type !== "atualizacao") {
+            throw new Error(`Linha ${i}: O tipo deve ser 'mentoria' ou 'atualizacao'.`);
+          }
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(rowData.date)) {
+            throw new Error(`Linha ${i}: A data deve estar no formato AAAA-MM-DD.`);
+          }
+          if (!/^\d{2}:\d{2}$/.test(rowData.start_time) || !/^\d{2}:\d{2}$/.test(rowData.end_time)) {
+            throw new Error(`Linha ${i}: O horario de inicio e termino devem estar no formato HH:MM.`);
+          }
+
+          eventsList.push({
+            title: rowData.title,
+            event_type: rowData.type,
+            event_date: rowData.date,
+            start_time: rowData.start_time,
+            end_time: rowData.end_time,
+            mentor_name: rowData.mentor_name,
+            mentor_role: rowData.mentor_role || "Mentor CLS",
+            mentor_avatar: "/magno.jpg",
+            mentor_bio: rowData.topic || "Sessao de mentoria/atualizacao.",
+            topic: rowData.topic || "",
+            zoom_link: rowData.zoom_link || "https://zoom.us"
+          });
+        }
+
+        if (eventsList.length === 0) {
+          throw new Error("Nenhum evento valido foi encontrado no arquivo.");
+        }
+
+        setParsedEvents(eventsList);
+      } catch (err: any) {
+        setImportError(err.message);
+      }
+    };
+    reader.onerror = () => {
+      setImportError("Erro ao ler o arquivo CSV.");
+    };
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const handleBulkImportSubmit = async () => {
+    if (parsedEvents.length === 0) return;
+    setIsImporting(true);
+    try {
+      const supabase = createClient();
+      const { data: insertedData, error } = await supabase
+        .from("calendar_events")
+        .insert(parsedEvents)
+        .select("*");
+
+      if (error) throw error;
+
+      showToast(`${insertedData.length} eventos importados com sucesso!`, "success");
+      
+      // Map and update state list
+      const mappedEvents: CalendarEvent[] = insertedData.map((e: any) => {
+        const date = new Date(e.event_date);
+        const offsetDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+        return {
+          id: e.id,
+          year: offsetDate.getFullYear(),
+          month: offsetDate.getMonth(),
+          day: offsetDate.getDate(),
+          title: e.title,
+          type: e.event_type,
+          time: `${e.start_time.substring(0, 5)} - ${e.end_time.substring(0, 5)} BRT`,
+          startTime: e.start_time.substring(0, 5),
+          endTime: e.end_time.substring(0, 5),
+          mentor: {
+            name: e.mentor_name,
+            role: e.mentor_role,
+            avatar: e.mentor_avatar || "/magno.jpg",
+            bio: e.mentor_bio || ""
+          },
+          topic: e.topic || "",
+          zoomLink: e.zoom_link || ""
+        };
+      });
+
+      setEvents(prev => [...prev, ...mappedEvents]);
+      setShowImportModal(false);
+      setParsedEvents([]);
+      setImportFileName("");
+    } catch (err: any) {
+      showToast("Erro ao importar planilha: " + err.message, "error");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   // Custom alert/confirm dialog state
   const [customDialog, setCustomDialog] = useState<{
@@ -650,6 +689,10 @@ export default function CalendarioPage() {
     }
 
     // 2. Active days of current month
+    const todayDate = new Date();
+    const isTodayMonthYear = todayDate.getMonth() === month && todayDate.getFullYear() === year;
+    const todayDay = todayDate.getDate();
+
     for (let day = 1; day <= totalDays; day++) {
       const dayEvents = events.filter(
         e => e.year === year && e.month === month && e.day === day
@@ -661,6 +704,7 @@ export default function CalendarioPage() {
 
       const hasEvents = filteredDayEvents.length > 0;
       const isSelected = selectedDay === day;
+      const isToday = isTodayMonthYear && todayDay === day;
 
       cells.push(
         <div
@@ -675,10 +719,16 @@ export default function CalendarioPage() {
           style={{
             minHeight: isMobile ? "50px" : "120px",
             padding: isMobile ? "6px" : "12px",
-            backgroundColor: isSelected ? "rgba(145, 179, 225, 0.06)" : "var(--color-surface)",
+            backgroundColor: isSelected 
+              ? "rgba(145, 179, 225, 0.06)" 
+              : isToday 
+                ? "rgba(145, 179, 225, 0.03)" 
+                : "var(--color-surface)",
             border: isSelected
-              ? "1px solid var(--color-secondary)"
-              : "1px solid var(--border-color)",
+              ? "1.5px solid var(--color-secondary)"
+              : isToday
+                ? "1px solid rgba(145, 179, 225, 0.5)"
+                : "1px solid var(--border-color)",
             cursor: "pointer",
             position: "relative",
             display: "flex",
@@ -690,11 +740,23 @@ export default function CalendarioPage() {
         >
           <span
             style={{
-              fontWeight: isSelected ? 700 : 500,
-              color: isSelected ? "var(--color-secondary)" : "var(--color-on-surface)",
+              fontWeight: (isSelected || isToday) ? 700 : 500,
+              color: isSelected 
+                ? "var(--color-secondary)" 
+                : isToday 
+                  ? "#a3c2f0" 
+                  : "var(--color-on-surface)",
               fontSize: isMobile ? "12px" : "14px",
               alignSelf: isMobile ? "center" : "flex-start",
               marginBottom: isMobile ? "0px" : "8px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: isToday ? "24px" : "auto",
+              height: isToday ? "24px" : "auto",
+              borderRadius: isToday ? "50%" : "0",
+              border: isToday ? "1px solid rgba(145, 179, 225, 0.3)" : "none",
+              backgroundColor: isToday ? "rgba(145, 179, 225, 0.1)" : "transparent",
             }}
           >
             {day}
@@ -1007,7 +1069,7 @@ export default function CalendarioPage() {
   return (
     <div className="animate-fadeIn" style={{ paddingTop: "12px", paddingBottom: isMobile ? "80px" : "24px" }}>
       {/* Dynamic Header */}
-      <section style={{ marginBottom: "20px" }}>
+      <section style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px" }}>
         <div>
           <h2 className="font-display-mobile" style={{ color: "var(--color-on-surface)", marginBottom: "4px", fontSize: isMobile ? "22px" : "28px" }}>
             Calendário de Mentorias
@@ -1016,6 +1078,24 @@ export default function CalendarioPage() {
             Fuso Horário: Brasília (GMT-3). Agende suas mentorias e adicione-as ao seu dia a dia.
           </p>
         </div>
+        {userType === "admin" && (
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="btn-outline"
+            style={{
+              padding: "10px 16px",
+              fontSize: "11px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              height: "fit-content",
+              cursor: "pointer"
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>publish</span>
+            {isMobile ? "Importar" : "Importar Planilha"}
+          </button>
+        )}
       </section>
 
       {/* Filters, View Toggle and Month Switchers */}
@@ -1540,6 +1620,197 @@ export default function CalendarioPage() {
             {toast.type === "success" ? "check_circle" : "error"}
           </span>
           {toast.message}
+        </div>
+      )}
+
+      {/* Bulk Import CSV Modal */}
+      {showImportModal && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          backdropFilter: "blur(12px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9990,
+          padding: "16px"
+        }}>
+          <div
+            className="glass-panel"
+            style={{
+              width: "100%",
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              padding: isMobile ? "20px" : "32px",
+              borderRadius: "4px",
+              border: "1px solid var(--dropdown-border)",
+              backgroundColor: "var(--dropdown-bg)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              boxShadow: "0 20px 50px rgba(0,0,0,0.15)",
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                <span className="material-symbols-outlined" style={{ color: "var(--color-secondary)", fontSize: "20px" }}>publish</span>
+                <span className="font-label-caps" style={{ color: "var(--color-secondary)", fontSize: "10px" }}>Importação em Lote</span>
+              </div>
+              <h3 className="font-title-lg" style={{ color: "var(--color-on-surface)", margin: 0, fontSize: isMobile ? "18px" : "22px" }}>
+                Importar Eventos por Planilha
+              </h3>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", backgroundColor: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: "4px", border: "1px solid var(--border-color)" }}>
+              <h4 className="font-label-caps" style={{ color: "var(--color-on-surface)", fontSize: "10px", margin: 0 }}>Instruções do Arquivo CSV</h4>
+              <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.5", margin: 0 }}>
+                O arquivo CSV deve conter um cabeçalho exatamente com as colunas: <strong>title, type, date, start_time, end_time, mentor_name, mentor_role, topic, zoom_link</strong>.
+              </p>
+              <ul style={{ fontSize: "11px", color: "var(--color-on-surface-variant)", margin: 0, paddingLeft: "20px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                <li><strong>type</strong>: deve ser "mentoria" ou "atualizacao"</li>
+                <li><strong>date</strong>: deve usar o formato AAAA-MM-DD (ex: 2026-06-15)</li>
+                <li><strong>start_time / end_time</strong>: devem usar o formato HH:MM (ex: 14:00)</li>
+              </ul>
+              <button
+                type="button"
+                onClick={downloadCSVTemplate}
+                className="btn-outline"
+                style={{
+                  padding: "8px 12px",
+                  fontSize: "10px",
+                  marginTop: "8px",
+                  alignSelf: "flex-start",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>download</span>
+                Baixar Modelo CSV
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Selecionar Arquivo CSV</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={handleCSVUpload}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    opacity: 0,
+                    width: "100%",
+                    height: "100%",
+                    cursor: "pointer",
+                    zIndex: 2
+                  }}
+                />
+                <div style={{
+                  padding: "16px",
+                  border: "1px dashed var(--border-color)",
+                  borderRadius: "4px",
+                  backgroundColor: "rgba(255,255,255,0.01)",
+                  textAlign: "center",
+                  color: "var(--color-on-surface-variant)",
+                  fontSize: "13px"
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "24px", display: "block", marginBottom: "8px", color: "var(--color-secondary)" }}>
+                    cloud_upload
+                  </span>
+                  {importFileName ? `Arquivo selecionado: ${importFileName}` : "Arraste ou clique para enviar o arquivo CSV"}
+                </div>
+              </div>
+            </div>
+
+            {importError && (
+              <div style={{ padding: "12px", backgroundColor: "rgba(179, 38, 30, 0.1)", border: "1px solid var(--color-error)", borderRadius: "4px", color: "var(--color-error)", fontSize: "12px" }}>
+                {importError}
+              </div>
+            )}
+
+            {parsedEvents.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                <h4 className="font-label-caps" style={{ color: "var(--color-on-surface)", fontSize: "10px", margin: 0 }}>
+                  Pré-visualização ({parsedEvents.length} eventos encontrados)
+                </h4>
+                <div style={{
+                  maxHeight: "150px",
+                  overflowY: "auto",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "4px",
+                  backgroundColor: "rgba(0,0,0,0.2)"
+                }}>
+                  {parsedEvents.map((ev, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: "8px 12px",
+                        borderBottom: index < parsedEvents.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "12px"
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 600, color: "var(--color-on-surface)" }}>{ev.title}</div>
+                        <div style={{ fontSize: "10px", color: "var(--color-on-surface-variant)" }}>
+                          {ev.event_date} • {ev.start_time} às {ev.end_time} • {ev.mentor_name}
+                        </div>
+                      </div>
+                      <span
+                        className="font-label-caps"
+                        style={{
+                          fontSize: "8px",
+                          padding: "2px 6px",
+                          borderRadius: "2px",
+                          backgroundColor: ev.event_type === "mentoria" ? "rgba(145, 179, 225, 0.1)" : "rgba(194, 194, 245, 0.1)",
+                          color: ev.event_type === "mentoria" ? "var(--color-secondary)" : "var(--color-primary)"
+                        }}
+                      >
+                        {ev.event_type}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setParsedEvents([]);
+                  setImportFileName("");
+                  setImportError("");
+                }}
+                className="btn-outline"
+                style={{ flex: 1, padding: "12px", fontSize: "10px" }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={parsedEvents.length === 0 || isImporting}
+                onClick={handleBulkImportSubmit}
+                className="btn-primary"
+                style={{
+                  flex: 1.5,
+                  padding: "12px",
+                  fontSize: "10px",
+                  opacity: (parsedEvents.length === 0 || isImporting) ? 0.5 : 1,
+                  cursor: (parsedEvents.length === 0 || isImporting) ? "not-allowed" : "pointer"
+                }}
+              >
+                {isImporting ? "Importando..." : "Confirmar Importação"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

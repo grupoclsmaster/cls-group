@@ -10,6 +10,7 @@ const navItems = [
   { icon: "play_lesson", label: "Masterclasses", href: "/masterclasses" },
   { icon: "folder_shared", label: "Recursos", href: "/recursos" },
   { icon: "calendar_month", label: "Calendário", href: "/calendario" },
+  { icon: "assignment", label: "Missões", href: "/missoes" },
   { icon: "shopping_bag", label: "Oportunidades", href: "/oportunidades", comingSoon: true },
   { icon: "architecture", label: "Projetos", href: "/projetos", comingSoon: true },
 ];
