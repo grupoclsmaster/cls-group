@@ -512,13 +512,9 @@ export default function EcossistemaPage() {
         </Link>
 
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          {isMember ? (
+          {isMember && (
             <Link href="/dashboard" className="btn-primary" style={{ padding: "10px 20px", fontSize: "10px", textDecoration: "none" }}>
               ACESSAR PORTAL
-            </Link>
-          ) : (
-            <Link href="/login" className="btn-outline" style={{ padding: "8px 18px", fontSize: "10px", textDecoration: "none", border: "1px solid var(--border-color)", color: "var(--color-on-surface)" }}>
-              ENTRAR
             </Link>
           )}
         </div>

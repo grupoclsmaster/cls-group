@@ -1,13 +1,56 @@
 "use client";
 import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
+import { SkeletonDashboard } from "@/components/SkeletonLoading";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import BottomTabBar from "@/components/BottomTabBar";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+  const [checkingAccess, setCheckingAccess] = useState(true);
+
+  useEffect(() => {
+    async function checkAccess() {
+      if (pathname === "/sem-permissao") {
+        setCheckingAccess(false);
+        return;
+      }
+
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+
+        const { data: member } = await supabase
+          .from("members")
+          .select("status")
+          .eq("id", user.id)
+          .single();
+
+        if (!member || member.status !== "Ativo") {
+          router.push("/sem-permissao");
+          return;
+        }
+
+        setCheckingAccess(false);
+      } catch (err) {
+        console.error("Error verifying membership:", err);
+        router.push("/sem-permissao");
+      }
+    }
+
+    void checkAccess();
+  }, [pathname, router]);
 
   useEffect(() => {
     const checkBreakpoint = () => {
@@ -43,6 +86,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [isTablet]);
 
   const sidebarWidth = isCollapsed ? "72px" : "280px";
+
+  if (checkingAccess) {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--color-background)", padding: "40px" }}>
+        <SkeletonDashboard />
+      </div>
+    );
+  }
 
   return (
     <div
