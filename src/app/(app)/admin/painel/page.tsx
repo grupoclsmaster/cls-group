@@ -85,32 +85,11 @@ export default function AdminPage() {
   // Expanded state of modules
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({});
 
-  // Triggering modal or forms
-  const [activeAddLessonModuleId, setActiveAddLessonModuleId] = useState<string | null>(null);
-  const [showAddCourseModal, setShowAddCourseModal] = useState(false);
-  const [showAddModuleModal, setShowAddModuleModal] = useState(false);
+
 
   // Comments state
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
-
-  // Edit states for course/module/lesson
-  const [editingCourse, setEditingCourse] = useState<{
-    id: string;
-    title: string;
-    description: string;
-    status: "rascunho" | "agendado" | "publicado";
-    cover_image_url: string;
-  } | null>(null);
-
-  const [editingModule, setEditingModule] = useState<{
-    id: string;
-    title: string;
-    description: string;
-    status: "rascunho" | "agendado" | "publicado";
-    scheduled_at: string;
-    cover_image_url: string;
-  } | null>(null);
 
   const [editingLesson, setEditingLesson] = useState<{
     id: string;
@@ -149,18 +128,6 @@ export default function AdminPage() {
   // Status message
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  // Form states - Course / Module / Lesson
-  const [newCourseName, setNewCourseName] = useState("");
-  const [newModuleName, setNewModuleName] = useState("");
-  const [lessonTitle, setLessonTitle] = useState("");
-  const [lessonDesc, setLessonDesc] = useState("");
-  const [lessonDuration, setLessonDuration] = useState("");
-  const [lessonVideoUrl, setLessonVideoUrl] = useState("");
-  const [lessonMuxPlaybackId, setLessonMuxPlaybackId] = useState("");
-  const [lessonInstructorName, setLessonInstructorName] = useState("Eng. Magno Santos");
-  const [lessonInstructorRole, setLessonInstructorRole] = useState("CEO & Fundador CLS");
-  const [lessonInstructorAvatar, setLessonInstructorAvatar] = useState("/magno.jpg");
 
   // Form states - Resources
   const [resourceTitle, setResourceTitle] = useState("");
@@ -269,86 +236,7 @@ export default function AdminPage() {
     }
   };
 
-  // Save Course configuration
-  const handleSaveCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCourse) return;
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("courses")
-        .update({
-          title: editingCourse.title,
-          description: editingCourse.description,
-          status: editingCourse.status,
-          cover_image_url: editingCourse.cover_image_url
-        })
-        .eq("id", editingCourse.id);
 
-      if (error) throw error;
-      showStatus("success", "Masterclass atualizada com sucesso!");
-      setEditingCourse(null);
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar masterclass.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Save Course configuration
-  const handleUpdateCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCourse) return;
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("courses")
-        .update({
-          title: editingCourse.title,
-          description: editingCourse.description,
-          status: editingCourse.status
-        })
-        .eq("id", editingCourse.id);
-
-      if (error) throw error;
-      showStatus("success", "Masterclass atualizada com sucesso!");
-      setEditingCourse(null);
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar masterclass.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // Save Module configuration
-  const handleSaveModule = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingModule) return;
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("modules")
-        .update({
-          title: editingModule.title,
-          description: editingModule.description,
-          status: editingModule.status,
-          scheduled_at: editingModule.scheduled_at ? new Date(editingModule.scheduled_at).toISOString() : null,
-          cover_image_url: editingModule.cover_image_url
-        })
-        .eq("id", editingModule.id);
-
-      if (error) throw error;
-      showStatus("success", "Módulo atualizado com sucesso!");
-      setEditingModule(null);
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar módulo.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   // Save Lesson configuration
   const handleSaveLesson = async (e: React.FormEvent) => {
@@ -410,9 +298,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Erro ao fazer upload");
 
-      if (type === "course" && editingCourse) {
-        setEditingCourse({ ...editingCourse, cover_image_url: data.url });
-      } else if (type === "lesson" && editingLesson) {
+      if (type === "lesson" && editingLesson) {
         setEditingLesson({ ...editingLesson, cover_image_url: data.url });
       }
 
@@ -923,100 +809,6 @@ export default function AdminPage() {
     setTimeout(() => setStatusMsg(null), 5000);
   };
 
-  const handleAddCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCourseName.trim()) return;
-    setSubmitting(true);
-    try {
-      const slug = newCourseName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const { error } = await supabase.from("courses").insert([{
-        title: newCourseName,
-        slug,
-        sequence_order: courses.length + 1
-      }]);
-
-      if (error) throw error;
-      setNewCourseName("");
-      setShowAddCourseModal(false);
-      showStatus("success", `Curso "${newCourseName}" criado com sucesso!`);
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao criar masterclass.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleAddModule = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newModuleName.trim() || !selectedCourseId) {
-      if (!selectedCourseId) showStatus("error", "Selecione uma masterclass primeiro.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const slug = newModuleName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const courseModules = courses.find(c => c.id === selectedCourseId)?.modules || [];
-      const { error } = await supabase.from("modules").insert([{
-        title: newModuleName,
-        slug,
-        course_id: selectedCourseId,
-        sequence_order: courseModules.length + 1
-      }]);
-
-      if (error) throw error;
-      setNewModuleName("");
-      setShowAddModuleModal(false);
-      showStatus("success", `Módulo "${newModuleName}" criado com sucesso!`);
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao criar módulo.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleAddLesson = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const moduleId = activeAddLessonModuleId;
-    if (!moduleId || !lessonTitle) {
-      showStatus("error", "Erro de módulo ou título da aula ausente.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const baseSlug = lessonTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-      const slug = `${baseSlug}-${randomSuffix}`;
-      const { error } = await supabase.from("lessons").insert([{
-        module_id: moduleId,
-        title: lessonTitle,
-        description: lessonDesc,
-        duration: lessonDuration || "15 MIN",
-        video_url: lessonVideoUrl,
-        mux_playback_id: lessonMuxPlaybackId,
-        instructor_name: lessonInstructorName,
-        instructor_role: lessonInstructorRole,
-        instructor_avatar: lessonInstructorAvatar,
-        slug
-      }]);
-
-      if (error) throw error;
-      setLessonTitle("");
-      setLessonDesc("");
-      setLessonDuration("");
-      setLessonVideoUrl("");
-      setLessonMuxPlaybackId("");
-      setActiveAddLessonModuleId(null);
-      showStatus("success", "Aula cadastrada com sucesso!");
-      await refreshData();
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro ao salvar aula.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleRegisterUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegSuccessMsg(null);
@@ -1438,7 +1230,7 @@ export default function AdminPage() {
                     style={{ 
                       display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
                     }}
-                    onClick={() => setShowAddCourseModal(true)}
+                    onClick={() => router.push("/admin/masterclasses/nova")}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
                     CRIAR MASTERCLASS
@@ -1474,7 +1266,7 @@ export default function AdminPage() {
                         style={{ 
                           display: "flex", alignItems: "center", gap: "8px", padding: "12px 24px", fontSize: "12px", fontWeight: 700, letterSpacing: "0.1em", borderRadius: "2px"
                         }}
-                        onClick={() => setShowAddModuleModal(true)}
+                        onClick={() => router.push(`/admin/modulos/novo?courseId=${selectedCourseId}`)}
                       >
                         <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add_box</span>
                         CRIAR MÓDULO
@@ -1508,7 +1300,7 @@ export default function AdminPage() {
                         {(memberType === "admin" || memberType === null) && (
                           <div style={{ display: "flex", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
                             <button 
-                              onClick={() => setEditingCourse(c as any)}
+                              onClick={() => router.push(`/admin/masterclasses/${c.id}`)}
                               style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", padding: 4 }}
                               title="Editar Masterclass"
                             >
@@ -1696,14 +1488,7 @@ export default function AdminPage() {
                             <button 
                               style={{ background: "none", border: "none", color: "var(--color-secondary)", cursor: "pointer", display: "flex", alignItems: "center" }}
                               onClick={() => {
-                                setEditingModule({
-                                  id: m.id,
-                                  title: m.title,
-                                  description: m.description || "",
-                                  status: (m.status as any) || "publicado",
-                                  scheduled_at: m.scheduled_at ? new Date(m.scheduled_at).toISOString().slice(0, 16) : "",
-                                  cover_image_url: m.cover_image_url || ""
-                                });
+                                router.push(`/admin/modulos/${m.id}`);
                               }}
                               title="Editar Módulo"
                             >
@@ -1919,7 +1704,7 @@ export default function AdminPage() {
                           <div style={{ padding: "12px 20px 12px 60px" }}>
                             <button 
                               type="button"
-                              onClick={() => setActiveAddLessonModuleId(m.id)}
+                              onClick={() => router.push(`/admin/aulas/nova?moduleId=${m.id}`)}
                               style={{
                                 width: "32px",
                                 height: "32px",
@@ -1956,489 +1741,6 @@ export default function AdminPage() {
               })()}
               </div>
             )}
-
-            {/* Modal/Overlay to Add Course */}
-            {showAddCourseModal && (
-              <div 
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)",
-                  backdropFilter: "blur(5px)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-                onClick={() => setShowAddCourseModal(false)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(145, 179, 225, 0.3)",
-                    borderRadius: "12px",
-                    width: "100%",
-                    maxWidth: "450px",
-                    padding: "28px",
-                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>Criar Nova Masterclass (Conteúdo)</h3>
-                  <form onSubmit={handleAddCourse} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME DA MASTERCLASS</label>
-                      <input
-                        type="text"
-                        className="input-dark"
-                        placeholder="Ex: Masterclass de Engenharia"
-                        value={newCourseName}
-                        onChange={(e) => setNewCourseName(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ flex: 1 }}
-                        onClick={() => setShowAddCourseModal(false)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ flex: 1 }}
-                        disabled={submitting}
-                      >
-                        {submitting ? "Criando..." : "Criar Masterclass"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* Modal de Edição de Masterclass */}
-            {editingCourse && (
-              <div 
-                style={{
-                  position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)", backdropFilter: "blur(5px)",
-                  zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center"
-                }}
-                onClick={() => setEditingCourse(null)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)", border: "1px solid rgba(255, 255, 255, 0.1)",
-                    borderRadius: "12px", width: "100%", maxWidth: "500px", padding: "28px", boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                    <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", margin: 0 }}>Editar Masterclass</h3>
-                    <button onClick={() => setEditingCourse(null)} style={{ background: "none", border: "none", color: "var(--color-outline)", cursor: "pointer" }}>
-                      <span className="material-symbols-outlined">close</span>
-                    </button>
-                  </div>
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DA MASTERCLASS</label>
-                      <input
-                        type="text" className="input-dark" value={editingCourse.title}
-                        onChange={(e) => setEditingCourse({...editingCourse, title: e.target.value})}
-                      />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO</label>
-                      <textarea
-                        className="input-dark" rows={4} value={editingCourse.description}
-                        onChange={(e) => setEditingCourse({...editingCourse, description: e.target.value})}
-                      />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>STATUS</label>
-                      <select
-                        className="input-dark" value={editingCourse.status}
-                        onChange={(e) => setEditingCourse({...editingCourse, status: e.target.value as any})}
-                      >
-                        <option value="publicado">Publicado</option>
-                        <option value="rascunho">Rascunho</option>
-                        <option value="agendado">Agendado</option>
-                      </select>
-                    </div>
-                    
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>CAPA DA MASTERCLASS</label>
-                      
-                      {editingCourse.cover_image_url && (
-                        <div style={{ position: "relative", width: "100%", height: "120px", borderRadius: "6px", overflow: "hidden", marginBottom: "8px", border: "1px solid rgba(255,255,255,0.1)" }}>
-                          <img src={editingCourse.cover_image_url} alt="Capa" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          <button 
-                            type="button"
-                            onClick={() => setEditingCourse({ ...editingCourse, cover_image_url: "" })}
-                            style={{ position: "absolute", top: "8px", right: "8px", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", width: "28px", height: "28px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--color-error)" }}
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>delete</span>
-                          </button>
-                        </div>
-                      )}
-
-                      <div 
-                        style={{ 
-                          border: "1px dashed rgba(145, 179, 225, 0.3)", 
-                          borderRadius: "6px", 
-                          padding: "16px", 
-                          textAlign: "center",
-                          backgroundColor: "rgba(0, 0, 0, 0.2)",
-                          cursor: "pointer",
-                          position: "relative"
-                        }}
-                      >
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleCoverUpload(e, "course")}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            width: "100%",
-                            height: "100%",
-                            opacity: 0,
-                            cursor: "pointer",
-                            zIndex: 10
-                          }}
-                          disabled={uploadingCover}
-                        />
-                        <span className="material-symbols-outlined" style={{ fontSize: "24px", color: "var(--color-secondary)", marginBottom: "4px" }}>
-                          cloud_upload
-                        </span>
-                        <p style={{ color: "#ffffff", margin: 0, fontSize: "12px", fontWeight: 600 }}>
-                          {uploadingCover ? "Enviando..." : "Subir capa da masterclass"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button className="btn-primary" style={{ marginTop: "8px" }} onClick={handleSaveCourse} disabled={submitting || uploadingCover}>
-                      {submitting ? "Salvando..." : "Salvar Alterações"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Modal/Overlay to Add Module */}
-            {showAddModuleModal && (
-              <div 
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)",
-                  backdropFilter: "blur(5px)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-                onClick={() => setShowAddModuleModal(false)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(145, 179, 225, 0.3)",
-                    borderRadius: "12px",
-                    width: "100%",
-                    maxWidth: "450px",
-                    padding: "28px",
-                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>Criar Novo Módulo</h3>
-                  <form onSubmit={handleAddModule} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>NOME DO MÓDULO</label>
-                      <input
-                        type="text"
-                        className="input-dark"
-                        placeholder="Ex: Módulo 1 - Conceitos Fundamentais"
-                        value={newModuleName}
-                        onChange={(e) => setNewModuleName(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ flex: 1 }}
-                        onClick={() => setShowAddModuleModal(false)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ flex: 1 }}
-                        disabled={submitting}
-                      >
-                        {submitting ? "Criando..." : "Criar Módulo"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* Modal/Overlay to Add Lesson to specific Module */}
-            {activeAddLessonModuleId && (
-              <div 
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)",
-                  backdropFilter: "blur(5px)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-                onClick={() => setActiveAddLessonModuleId(null)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(145, 179, 225, 0.3)",
-                    borderRadius: "12px",
-                    width: "100%",
-                    maxWidth: "500px",
-                    padding: "28px",
-                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>
-                    Cadastrar Nova Aula
-                  </h3>
-                  <p style={{ color: "var(--color-outline)", fontSize: "12px", marginTop: "-12px", marginBottom: "20px" }}>
-                    Adicionando ao módulo: <strong style={{ color: "#ffffff" }}>{courses.find(c => c.id === selectedCourseId)?.modules?.find(m => m.id === activeAddLessonModuleId)?.title}</strong>
-                  </p>
-                  
-                  <form onSubmit={handleAddLesson} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DA AULA</label>
-                      <input
-                        type="text"
-                        className="input-dark"
-                        placeholder="Ex: 01 - Apresentação Geral"
-                        value={lessonTitle}
-                        onChange={(e) => setLessonTitle(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO</label>
-                      <textarea
-                        className="input-dark"
-                        style={{ minHeight: "80px", resize: "vertical" }}
-                        placeholder="Resumo do conteúdo da aula..."
-                        value={lessonDesc}
-                        onChange={(e) => setLessonDesc(e.target.value)}
-                      />
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DURAÇÃO (Ex: 15 MIN)</label>
-                        <input
-                          type="text"
-                          className="input-dark"
-                          placeholder="18 MIN"
-                          value={lessonDuration}
-                          onChange={(e) => setLessonDuration(e.target.value)}
-                        />
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (URL)</label>
-                        <input
-                          type="text"
-                          className="input-dark"
-                          placeholder="https://vimeo.com/..."
-                          value={lessonVideoUrl}
-                          onChange={(e) => setLessonVideoUrl(e.target.value)}
-                        />
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>MUX PLAYBACK ID</label>
-                        <input
-                          type="text"
-                          className="input-dark"
-                          placeholder="Ex: Tbg2cj48M5..."
-                          value={lessonMuxPlaybackId}
-                          onChange={(e) => setLessonMuxPlaybackId(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>INSTRUTOR</label>
-                      <select
-                        className="input-dark"
-                        value={lessonInstructorName}
-                        onChange={(e) => {
-                          setLessonInstructorName(e.target.value);
-                          if (e.target.value === "Eng. Magno Santos") {
-                            setLessonInstructorRole("CEO & Fundador CLS");
-                            setLessonInstructorAvatar("/magno.jpg");
-                          } else {
-                            setLessonInstructorRole("Sócia CLS / Especialista");
-                            setLessonInstructorAvatar("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200");
-                          }
-                        }}
-                      >
-                        <option value="Eng. Magno Santos" style={{ backgroundColor: "#131316" }}>Eng. Magno Santos</option>
-                        <option value="Arq. Mayara Costa" style={{ backgroundColor: "#131316" }}>Arq. Mayara Costa</option>
-                      </select>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ flex: 1 }}
-                        onClick={() => setActiveAddLessonModuleId(null)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ flex: 1 }}
-                        disabled={submitting}
-                      >
-                        {submitting ? "Salvando..." : "Salvar Aula"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
-            {/* Modal/Overlay to Edit Module */}
-            {editingModule && (
-              <div 
-                style={{
-                  position: "fixed",
-                  top: 0, left: 0, right: 0, bottom: 0,
-                  backgroundColor: "rgba(10, 10, 12, 0.8)",
-                  backdropFilter: "blur(5px)",
-                  zIndex: 1000,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
-                onClick={() => setEditingModule(null)}
-              >
-                <div 
-                  style={{
-                    backgroundColor: "rgba(20, 20, 25, 0.98)",
-                    border: "1px solid rgba(145, 179, 225, 0.3)",
-                    borderRadius: "12px",
-                    width: "100%",
-                    maxWidth: "500px",
-                    padding: "28px",
-                    boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)",
-                    maxHeight: "90vh",
-                    overflowY: "auto"
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3 className="font-title-lg" style={{ color: "var(--color-secondary)", marginBottom: "20px", marginTop: 0 }}>
-                    Configurar Módulo
-                  </h3>
-                  <form onSubmit={handleSaveModule} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>TÍTULO DO MÓDULO</label>
-                      <input
-                        type="text"
-                        className="input-dark"
-                        value={editingModule.title}
-                        onChange={(e) => setEditingModule({ ...editingModule, title: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                      <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DESCRIÇÃO</label>
-                      <textarea
-                        className="input-dark"
-                        style={{ minHeight: "80px", resize: "vertical" }}
-                        placeholder="Descrição ou resumo do módulo..."
-                        value={editingModule.description}
-                        onChange={(e) => setEditingModule({ ...editingModule, description: e.target.value })}
-                      />
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                        <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>STATUS</label>
-                        <select
-                          className="input-dark"
-                          value={editingModule.status}
-                          onChange={(e) => setEditingModule({ ...editingModule, status: e.target.value as any })}
-                        >
-                          <option value="publicado" style={{ backgroundColor: "#131316" }}>Publicado</option>
-                          <option value="rascunho" style={{ backgroundColor: "#131316" }}>Rascunho</option>
-                          <option value="agendado" style={{ backgroundColor: "#131316" }}>Agendado</option>
-                        </select>
-                      </div>
-
-                      {editingModule.status === "agendado" && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                          <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>AGENDAR LANÇAMENTO</label>
-                          <DateTimePicker
-                            value={editingModule.scheduled_at || ""}
-                            onChange={(val) => setEditingModule({ ...editingModule, scheduled_at: val })}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-
-
-                    <div style={{ display: "flex", gap: "12px", marginTop: "12px" }}>
-                      <button 
-                        type="button" 
-                        className="btn-secondary" 
-                        style={{ flex: 1 }}
-                        onClick={() => setEditingModule(null)}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        type="submit" 
-                        className="btn-primary" 
-                        style={{ flex: 1 }}
-                        disabled={submitting || uploadingCover}
-                      >
-                        {submitting ? "Salvando..." : "Salvar Alterações"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-
 
           </div>
         )}
