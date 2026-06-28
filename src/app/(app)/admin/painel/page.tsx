@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { SkeletonDashboard } from "@/components/SkeletonLoading";
 import MemberBadge from "@/components/MemberBadge";
@@ -1195,6 +1196,33 @@ export default function AdminPage() {
             <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>person_add</span>
             CADASTRAR USUÁRIO
           </button>
+        )}
+
+        {/* Ecossistema Admin link (Admin Only) */}
+        {(memberType === "admin" || memberType === null) && (
+          <Link
+            href="/admin/ecossistema"
+            className="font-label-caps"
+            style={{
+              background: "transparent",
+              border: "none",
+              borderBottom: "2px solid transparent",
+              color: "var(--color-on-surface-variant)",
+              paddingBottom: "12px",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "11px",
+              letterSpacing: "0.1em",
+              transition: "all 0.2s ease",
+              whiteSpace: "nowrap",
+              textDecoration: "none"
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>layers</span>
+            ECOSSISTEMA
+          </Link>
         )}
       </div>
 

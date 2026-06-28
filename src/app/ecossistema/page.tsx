@@ -53,7 +53,7 @@ interface Episode {
 }
 
 // Mock Data
-const featuredBanners: Banner[] = [
+const featuredMockBanners: Banner[] = [
   {
     id: "club-pro",
     title: "CLUB CLS PRO",
@@ -257,6 +257,7 @@ export default function EcossistemaPage() {
   const [loading, setLoading] = useState(true);
   const [isMember, setIsMember] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [productFilter, setProductFilter] = useState("Todos");
   const [studioName, setStudioName] = useState("");
   const [studioEmail, setStudioEmail] = useState("");
@@ -267,7 +268,7 @@ export default function EcossistemaPage() {
   const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const [adStatus, setAdStatus] = useState<string | null>(null);
 
-  // Load state and authenticate user
+  // Load state, authenticate user and fetch banners
   useEffect(() => {
     async function initPage() {
       try {
@@ -284,8 +285,32 @@ export default function EcossistemaPage() {
             setIsMember(true);
           }
         }
+
+        // Fetch banners
+        const { data: bannersData } = await supabase
+          .from("ecosystem_banners")
+          .select("*")
+          .eq("disabled", false)
+          .order("sequence_order", { ascending: true });
+
+        if (bannersData && bannersData.length > 0) {
+          setBanners(bannersData.map((b: any) => ({
+            id: b.id,
+            title: b.title,
+            subtitle: b.subtitle || "",
+            description: b.description || "",
+            tag: b.tag || "",
+            image: b.image,
+            ctaText: b.cta_text,
+            ctaLink: b.cta_link,
+            disabled: b.disabled || false
+          })));
+        } else {
+          setBanners(featuredMockBanners);
+        }
       } catch (err) {
-        console.error("Auth verify failed", err);
+        console.error("Auth verify or banners fetch failed", err);
+        setBanners(featuredMockBanners);
       } finally {
         setLoading(false);
       }
@@ -295,11 +320,12 @@ export default function EcossistemaPage() {
 
   // Auto Slider transition every 6s
   useEffect(() => {
+    if (banners.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % featuredBanners.length);
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]);
 
   const handleCtaClick = (link: string) => {
     if (link.startsWith("http")) {
@@ -529,7 +555,7 @@ export default function EcossistemaPage() {
             
             {/* Left Large Slide Banner */}
             <div className="main-slider-card">
-              {featuredBanners.map((banner, i) => (
+              {banners.map((banner, i) => (
                 <div
                   key={banner.id}
                   className="slider-bg-img"
@@ -543,7 +569,7 @@ export default function EcossistemaPage() {
               ))}
               <div className="slider-overlay" style={{ zIndex: currentSlide !== -1 ? 2 : 0 }} />
               <div className="slider-content">
-                {featuredBanners[currentSlide].tag && (
+                {banners[currentSlide]?.tag && (
                   <span style={{
                     alignSelf: "flex-start",
                     backgroundColor: "var(--color-secondary)",
@@ -555,51 +581,53 @@ export default function EcossistemaPage() {
                     marginBottom: "16px",
                     letterSpacing: "0.06em"
                   }} className="font-label-caps">
-                    {featuredBanners[currentSlide].tag}
+                    {banners[currentSlide]?.tag}
                   </span>
                 )}
-                {featuredBanners[currentSlide].subtitle && (
+                {banners[currentSlide]?.subtitle && (
                   <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 700 }} className="font-label-caps">
-                    {featuredBanners[currentSlide].subtitle}
+                    {banners[currentSlide]?.subtitle}
                   </span>
                 )}
-                {featuredBanners[currentSlide].title && (
+                {banners[currentSlide]?.title && (
                   <h2 className="font-display" style={{ fontSize: "32px", color: "#ffffff", fontWeight: 800, margin: "6px 0 12px 0", lineHeight: "1.1" }}>
-                    {featuredBanners[currentSlide].title}
+                    {banners[currentSlide]?.title}
                   </h2>
                 )}
-                {featuredBanners[currentSlide].description && (
+                {banners[currentSlide]?.description && (
                   <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: "1.5", marginBottom: "24px" }}>
-                    {featuredBanners[currentSlide].description}
+                    {banners[currentSlide]?.description}
                   </p>
                 )}
                 <div>
-                  <button
-                    onClick={() => !featuredBanners[currentSlide].disabled && handleCtaClick(featuredBanners[currentSlide].ctaLink)}
-                    className={featuredBanners[currentSlide].disabled ? "btn-outline" : "btn-primary"}
-                    style={{ 
-                      padding: "12px 24px", 
-                      fontSize: "11px",
-                      opacity: featuredBanners[currentSlide].disabled ? 0.6 : 1,
-                      cursor: featuredBanners[currentSlide].disabled ? "not-allowed" : "pointer",
-                      backgroundColor: featuredBanners[currentSlide].disabled ? "rgba(255,255,255,0.02)" : undefined,
-                      color: featuredBanners[currentSlide].disabled ? "var(--color-outline)" : undefined,
-                      borderColor: featuredBanners[currentSlide].disabled ? "var(--border-color)" : undefined
-                    }}
-                    disabled={featuredBanners[currentSlide].disabled}
-                  >
-                    {featuredBanners[currentSlide].ctaText}
-                    {!featuredBanners[currentSlide].disabled && (
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px", marginLeft: "8px" }}>arrow_forward</span>
-                    )}
-                  </button>
+                  {banners[currentSlide] && (
+                    <button
+                      onClick={() => !banners[currentSlide]?.disabled && handleCtaClick(banners[currentSlide]?.ctaLink)}
+                      className={banners[currentSlide]?.disabled ? "btn-outline" : "btn-primary"}
+                      style={{ 
+                        padding: "12px 24px", 
+                        fontSize: "11px",
+                        opacity: banners[currentSlide]?.disabled ? 0.6 : 1,
+                        cursor: banners[currentSlide]?.disabled ? "not-allowed" : "pointer",
+                        backgroundColor: banners[currentSlide]?.disabled ? "rgba(255,255,255,0.02)" : undefined,
+                        color: banners[currentSlide]?.disabled ? "var(--color-outline)" : undefined,
+                        borderColor: banners[currentSlide]?.disabled ? "var(--border-color)" : undefined
+                      }}
+                      disabled={banners[currentSlide]?.disabled}
+                    >
+                      {banners[currentSlide]?.ctaText}
+                      {!banners[currentSlide]?.disabled && (
+                        <span className="material-symbols-outlined" style={{ fontSize: "16px", marginLeft: "8px" }}>arrow_forward</span>
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Right Selector List Column */}
             <div className="store-hero-sidebar">
-              {featuredBanners.map((banner, i) => (
+              {banners.map((banner, i) => (
                 <div
                   key={banner.id}
                   onClick={() => setCurrentSlide(i)}
