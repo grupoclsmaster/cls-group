@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -34,6 +34,142 @@ export default function CreateLessonPage() {
   const [instructorName, setInstructorName] = useState("Eng. Magno Santos");
   const [instructorRole, setInstructorRole] = useState("CEO & Fundador CLS");
   const [instructorAvatar, setInstructorAvatar] = useState("/magno.jpg");
+
+  // Mux upload states
+  const [videoSource, setVideoSource] = useState<"manual" | "mux_upload">("manual");
+  const [muxUploadStatus, setMuxUploadStatus] = useState<"idle" | "requesting" | "uploading" | "processing" | "ready" | "error">("idle");
+  const [muxUploadProgress, setMuxUploadProgress] = useState(0);
+  const [muxUploadError, setMuxUploadError] = useState("");
+  const [generatingCover, setGeneratingCover] = useState(false);
+
+  // Auto-detect duration from Mux HLS stream when Playback ID changes
+  const durationDetectRef = useRef<HTMLVideoElement | null>(null);
+  useEffect(() => {
+    if (!muxPlaybackId.trim()) return;
+
+    // Clean up any previous attempt
+    if (durationDetectRef.current) {
+      durationDetectRef.current.src = "";
+      durationDetectRef.current = null;
+    }
+
+    const vid = document.createElement("video");
+    vid.preload = "metadata";
+    vid.crossOrigin = "anonymous";
+    vid.style.display = "none";
+    vid.src = `https://stream.mux.com/${muxPlaybackId.trim()}.m3u8`;
+    durationDetectRef.current = vid;
+
+    const onLoaded = () => {
+      const secs = vid.duration;
+      if (secs && isFinite(secs) && secs > 0) {
+        const totalMin = Math.floor(secs / 60);
+        const hours = Math.floor(totalMin / 60);
+        const mins = totalMin % 60;
+        if (hours > 0) {
+          setDuration(`${hours}H ${mins > 0 ? mins + " MIN" : ""}`.trim());
+        } else {
+          setDuration(`${totalMin} MIN`);
+        }
+      }
+      vid.remove();
+    };
+
+    vid.addEventListener("loadedmetadata", onLoaded);
+    document.body.appendChild(vid);
+
+    return () => {
+      vid.removeEventListener("loadedmetadata", onLoaded);
+      vid.src = "";
+      vid.remove();
+      durationDetectRef.current = null;
+    };
+  }, [muxPlaybackId]);
+
+  const handleMuxVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setMuxUploadStatus("requesting");
+    setMuxUploadError("");
+    setMuxUploadProgress(0);
+
+    try {
+      // 1. Get Direct Upload URL from Server API
+      const res = await fetch("/api/admin/mux/upload", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao obter URL de upload do Mux");
+
+      const { uploadUrl, uploadId } = data;
+
+      // 2. Upload video directly to Mux GCS URL using XHR to track progress
+      setMuxUploadStatus("uploading");
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", uploadUrl, true);
+      xhr.setRequestHeader("Content-Type", file.type);
+      
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          setMuxUploadProgress(percent);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          setMuxUploadStatus("processing");
+          startPollingMuxStatus(uploadId);
+        } else {
+          setMuxUploadStatus("error");
+          setMuxUploadError("Falha ao transferir o arquivo para o servidor do Mux.");
+        }
+      };
+
+      xhr.onerror = () => {
+        setMuxUploadStatus("error");
+        setMuxUploadError("Erro de rede durante o upload.");
+      };
+
+      xhr.send(file);
+    } catch (err: any) {
+      setMuxUploadStatus("error");
+      setMuxUploadError(err.message || "Erro inesperado ao iniciar upload.");
+    }
+  };
+
+  const startPollingMuxStatus = (uploadId: string) => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/admin/mux/status?uploadId=${uploadId}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+          clearInterval(interval);
+          setMuxUploadStatus("error");
+          setMuxUploadError(data.error || "Erro ao consultar processamento do Mux.");
+          return;
+        }
+
+        if (data.status === "completed") {
+          clearInterval(interval);
+          setMuxPlaybackId(data.playbackId);
+          setVideoUrl(""); // Clear manual url since we are using Mux playback
+          setMuxUploadStatus("ready");
+          showStatus("success", "Vídeo importado e pronto para reprodução!");
+        } else if (data.status === "error") {
+          clearInterval(interval);
+          setMuxUploadStatus("error");
+          setMuxUploadError(data.error || "Mux falhou ao processar o vídeo.");
+        }
+      } catch (err: any) {
+        console.error("Erro no polling do Mux:", err);
+      }
+    }, 3000);
+  };
+
 
   const showStatus = (type: "success" | "error", text: string) => {
     setStatusMsg({ type, text });
@@ -104,6 +240,22 @@ export default function CreateLessonPage() {
       const randomSuffix = Math.floor(1000 + Math.random() * 9000);
       const slug = `${baseSlug}-${randomSuffix}`;
 
+      // Fetch the current highest sequence_order for lessons in this module
+      const { data: lastLessons } = await supabase
+        .from("lessons")
+        .select("sequence_order")
+        .eq("module_id", moduleId)
+        .order("sequence_order", { ascending: false })
+        .limit(1);
+
+      let nextOrder = 1;
+      if (lastLessons && lastLessons.length > 0) {
+        const lastOrder = lastLessons[0].sequence_order;
+        if (lastOrder !== null && lastOrder !== undefined) {
+          nextOrder = lastOrder + 1;
+        }
+      }
+
       const { error } = await supabase.from("lessons").insert([{
         module_id: moduleId,
         title,
@@ -117,7 +269,8 @@ export default function CreateLessonPage() {
         status,
         scheduled_at: status === "agendado" ? new Date(scheduledAt).toISOString() : null,
         cover_image_url: coverImageUrl,
-        slug
+        slug,
+        sequence_order: nextOrder
       }]);
 
       if (error) throw error;
@@ -163,6 +316,36 @@ export default function CreateLessonPage() {
       showStatus("error", err.message || "Erro ao enviar imagem.");
     } finally {
       setUploadingCover(false);
+    }
+  };
+
+  const handleGenerateAICover = async () => {
+    if (!title.trim()) {
+      showStatus("error", "Por favor, insira o título da aula para gerar a capa correspondente.");
+      return;
+    }
+
+    setGeneratingCover(true);
+    showStatus("success", "Gerando capa por Inteligência Artificial...");
+
+    try {
+      const res = await fetch("/api/admin/generate-thumbnail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao gerar capa com IA");
+
+      setCoverImageUrl(data.url);
+      showStatus("success", "Imagem de capa gerada com sucesso pela IA!");
+    } catch (err: any) {
+      showStatus("error", err.message || "Erro inesperado ao gerar a capa.");
+    } finally {
+      setGeneratingCover(false);
     }
   };
 
@@ -246,46 +429,131 @@ export default function CreateLessonPage() {
             />
           </div>
 
-          {/* Video & Playback details */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>DURAÇÃO (EX: 15 MIN)</label>
-              <input
-                type="text"
-                className="input-dark"
-                placeholder="15 MIN"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              />
-            </div>
-            
-            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-              <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>LINK DO VÍDEO (URL)</label>
-              <input
-                type="text"
-                className="input-dark"
-                placeholder="https://vimeo.com/..."
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-              />
+          {/* Mux Video Upload Area */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+            <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>VÍDEO DA AULA (UPLOAD DIRETO PARA O MUX)</label>
+            <div 
+              style={{ 
+                border: "1px dashed rgba(145, 179, 225, 0.3)", 
+                borderRadius: "6px", 
+                padding: "32px", 
+                textAlign: "center",
+                backgroundColor: "rgba(0, 0, 0, 0.2)",
+                position: "relative"
+              }}
+            >
+              {muxUploadStatus === "idle" && (
+                <>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleMuxVideoSelect}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      opacity: 0,
+                      cursor: "pointer",
+                      zIndex: 10
+                    }}
+                  />
+                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-gold, #b89047)", marginBottom: "8px" }}>
+                    movie
+                  </span>
+                  <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                    Arraste ou clique para enviar um vídeo diretamente para o Mux
+                  </p>
+                  <p style={{ color: "var(--color-outline)", margin: "4px 0 0 0", fontSize: "12px" }}>
+                    Formatos suportados: .mp4, .mov, .avi, etc.
+                  </p>
+                </>
+              )}
+
+              {(muxUploadStatus === "requesting" || muxUploadStatus === "uploading" || muxUploadStatus === "processing") && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                  <div style={{
+                    border: "3px solid rgba(255,255,255,0.1)",
+                    borderTop: "3px solid var(--color-gold, #b89047)",
+                    borderRadius: "50%",
+                    width: "24px",
+                    height: "24px",
+                    animation: "spin 1s linear infinite"
+                  }}></div>
+                  
+                  <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                    {muxUploadStatus === "requesting" && "Solicitando permissão de upload..."}
+                    {muxUploadStatus === "uploading" && `Enviando vídeo para o Mux: ${muxUploadProgress}%`}
+                    {muxUploadStatus === "processing" && "Mux processando o vídeo... (isso pode levar alguns minutos)"}
+                  </p>
+
+                  {muxUploadStatus === "uploading" && (
+                    <div style={{ width: "100%", maxWidth: "300px", height: "6px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                      <div style={{ width: `${muxUploadProgress}%`, height: "100%", backgroundColor: "var(--color-gold, #b89047)", transition: "width 0.2s ease-out" }}></div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {muxUploadStatus === "ready" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-success, #4CAF50)", marginBottom: "4px" }}>
+                    check_circle
+                  </span>
+                  <p style={{ color: "#81C784", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                    Vídeo enviado e processado com sucesso!
+                  </p>
+                  <p style={{ color: "var(--color-on-surface-variant)", margin: 0, fontSize: "12px" }}>
+                    Playback ID: <strong style={{ color: "#ffffff" }}>{muxPlaybackId}</strong>
+                  </p>
+                  {duration && (
+                    <p style={{ color: "var(--color-on-surface-variant)", margin: 0, fontSize: "12px" }}>
+                      Duração detectada: <strong style={{ color: "#ffffff" }}>{duration}</strong>
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ marginTop: "12px", padding: "6px 16px", fontSize: "12px" }}
+                    onClick={() => {
+                      setMuxUploadStatus("idle");
+                      setMuxPlaybackId("");
+                      setMuxUploadProgress(0);
+                    }}
+                  >
+                    Enviar outro vídeo
+                  </button>
+                </div>
+              )}
+
+              {muxUploadStatus === "error" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-error, #F44336)", marginBottom: "4px" }}>
+                    error
+                  </span>
+                  <p style={{ color: "#E57373", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                    Erro no envio do vídeo
+                  </p>
+                  <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "12px" }}>
+                    {muxUploadError}
+                  </p>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{ marginTop: "12px", padding: "6px 16px", fontSize: "12px" }}
+                    onClick={() => {
+                      setMuxUploadStatus("idle");
+                      setMuxUploadProgress(0);
+                    }}
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Mux Playback ID */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "20px", background: "rgba(145,179,225,0.06)", borderRadius: "8px", border: "1px solid rgba(145,179,225,0.2)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--color-secondary)" }}>play_circle</span>
-              <label style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 700, letterSpacing: "0.05em" }}>MUX PLAYBACK ID</label>
-            </div>
-            <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", margin: "0 0 10px 0" }}>Cole aqui o Playback ID do vídeo no Mux se desejar usar o player nativo do Mux.</p>
-            <input
-              type="text"
-              className="input-dark"
-              placeholder="Ex: Tbg2cj48M5K4saYVe101i02YQv02V2UCy..."
-              value={muxPlaybackId}
-              onChange={(e) => setMuxPlaybackId(e.target.value)}
-            />
-          </div>
 
           {/* Instructor & Status */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
@@ -375,6 +643,46 @@ export default function CreateLessonPage() {
                 {uploadingCover ? "Enviando arquivo..." : "Arraste ou clique para subir a imagem de capa"}
               </p>
             </div>
+            
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{
+                marginTop: "12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px 20px",
+                border: "1px solid var(--color-gold, #b89047)",
+                color: "var(--color-gold, #b89047)",
+                width: "100%",
+                cursor: "pointer",
+                fontWeight: 600,
+                transition: "all 0.2s"
+              }}
+              onClick={handleGenerateAICover}
+              disabled={generatingCover || uploadingCover}
+            >
+              {generatingCover ? (
+                <>
+                  <div style={{
+                    border: "2px solid rgba(255,255,255,0.1)",
+                    borderTop: "2px solid var(--color-gold, #b89047)",
+                    borderRadius: "50%",
+                    width: "16px",
+                    height: "16px",
+                    animation: "spin 1s linear infinite"
+                  }}></div>
+                  <span>Gerando Capa com IA...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>auto_awesome</span>
+                  <span>Gerar Capa com IA (Baseado no título)</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Action buttons */}

@@ -221,6 +221,36 @@ body {
 .btn-primary:hover { background-color: var(--color-secondary-fixed-dim); box-shadow: 0 0 20px rgba(145, 179, 225, 0.2); }
 .btn-primary:active { transform: scale(0.98); }
 
+.btn-secondary {
+  background-color: var(--color-surface-container-high, #2a292d);
+  color: var(--color-on-surface, #e5e1e6);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 14px 24px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s, box-shadow 0.3s, transform 0.1s, border-color 0.2s;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-bright, #39393c);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-outline {
   background: transparent;
   color: var(--color-secondary);
