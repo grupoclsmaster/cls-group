@@ -41,7 +41,6 @@ export default function EditLessonPage() {
   const [muxUploadStatus, setMuxUploadStatus] = useState<"idle" | "requesting" | "uploading" | "processing" | "ready" | "error">("idle");
   const [muxUploadProgress, setMuxUploadProgress] = useState(0);
   const [muxUploadError, setMuxUploadError] = useState("");
-  const [generatingCover, setGeneratingCover] = useState(false);
 
   const handleMuxVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -309,36 +308,6 @@ export default function EditLessonPage() {
       showStatus("error", err.message || "Erro ao enviar imagem.");
     } finally {
       setUploadingCover(false);
-    }
-  };
-
-  const handleGenerateAICover = async () => {
-    if (!title.trim()) {
-      showStatus("error", "Por favor, insira o título da aula para gerar a capa correspondente.");
-      return;
-    }
-
-    setGeneratingCover(true);
-    showStatus("success", "Gerando capa por Inteligência Artificial...");
-
-    try {
-      const res = await fetch("/api/admin/generate-thumbnail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Erro ao gerar capa com IA");
-
-      setCoverImageUrl(data.url);
-      showStatus("success", "Imagem de capa gerada com sucesso pela IA!");
-    } catch (err: any) {
-      showStatus("error", err.message || "Erro inesperado ao gerar a capa.");
-    } finally {
-      setGeneratingCover(false);
     }
   };
 
@@ -690,46 +659,6 @@ export default function EditLessonPage() {
                 {uploadingCover ? "Enviando arquivo..." : "Arraste ou clique para subir a imagem de capa"}
               </p>
             </div>
-            
-            <button
-              type="button"
-              className="btn-secondary"
-              style={{
-                marginTop: "12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                padding: "10px 20px",
-                border: "1px solid var(--color-gold, #b89047)",
-                color: "var(--color-gold, #b89047)",
-                width: "100%",
-                cursor: "pointer",
-                fontWeight: 600,
-                transition: "all 0.2s"
-              }}
-              onClick={handleGenerateAICover}
-              disabled={generatingCover || uploadingCover}
-            >
-              {generatingCover ? (
-                <>
-                  <div style={{
-                    border: "2px solid rgba(255,255,255,0.1)",
-                    borderTop: "2px solid var(--color-gold, #b89047)",
-                    borderRadius: "50%",
-                    width: "16px",
-                    height: "16px",
-                    animation: "spin 1s linear infinite"
-                  }}></div>
-                  <span>Gerando Capa com IA...</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>auto_awesome</span>
-                  <span>Gerar Capa com IA (Baseado no título)</span>
-                </>
-              )}
-            </button>
           </div>
 
           {/* Attached Resources */}

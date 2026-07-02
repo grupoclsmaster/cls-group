@@ -102,8 +102,8 @@ export default function CalendarioPage() {
   const [eventType, setEventType] = useState<"mentoria" | "atualizacao">("mentoria");
   const [eventMentorName, setEventMentorName] = useState("Eng. Magno Santos");
   const [eventTopic, setEventTopic] = useState("");
-  const [eventZoomLink, setEventZoomLink] = useState("https://zoom.us/j/magno-santos-pe");
-  const [eventLinkType, setEventLinkType] = useState<"zoom" | "meet" | "other">("zoom");
+  const [eventZoomLink, setEventZoomLink] = useState("https://teams.microsoft.com/");
+  const [eventLinkType, setEventLinkType] = useState<"teams" | "presencial" | "zoom" | "meet" | "other">("teams");
   const [pendingEventToSync, setPendingEventToSync] = useState<EventFormData | null>(null);
 
   // Bulk Import CSV states
@@ -557,8 +557,8 @@ export default function CalendarioPage() {
     setSelectedDay(day);
     setEventTitle("");
     setEventTopic("");
-    setEventZoomLink("https://zoom.us/j/magno-santos-pe");
-    setEventLinkType("zoom");
+    setEventZoomLink("https://teams.microsoft.com/");
+    setEventLinkType("teams");
     setEventStartTime("14:00");
     setEventEndTime("15:30");
     setEventType("mentoria");
@@ -1008,21 +1008,43 @@ export default function CalendarioPage() {
         {/* Action buttons (Zoom/Meet Link & Delete) */}
         <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
           {(() => {
-            const lower = (selectedEvent.zoomLink || "").toLowerCase();
+            const linkStr = selectedEvent.zoomLink || "";
+            const lower = linkStr.toLowerCase();
+            const isTeams = lower.includes("teams.microsoft.com") || lower.includes("teams.live.com");
             const isZoom = lower.includes("zoom.us");
             const isMeet = lower.includes("meet.google.com");
+            const isOnline = lower.startsWith("http://") || lower.startsWith("https://");
+
+            if (!isOnline && linkStr.trim().length > 0) {
+              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(linkStr)}`;
+              return (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                  style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
+                    pin_drop
+                  </span>
+                  <span>VER LOCALIZAÇÃO NO MAPA</span>
+                </a>
+              );
+            }
+
             return (
               <a
-                href={selectedEvent.zoomLink}
+                href={linkStr}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary"
                 style={{ textDecoration: "none", width: "100%", fontSize: "10px", padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>
-                  {isZoom ? "videocam" : isMeet ? "groups" : "link"}
+                  {isTeams ? "groups" : isZoom ? "videocam" : isMeet ? "groups" : "link"}
                 </span>
-                {isZoom ? "ENTRAR NO ZOOM" : isMeet ? "ENTRAR NO GOOGLE MEET" : "ACESSAR REUNIÃO"}
+                {isTeams ? "ENTRAR NO TEAMS" : isZoom ? "ENTRAR NO ZOOM" : isMeet ? "ENTRAR NO GOOGLE MEET" : "ACESSAR REUNIÃO"}
               </a>
             );
           })()}
@@ -1492,15 +1514,17 @@ export default function CalendarioPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1.2fr 2fr", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Plataforma</label>
+                <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">Plataforma / Local</label>
                 <div style={{ position: "relative" }}>
                   <select
                     className="input-dark"
                     value={eventLinkType}
                     onChange={(e) => {
-                      const platform = e.target.value as "zoom" | "meet" | "other";
+                      const platform = e.target.value as "teams" | "presencial" | "zoom" | "meet" | "other";
                       setEventLinkType(platform);
-                      if (platform === "zoom") {
+                      if (platform === "teams") {
+                        setEventZoomLink("https://teams.microsoft.com/");
+                      } else if (platform === "zoom") {
                         setEventZoomLink("https://zoom.us/j/magno-santos-pe");
                       } else if (platform === "meet") {
                         setEventZoomLink("https://meet.google.com/abc-defg-hij");
@@ -1510,6 +1534,8 @@ export default function CalendarioPage() {
                     }}
                     style={{ appearance: "none", cursor: "pointer", width: "100%", paddingRight: "30px" }}
                   >
+                    <option value="teams" style={{ backgroundColor: "#131316" }}>Microsoft Teams</option>
+                    <option value="presencial" style={{ backgroundColor: "#131316" }}>Encontro Presencial</option>
                     <option value="zoom" style={{ backgroundColor: "#131316" }}>Zoom</option>
                     <option value="meet" style={{ backgroundColor: "#131316" }}>Google Meet</option>
                     <option value="other" style={{ backgroundColor: "#131316" }}>Outro</option>
@@ -1522,15 +1548,33 @@ export default function CalendarioPage() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }} className="font-label-caps">
-                  {eventLinkType === "zoom" ? "Link do Zoom" : eventLinkType === "meet" ? "Link do Google Meet" : "Link da Reunião"}
+                  {eventLinkType === "teams"
+                    ? "Link do Microsoft Teams"
+                    : eventLinkType === "zoom"
+                    ? "Link do Zoom"
+                    : eventLinkType === "meet"
+                    ? "Link do Google Meet"
+                    : eventLinkType === "presencial"
+                    ? "Endereço do Local"
+                    : "Link da Reunião"}
                 </label>
                 <input
-                  type="url"
+                  type={eventLinkType === "presencial" ? "text" : "url"}
                   required
                   className="input-dark"
                   value={eventZoomLink}
                   onChange={(e) => setEventZoomLink(e.target.value)}
-                  placeholder={eventLinkType === "zoom" ? "https://zoom.us/j/..." : eventLinkType === "meet" ? "https://meet.google.com/..." : "https://..."}
+                  placeholder={
+                    eventLinkType === "teams"
+                      ? "https://teams.microsoft.com/..."
+                      : eventLinkType === "zoom"
+                      ? "https://zoom.us/j/..."
+                      : eventLinkType === "meet"
+                      ? "https://meet.google.com/..."
+                      : eventLinkType === "presencial"
+                      ? "Ex: Av. Paulista, 1000 - São Paulo, SP"
+                      : "https://..."
+                  }
                 />
               </div>
             </div>
