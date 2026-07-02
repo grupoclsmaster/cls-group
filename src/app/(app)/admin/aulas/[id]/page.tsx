@@ -37,7 +37,7 @@ export default function EditLessonPage() {
   const [muxPlaybackId, setMuxPlaybackId] = useState("");
 
   // Mux upload states
-  const [videoSource, setVideoSource] = useState<"manual" | "mux_upload">("manual");
+  const [videoSource, setVideoSource] = useState<"mux_upload" | "manual">("mux_upload");
   const [muxUploadStatus, setMuxUploadStatus] = useState<"idle" | "requesting" | "uploading" | "processing" | "ready" | "error">("idle");
   const [muxUploadProgress, setMuxUploadProgress] = useState(0);
   const [muxUploadError, setMuxUploadError] = useState("");
@@ -435,129 +435,212 @@ export default function EditLessonPage() {
             />
           </div>
 
-          {/* Mux Video Upload Area */}
+          {/* Mux Video Selection / Upload Area */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-            <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>VÍDEO DA AULA (UPLOAD DIRETO PARA O MUX)</label>
-            <div 
-              style={{ 
-                border: "1px dashed rgba(145, 179, 225, 0.3)", 
-                borderRadius: "6px", 
-                padding: "32px", 
-                textAlign: "center",
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                position: "relative"
-              }}
-            >
-              {muxUploadStatus === "idle" && (
-                <>
-                  <input
-                    type="file"
-                    accept="video/*"
-                    onChange={handleMuxVideoSelect}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      height: "100%",
-                      opacity: 0,
-                      cursor: "pointer",
-                      zIndex: 10
-                    }}
-                  />
-                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-gold, #b89047)", marginBottom: "8px" }}>
-                    movie
+            <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>VÍDEO DA AULA</label>
+            
+            {muxPlaybackId ? (
+              <div 
+                style={{ 
+                  border: "1px solid rgba(212, 175, 55, 0.25)", 
+                  borderRadius: "6px", 
+                  padding: "20px", 
+                  backgroundColor: "rgba(184, 144, 71, 0.03)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "16px"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: "32px", color: "var(--color-gold, #b89047)" }}>
+                    smart_display
                   </span>
-                  <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
-                    Arraste ou clique para enviar um vídeo diretamente para o Mux (irá substituir o vídeo atual)
-                  </p>
-                  <p style={{ color: "var(--color-outline)", margin: "4px 0 0 0", fontSize: "12px" }}>
-                    Formatos suportados: .mp4, .mov, .avi, etc.
-                  </p>
-                </>
-              )}
-
-              {(muxUploadStatus === "requesting" || muxUploadStatus === "uploading" || muxUploadStatus === "processing") && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
-                  <div style={{
-                    border: "3px solid rgba(255,255,255,0.1)",
-                    borderTop: "3px solid var(--color-gold, #b89047)",
-                    borderRadius: "50%",
-                    width: "24px",
-                    height: "24px",
-                    animation: "spin 1s linear infinite"
-                  }}></div>
-                  
-                  <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
-                    {muxUploadStatus === "requesting" && "Solicitando permissão de upload..."}
-                    {muxUploadStatus === "uploading" && `Enviando vídeo para o Mux: ${muxUploadProgress}%`}
-                    {muxUploadStatus === "processing" && "Mux processando o vídeo... (isso pode levar alguns minutos)"}
-                  </p>
-
-                  {muxUploadStatus === "uploading" && (
-                    <div style={{ width: "100%", maxWidth: "300px", height: "6px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
-                      <div style={{ width: `${muxUploadProgress}%`, height: "100%", backgroundColor: "var(--color-gold, #b89047)", transition: "width 0.2s ease-out" }}></div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {muxUploadStatus === "ready" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-success, #4CAF50)", marginBottom: "4px" }}>
-                    check_circle
-                  </span>
-                  <p style={{ color: "#81C784", margin: 0, fontSize: "14px", fontWeight: 600 }}>
-                    Vídeo enviado e processado com sucesso!
-                  </p>
-                  <p style={{ color: "var(--color-on-surface-variant)", margin: 0, fontSize: "12px" }}>
-                    Playback ID: <strong style={{ color: "#ffffff" }}>{muxPlaybackId}</strong>
-                  </p>
-                  {duration && (
-                    <p style={{ color: "var(--color-on-surface-variant)", margin: 0, fontSize: "12px" }}>
-                      Duração detectada: <strong style={{ color: "#ffffff" }}>{duration}</strong>
+                  <div>
+                    <p style={{ color: "#ffffff", margin: 0, fontSize: "13px", fontWeight: 600 }}>
+                      Vídeo Mux Ativo
                     </p>
-                  )}
+                    <p style={{ color: "var(--color-outline)", margin: "2px 0 0 0", fontSize: "11px" }}>
+                      Playback ID: <strong style={{ color: "var(--color-on-surface)" }}>{muxPlaybackId}</strong>
+                      {duration && ` • Duração: ${duration}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{
+                    padding: "8px 16px",
+                    fontSize: "11px",
+                    borderColor: "var(--color-error, #ffb4ab)",
+                    color: "var(--color-error, #ffb4ab)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px"
+                  }}
+                  onClick={() => {
+                    setMuxPlaybackId("");
+                    setVideoUrl("");
+                    setDuration("");
+                    setMuxUploadStatus("idle");
+                    setMuxUploadProgress(0);
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "14px" }}>delete</span>
+                  Substituir Vídeo
+                </button>
+              </div>
+            ) : (
+              <div>
+                {/* Mode Selector */}
+                <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
                   <button
                     type="button"
                     className="btn-secondary"
-                    style={{ marginTop: "12px", padding: "6px 16px", fontSize: "12px" }}
-                    onClick={() => {
-                      setMuxUploadStatus("idle");
-                      setMuxPlaybackId("");
-                      setMuxUploadProgress(0);
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      fontSize: "12px",
+                      border: videoSource === "mux_upload" ? "1px solid var(--color-gold, #b89047)" : "1px solid rgba(255,255,255,0.1)",
+                      color: videoSource === "mux_upload" ? "var(--color-gold, #b89047)" : "var(--color-outline)",
+                      backgroundColor: videoSource === "mux_upload" ? "rgba(184, 144, 71, 0.05)" : "transparent",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      borderRadius: "4px"
                     }}
+                    onClick={() => setVideoSource("mux_upload")}
                   >
-                    Enviar outro vídeo
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>cloud_upload</span>
+                    Fazer Upload de Vídeo
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    style={{
+                      flex: 1,
+                      padding: "10px 16px",
+                      fontSize: "12px",
+                      border: videoSource === "manual" ? "1px solid var(--color-gold, #b89047)" : "1px solid rgba(255,255,255,0.1)",
+                      color: videoSource === "manual" ? "var(--color-gold, #b89047)" : "var(--color-outline)",
+                      backgroundColor: videoSource === "manual" ? "rgba(184, 144, 71, 0.05)" : "transparent",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      borderRadius: "4px"
+                    }}
+                    onClick={() => setVideoSource("manual")}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>link</span>
+                    Vincular Mux Playback ID
                   </button>
                 </div>
-              )}
 
-              {muxUploadStatus === "error" && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-error, #F44336)", marginBottom: "4px" }}>
-                    error
-                  </span>
-                  <p style={{ color: "#E57373", margin: 0, fontSize: "14px", fontWeight: 600 }}>
-                    Erro no envio do vídeo
-                  </p>
-                  <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "12px" }}>
-                    {muxUploadError}
-                  </p>
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    style={{ marginTop: "12px", padding: "6px 16px", fontSize: "12px" }}
-                    onClick={() => {
-                      setMuxUploadStatus("idle");
-                      setMuxUploadProgress(0);
+                {videoSource === "mux_upload" ? (
+                  <div 
+                    style={{ 
+                      border: "1px dashed rgba(145, 179, 225, 0.3)", 
+                      borderRadius: "6px", 
+                      padding: "32px", 
+                      textAlign: "center",
+                      backgroundColor: "rgba(0, 0, 0, 0.2)",
+                      position: "relative"
                     }}
                   >
-                    Tentar novamente
-                  </button>
-                </div>
-              )}
-            </div>
+                    {muxUploadStatus === "idle" && (
+                      <>
+                        <input
+                          type="file"
+                          accept="video/*"
+                          onChange={handleMuxVideoSelect}
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            opacity: 0,
+                            cursor: "pointer",
+                            zIndex: 10
+                          }}
+                        />
+                        <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-gold, #b89047)", marginBottom: "8px" }}>
+                          movie
+                        </span>
+                        <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                          Arraste ou clique para enviar um vídeo diretamente para o Mux
+                        </p>
+                        <p style={{ color: "var(--color-outline)", margin: "4px 0 0 0", fontSize: "12px" }}>
+                          Formatos suportados: .mp4, .mov, .avi, etc.
+                        </p>
+                      </>
+                    )}
+
+                    {(muxUploadStatus === "requesting" || muxUploadStatus === "uploading" || muxUploadStatus === "processing") && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "center" }}>
+                        <div style={{
+                          border: "3px solid rgba(255,255,255,0.1)",
+                          borderTop: "3px solid var(--color-gold, #b89047)",
+                          borderRadius: "50%",
+                          width: "24px",
+                          height: "24px",
+                          animation: "spin 1s linear infinite"
+                        }}></div>
+                        
+                        <p style={{ color: "#ffffff", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                          {muxUploadStatus === "requesting" && "Solicitando permissão de upload..."}
+                          {muxUploadStatus === "uploading" && `Enviando vídeo para o Mux: ${muxUploadProgress}%`}
+                          {muxUploadStatus === "processing" && "Mux processando o vídeo... (isso pode levar alguns minutos)"}
+                        </p>
+
+                        {muxUploadStatus === "uploading" && (
+                          <div style={{ width: "100%", maxWidth: "300px", height: "6px", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                            <div style={{ width: `${muxUploadProgress}%`, height: "100%", backgroundColor: "var(--color-gold, #b89047)", transition: "width 0.2s ease-out" }}></div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {muxUploadStatus === "error" && (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "40px", color: "var(--color-error, #F44336)", marginBottom: "4px" }}>
+                          error
+                        </span>
+                        <p style={{ color: "#E57373", margin: 0, fontSize: "14px", fontWeight: 600 }}>
+                          Erro no envio do vídeo
+                        </p>
+                        <p style={{ color: "var(--color-outline)", margin: 0, fontSize: "12px" }}>
+                          {muxUploadError}
+                        </p>
+                        <button
+                          type="button"
+                          className="btn-secondary"
+                          style={{ marginTop: "12px", padding: "6px 16px", fontSize: "12px" }}
+                          onClick={() => {
+                            setMuxUploadStatus("idle");
+                            setMuxUploadProgress(0);
+                          }}
+                        >
+                          Tentar novamente
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "6px", padding: "16px", backgroundColor: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "6px" }}>
+                    <label style={{ fontSize: "11px", color: "var(--color-outline)", fontWeight: 600 }}>MUX PLAYBACK ID (MANUAL)</label>
+                    <input
+                      type="text"
+                      className="input-dark"
+                      placeholder="Cole o Playback ID do Mux (ex: e5Y5l0Hk44Mm6qyaqRi6Cvo95gs6c06b)"
+                      value={muxPlaybackId}
+                      onChange={(e) => setMuxPlaybackId(e.target.value)}
+                    />
+                    <p style={{ fontSize: "11px", color: "var(--color-outline)", margin: "4px 0 0 0" }}>
+                      A duração do vídeo será detectada automaticamente ao vincular o Playback ID válido do Mux.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Status & Schedule */}
