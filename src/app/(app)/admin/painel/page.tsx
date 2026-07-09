@@ -1846,7 +1846,9 @@ export default function AdminPage() {
                             }}>
                               {m.member_type === "admin" 
                                 ? (m.name.toLowerCase().includes("magno") ? "Mentor" : m.name.toLowerCase().includes("mayara") ? "Mentora" : "Admin") 
-                                : m.member_type}
+                                : m.member_type === "master"
+                                  ? "Mentor"
+                                  : "Mentorado"}
                             </span>
                           ) : (
                             <span style={{
@@ -2122,8 +2124,8 @@ export default function AdminPage() {
                   value={regMemberType}
                   onChange={(e) => setRegMemberType(e.target.value as any)}
                 >
-                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentor</option>
-                  <option value="master" style={{ backgroundColor: "#131316" }}>Master</option>
+                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentorado</option>
+                  <option value="master" style={{ backgroundColor: "#131316" }}>Mentor</option>
                 </select>
               </div>
 
@@ -2230,7 +2232,13 @@ export default function AdminPage() {
                         ? "#B388FF"
                         : "#C0C0C0"
                 }}>
-                  {viewingMember.member_type ? viewingMember.member_type.toUpperCase() : "MENTORADO"}
+                  {viewingMember.member_type 
+                    ? (viewingMember.member_type === "admin" 
+                        ? "ADMIN" 
+                        : viewingMember.member_type === "master" 
+                          ? "MENTOR" 
+                          : "MENTORADO") 
+                    : "MENTORADO"}
                 </span>
               </div>
               {(viewingMember as any).progress !== undefined && (
@@ -2319,8 +2327,8 @@ export default function AdminPage() {
                   onChange={(e) => setEditingMember({ ...editingMember, member_type: e.target.value as any })}
                   required
                 >
-                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentor</option>
-                  <option value="master" style={{ backgroundColor: "#131316" }}>Master</option>
+                  <option value="mentor" style={{ backgroundColor: "#131316" }}>Mentorado</option>
+                  <option value="master" style={{ backgroundColor: "#131316" }}>Mentor</option>
                   <option value="admin" style={{ backgroundColor: "#131316" }}>Admin</option>
                 </select>
               </div>

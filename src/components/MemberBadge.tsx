@@ -14,15 +14,15 @@ interface MemberBadgeProps {
 
 const MEMBER_CONFIG = {
   master: {
-    color: '#C0C0C0',
-    label: 'Master',
+    color: '#EDC066',
+    label: 'Mentor',
     icon: '★',
-    gradient: 'linear-gradient(135deg, #C0C0C0, #EAEAEA, #9E9E9E, #CCCCCC)',
-    shadow: 'rgba(192, 192, 192, 0.45)',
+    gradient: 'linear-gradient(135deg, #EDC066, #FCE8B2, #EDC066)',
+    shadow: 'rgba(237, 192, 102, 0.45)',
   },
   mentor: {
-    color: '#7C4DFF',
-    label: 'Mentor',
+    color: '#B388FF',
+    label: 'Mentorado',
     icon: '🎓',
     gradient: 'linear-gradient(135deg, #7C4DFF, #B388FF, #651FFF)',
     shadow: 'rgba(124, 77, 255, 0.45)',
@@ -35,11 +35,11 @@ const MEMBER_CONFIG = {
     shadow: 'rgba(145, 179, 225, 0.45)',
   },
   mentorado: {
-    color: '#C0C0C0',
+    color: '#B388FF',
     label: 'Mentorado',
-    icon: '✓',
-    gradient: 'linear-gradient(135deg, #C0C0C0, #EAEAEA, #9E9E9E, #CCCCCC)',
-    shadow: 'rgba(192, 192, 192, 0.45)',
+    icon: '🎓',
+    gradient: 'linear-gradient(135deg, #7C4DFF, #B388FF, #651FFF)',
+    shadow: 'rgba(124, 77, 255, 0.45)',
   },
 } as const;
 
@@ -159,7 +159,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
   const badgeIconStyle: React.CSSProperties = {
     fontSize: badgeFontSize,
     lineHeight: 1,
-    color: resolvedType === 'mentor' ? '#fff' : '#111118',
+    color: resolvedType === 'mentor' || resolvedType === 'mentorado' ? '#fff' : '#111118',
     fontWeight: 900,
     display: 'flex',
     alignItems: 'center',

@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -47,23 +47,59 @@ export async function proxy(request: NextRequest) {
     "/oportunidades",
     "/projetos",
     "/recursos",
-    "/calendario"
+    "/calendario",
+    "/admin"
   ];
 
+  const pathname = request.nextUrl.pathname;
+
   const requiresAuth = protectedRoutes.some(route => 
-    request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/")
+    pathname === route || pathname.startsWith(route + "/")
   );
 
-  const isAuthPage = request.nextUrl.pathname === "/login" || request.nextUrl.pathname.startsWith("/login/") ||
-                     request.nextUrl.pathname === "/cadastro" || request.nextUrl.pathname.startsWith("/cadastro/");
+  const isAuthPage = pathname === "/login" || pathname.startsWith("/login/") ||
+                     pathname === "/cadastro" || pathname.startsWith("/cadastro/");
 
-  if (!user && requiresAuth) {
+  // 1. Authentication Check
+  if (!user) {
+    if (requiresAuth) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
+
+  // User is authenticated, check their status and role
+  const { data: member } = await supabase
+    .from("members")
+    .select("status, member_type")
+    .eq("id", user.id)
+    .single();
+
+  // 2. Active status check
+  if (member && member.status !== "Ativo") {
+    if (pathname !== "/sem-permissao") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/sem-permissao";
+      return NextResponse.redirect(url);
+    }
+    return supabaseResponse;
+  }
+
+  // 3. Admin-Only Route Check
+  const isAdminRoute = pathname.startsWith("/admin") || 
+                       pathname.startsWith("/oportunidades") || 
+                       pathname.startsWith("/projetos");
+
+  if (isAdminRoute && (!member || member.member_type !== "admin")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/sem-permissao";
     return NextResponse.redirect(url);
   }
 
-  if (user && isAuthPage) {
+  // 4. Redirect logged-in users away from auth pages
+  if (isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
@@ -79,8 +115,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - api (skip api routes to prevent middleware intercepting api calls or causing db query amplification on assets)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|api|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
