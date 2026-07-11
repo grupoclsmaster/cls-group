@@ -48,60 +48,12 @@ interface Post {
   created_at: string;
 }
 
-// Fallback initial posts
-const fallbackPosts: Post[] = [
-  {
-    id: "f-post-1",
-    user_id: null,
-    author_name: "Arq. Mayara Costa",
-    author_role: "Mentor Sênior",
-    author_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-    content: "Olá pessoal! Acabei de disponibilizar o novo modelo de Dossiê de Apresentação Executiva para captação de recursos com investidores na área de Recursos. Esse material tem sido fundamental para os roadshows de incorporação residencial de luxo. Deixem suas dúvidas aqui nos comentários!",
-    image_url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=800",
-    likes_count: 8,
-    liked_by_users: [],
-    saved_by_users: [],
-    comments: [
-      {
-        id: "c1",
-        author_name: "Gustavo Rocha",
-        author_avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=200",
-        author_role: "Sócio Sênior",
-        content: "Excelente Mayara! Já baixei e vamos aplicar no nosso próximo empreendimento em Curitiba. O layout ficou fantástico.",
-        created_at: new Date(Date.now() - 3600000 * 2).toISOString()
-      }
-    ],
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-  },
-  {
-    id: "f-post-2",
-    user_id: null,
-    author_name: "Eng. Magno Santos",
-    author_role: "Mentor Sênior",
-    author_avatar: "/magno.jpg",
-    content: "Finalizamos hoje a concretagem da laje de transição no Residencial Horizon. Utilizarmos um concreto autoadensável de 50 MPa para vencer os grandes vãos sem comprometer a estética arquitetônica do pilotis. Próxima semana faremos a visita técnica presencial com o grupo!",
-    image_url: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&q=80&w=800",
-    likes_count: 12,
-    liked_by_users: [],
-    saved_by_users: [],
-    comments: [
-      {
-        id: "c2",
-        author_name: "Camila T.",
-        author_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200",
-        author_role: "Sócia Plena",
-        content: "Sensacional Magno! A logística para bombear esse volume de concreto em condomínio residencial sempre é um desafio. Parabéns pelo controle de qualidade.",
-        created_at: new Date(Date.now() - 3600000 * 3).toISOString()
-      }
-    ],
-    created_at: new Date(Date.now() - 3600000 * 8).toISOString()
-  }
-];
+// No fallback posts used
 
 export default function FeedComunidadePage() {
   // createClient() is SSR-safe: returns null on server, real client on browser
   const supabase = createClient();
-  
+
   const [members, setMembers] = useState<Member[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -251,12 +203,12 @@ export default function FeedComunidadePage() {
           });
           setPosts(validPosts);
         } else {
-          setPosts(fallbackPosts);
+          setPosts([]);
         }
 
       } catch (err) {
         console.error("Erro ao carregar dados do feed:", err);
-        setPosts(fallbackPosts);
+        setPosts([]);
       } finally {
         setLoading(false);
       }
@@ -268,7 +220,7 @@ export default function FeedComunidadePage() {
   const getConnectionStatus = (memberId: string) => {
     if (!currentUser) return "none";
     if (currentUser.id === memberId) return "self";
-    const conn = connections.find(c => 
+    const conn = connections.find(c =>
       (c.requester_id === currentUser.id && c.receiver_id === memberId) ||
       (c.requester_id === memberId && c.receiver_id === currentUser.id)
     );
@@ -332,7 +284,7 @@ export default function FeedComunidadePage() {
       setSelectedFile(file);
       const isVideo = file.type.startsWith("video/");
       setMediaType(isVideo ? "video" : "image");
-      
+
       const objectUrl = URL.createObjectURL(file);
       setMediaPreviewUrl(objectUrl);
       setImagePreview(null);
@@ -363,7 +315,7 @@ export default function FeedComunidadePage() {
 
     try {
       setIsSubmitting(true);
-      
+
       const authorName = currentMemberInfo?.name || "Membro Executivo";
       const authorAvatar = currentMemberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200";
       const authorRole = currentMemberInfo?.role || "Membro CLS";
@@ -474,7 +426,7 @@ export default function FeedComunidadePage() {
         // Update local state
         setPosts(prev => prev.filter(p => p.id !== storyId));
         showToast("Status excluído com sucesso!");
-        
+
         // Close story viewer
         setActiveStoryAuthor(null);
         setActiveStoryIndex(0);
@@ -555,7 +507,7 @@ export default function FeedComunidadePage() {
       // Optimistic update
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, content: newContent.trim() } : p));
       setEditingPostId(null);
-      
+
       const { error } = await supabase
         .from('community_posts')
         .update({ content: newContent.trim() })
@@ -614,7 +566,7 @@ export default function FeedComunidadePage() {
     const currentPost = posts.find(p => p.id === postId);
     if (!currentPost) return;
 
-    const updatedComments = (currentPost.comments || []).map(c => 
+    const updatedComments = (currentPost.comments || []).map(c =>
       c.id === commentId ? { ...c, content: editingCommentText.trim() } : c
     );
 
@@ -717,7 +669,7 @@ export default function FeedComunidadePage() {
 
     const updatedComments = (currentPost.comments || []).map(c => {
       if (c.id === commentId) {
-        const updatedReplies = (c.replies || []).map((r: any) => 
+        const updatedReplies = (c.replies || []).map((r: any) =>
           r.id === replyId ? { ...r, content: editingCommentText.trim() } : r
         );
         return { ...c, replies: updatedReplies };
@@ -774,7 +726,7 @@ export default function FeedComunidadePage() {
   };
 
   // Filter members list in sidebar
-  const filteredSidebarMembers = members.filter(m => 
+  const filteredSidebarMembers = members.filter(m =>
     m.name.toLowerCase().includes(searchMember.toLowerCase()) ||
     m.company.toLowerCase().includes(searchMember.toLowerCase()) ||
     m.role.toLowerCase().includes(searchMember.toLowerCase())
@@ -924,7 +876,8 @@ export default function FeedComunidadePage() {
   return (
     <div className="animate-fadeIn">
       {/* Dynamic CSS styles with softer layout and no card shadows */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .feed-container {
           display: grid;
           grid-template-columns: 2fr 1fr;
@@ -1412,20 +1365,20 @@ export default function FeedComunidadePage() {
 
       {/* Content Columns layout */}
       <div className="feed-container" style={activeTab === "reels" ? { gridTemplateColumns: "1fr" } : undefined}>
-        
+
         {/* Left Column: Feed and Publishing */}
         <div style={{ display: "flex", flexDirection: "column" }}>
-          
+
           {/* Tabs navigation: Feed vs Reels */}
           <div className="reels-tab-nav">
-            <button 
+            <button
               type="button"
               className={`reels-nav-btn ${activeTab === "feed" ? "active" : ""}`}
               onClick={() => setActiveTab("feed")}
             >
               Feed da Comunidade
             </button>
-            <button 
+            <button
               type="button"
               className={`reels-nav-btn ${activeTab === "reels" ? "active" : ""}`}
               onClick={() => setActiveTab("reels")}
@@ -1443,9 +1396,9 @@ export default function FeedComunidadePage() {
                   <div className="story-bubble">
                     <div className="story-bubble-inner">
                       {currentMemberInfo?.img ? (
-                        <img 
-                          src={currentMemberInfo.img} 
-                          alt="Você" 
+                        <img
+                          src={currentMemberInfo.img}
+                          alt="Você"
                         />
                       ) : (
                         <div style={{
@@ -1491,841 +1444,841 @@ export default function FeedComunidadePage() {
 
               {/* Create Post Box */}
               <div className="feed-post-card" style={{ border: "1px solid rgba(145, 179, 225, 0.2)" }}>
-            <form onSubmit={handleCreatePost}>
-              <div style={{ display: "flex", gap: "16px" }}>
-                <MemberBadge
-                  name={currentMemberInfo?.name || "Você"}
-                  img={currentMemberInfo?.img}
-                  initials={currentMemberInfo?.initials}
-                  memberType={currentMemberInfo?.member_type}
-                  size={40}
-                />
-                
-                <div style={{ flex: 1 }}>
-                  <textarea
-                    placeholder="Compartilhe um insight, atualização de obra ou dúvida com a comunidade..."
-                    value={newPostText}
-                    onChange={(e) => setNewPostText(e.target.value)}
-                    style={{
-                      width: "100%",
-                      minHeight: "70px",
-                      backgroundColor: "transparent",
-                      border: "none",
-                      color: "var(--color-on-surface)",
-                      fontSize: "14px",
-                      resize: "none",
-                      outline: "none",
-                      paddingTop: "8px"
-                    }}
-                  />
+                <form onSubmit={handleCreatePost}>
+                  <div style={{ display: "flex", gap: "16px" }}>
+                    <MemberBadge
+                      name={currentMemberInfo?.name || "Você"}
+                      img={currentMemberInfo?.img}
+                      initials={currentMemberInfo?.initials}
+                      memberType={currentMemberInfo?.member_type}
+                      size={40}
+                    />
 
-                  {/* Post Type Selector */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "12px 0 6px 0", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
-                    <button
-                      type="button"
-                      onClick={() => setPostType("standard")}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        borderRadius: "20px",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        backgroundColor: postType === "standard" ? "rgba(145, 179, 225, 0.15)" : "transparent",
-                        color: postType === "standard" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "standard" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>feed</span>
-                      Feed Geral
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPostType("status")}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        borderRadius: "20px",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        backgroundColor: postType === "status" ? "rgba(145, 179, 225, 0.15)" : "transparent",
-                        color: postType === "status" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "status" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>motion_photos_on</span>
-                      Status / Story
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPostType("reels")}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        borderRadius: "20px",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        backgroundColor: postType === "reels" ? "rgba(145, 179, 225, 0.15)" : "transparent",
-                        color: postType === "reels" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
-                        border: postType === "reels" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
-                        cursor: "pointer",
-                        transition: "all 0.2s"
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>play_circle</span>
-                      Reels Interno
-                    </button>
-                  </div>
-
-                  {/* Media Preview Container */}
-                  {mediaPreviewUrl && (
-                    <div style={{ 
-                      position: "relative", 
-                      width: postType === "reels" ? "180px" : "100%", 
-                      height: postType === "reels" ? "320px" : "220px", 
-                      margin: postType === "reels" ? "12px auto" : "12px 0", 
-                      borderRadius: "6px", 
-                      overflow: "hidden", 
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      backgroundColor: "rgba(0,0,0,0.3)"
-                    }}>
-                      {mediaType === "video" ? (
-                        <video src={mediaPreviewUrl} controls muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                      ) : (
-                        <img src={mediaPreviewUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Upload Preview" />
-                      )}
-                      <button
-                        type="button"
-                        onClick={handleClearImage}
-                        style={{
-                          position: "absolute",
-                          top: "10px",
-                          right: "10px",
-                          width: "28px",
-                          height: "28px",
-                          borderRadius: "50%",
-                          backgroundColor: "rgba(0,0,0,0.75)",
-                          border: "none",
-                          color: "#ffffff",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          cursor: "pointer",
-                          zIndex: 10
-                        }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>close</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Toolbar Actions and Publish */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", marginTop: "8px" }}>
-                    
-                    {/* Add Media Picker */}
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*,video/*"
-                        id="feed-image-input"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        style={{ display: "none" }}
-                      />
-                      <label
-                        htmlFor="feed-image-input"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          color: "var(--color-secondary)",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          padding: "6px 12px",
-                          borderRadius: "4px",
-                          backgroundColor: "rgba(145, 179, 225, 0.08)",
-                          transition: "background-color 0.2s"
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(145, 179, 225, 0.15)"}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(145, 179, 225, 0.08)"}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>perm_media</span>
-                        Adicionar Mídia
-                      </label>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))}
-                      className="btn-primary"
-                      style={{
-                        padding: "8px 24px",
-                        fontSize: "11px",
-                        letterSpacing: "0.05em",
-                        opacity: (isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))) ? 0.5 : 1,
-                        cursor: (isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))) ? "not-allowed" : "pointer"
-                      }}
-                    >
-                      {isSubmitting ? "Publicando..." : "Publicar"}
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Posts List */}
-          <div>
-            {posts.filter(p => !p.post_type || p.post_type === "standard").map((post) => {
-              const userId = currentUser?.id || "mock-user-id";
-              const isLiked = (post.liked_by_users || []).includes(userId);
-              const isSaved = (post.saved_by_users || []).includes(userId);
-              const isCommentsOpen = activeCommentPostId === post.id;
-
-              // Lookup post author dynamically to show their current profile info
-              const postAuthor = members.find(m => m.id === post.user_id);
-              const authorAvatar = postAuthor?.img || post.author_avatar || "/magno.jpg";
-              const authorName = postAuthor?.name || post.author_name;
-              const authorRole = postAuthor?.role || post.author_role;
-
-              return (
-                <article key={post.id} className="feed-post-card">
-                  {/* Post Header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
-                    <div style={{ display: "flex", gap: "12px" }}>
-                      <MemberBadge
-                        name={authorName}
-                        img={authorAvatar}
-                        initials={postAuthor?.initials}
-                        memberType={postAuthor?.member_type}
-                        size={42}
-                      />
-                      <div>
-                        <h4 style={{ fontSize: "14px", color: "var(--color-on-surface)", fontWeight: 600 }}>{authorName}</h4>
-                        <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 600, display: "block" }}>{authorRole}</span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                      <span style={{ fontSize: "11px", color: "var(--color-outline)" }}>
-                        {formatPostTime(post.created_at)}
-                      </span>
-                      {currentUser && post.user_id === currentUser.id && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setEditingPostId(post.id);
-                              setEditingPostText(post.content);
-                            }}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "var(--color-on-surface-variant)",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              padding: "2px",
-                              opacity: 0.6,
-                              transition: "opacity 0.2s, color 0.2s"
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.opacity = "1";
-                              e.currentTarget.style.color = "var(--color-secondary)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.opacity = "0.6";
-                              e.currentTarget.style.color = "var(--color-on-surface-variant)";
-                            }}
-                            title="Editar publicação"
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>edit</span>
-                          </button>
-
-                          <button
-                            onClick={() => handleDeletePost(post.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "var(--color-on-surface-variant)",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              padding: "2px",
-                              opacity: 0.6,
-                              transition: "opacity 0.2s, color 0.2s"
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.opacity = "1";
-                              e.currentTarget.style.color = "rgba(239, 68, 68, 0.9)";
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.opacity = "0.6";
-                              e.currentTarget.style.color = "var(--color-on-surface-variant)";
-                            }}
-                            title="Excluir publicação"
-                          >
-                            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Post Content */}
-                  {editingPostId === post.id ? (
-                    <div style={{ marginBottom: "14px" }}>
+                    <div style={{ flex: 1 }}>
                       <textarea
-                        value={editingPostText}
-                        onChange={(e) => setEditingPostText(e.target.value)}
-                        className="input-dark"
+                        placeholder="Compartilhe um insight, atualização de obra ou dúvida com a comunidade..."
+                        value={newPostText}
+                        onChange={(e) => setNewPostText(e.target.value)}
                         style={{
                           width: "100%",
-                          minHeight: "80px",
-                          padding: "10px",
+                          minHeight: "70px",
+                          backgroundColor: "transparent",
+                          border: "none",
+                          color: "var(--color-on-surface)",
                           fontSize: "14px",
-                          borderRadius: "6px",
-                          backgroundColor: "rgba(0,0,0,0.2)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "#fff",
-                          resize: "vertical",
-                          outline: "none"
+                          resize: "none",
+                          outline: "none",
+                          paddingTop: "8px"
                         }}
                       />
-                      <div style={{ display: "flex", gap: "8px", marginTop: "8px", justifyContent: "flex-end" }}>
+
+                      {/* Post Type Selector */}
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "12px 0 6px 0", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
                         <button
-                          onClick={() => setEditingPostId(null)}
+                          type="button"
+                          onClick={() => setPostType("standard")}
                           style={{
-                            padding: "6px 16px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "6px 12px",
+                            borderRadius: "20px",
                             fontSize: "11px",
-                            borderRadius: "4px",
-                            background: "rgba(255,255,255,0.05)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            color: "var(--color-outline)",
+                            fontWeight: 600,
+                            backgroundColor: postType === "standard" ? "rgba(145, 179, 225, 0.15)" : "transparent",
+                            color: postType === "standard" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+                            border: postType === "standard" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
                             cursor: "pointer",
-                            fontWeight: 600
+                            transition: "all 0.2s"
                           }}
                         >
-                          Cancelar
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>feed</span>
+                          Feed Geral
                         </button>
                         <button
-                          onClick={() => handleUpdatePost(post.id, editingPostText)}
+                          type="button"
+                          onClick={() => setPostType("status")}
                           style={{
-                            padding: "6px 16px",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "6px 12px",
+                            borderRadius: "20px",
                             fontSize: "11px",
-                            borderRadius: "4px",
-                            background: "var(--color-secondary)",
-                            border: "none",
-                            color: "#000",
-                            fontWeight: "600",
-                            cursor: "pointer"
+                            fontWeight: 600,
+                            backgroundColor: postType === "status" ? "rgba(145, 179, 225, 0.15)" : "transparent",
+                            color: postType === "status" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+                            border: postType === "status" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
+                            cursor: "pointer",
+                            transition: "all 0.2s"
                           }}
                         >
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>motion_photos_on</span>
+                          Status / Story
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPostType("reels")}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "6px 12px",
+                            borderRadius: "20px",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            backgroundColor: postType === "reels" ? "rgba(145, 179, 225, 0.15)" : "transparent",
+                            color: postType === "reels" ? "var(--color-secondary)" : "var(--color-on-surface-variant)",
+                            border: postType === "reels" ? "1px solid rgba(145, 179, 225, 0.3)" : "1px solid var(--border-color)",
+                            cursor: "pointer",
+                            transition: "all 0.2s"
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>play_circle</span>
+                          Reels Interno
+                        </button>
+                      </div>
+
+                      {/* Media Preview Container */}
+                      {mediaPreviewUrl && (
+                        <div style={{
+                          position: "relative",
+                          width: postType === "reels" ? "180px" : "100%",
+                          height: postType === "reels" ? "320px" : "220px",
+                          margin: postType === "reels" ? "12px auto" : "12px 0",
+                          borderRadius: "6px",
+                          overflow: "hidden",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          backgroundColor: "rgba(0,0,0,0.3)"
+                        }}>
+                          {mediaType === "video" ? (
+                            <video src={mediaPreviewUrl} controls muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            <img src={mediaPreviewUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Upload Preview" />
+                          )}
+                          <button
+                            type="button"
+                            onClick={handleClearImage}
+                            style={{
+                              position: "absolute",
+                              top: "10px",
+                              right: "10px",
+                              width: "28px",
+                              height: "28px",
+                              borderRadius: "50%",
+                              backgroundColor: "rgba(0,0,0,0.75)",
+                              border: "none",
+                              color: "#ffffff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer",
+                              zIndex: 10
+                            }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>close</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Toolbar Actions and Publish */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", marginTop: "8px" }}>
+
+                        {/* Add Media Picker */}
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*,video/*"
+                            id="feed-image-input"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            style={{ display: "none" }}
+                          />
+                          <label
+                            htmlFor="feed-image-input"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              color: "var(--color-secondary)",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              padding: "6px 12px",
+                              borderRadius: "4px",
+                              backgroundColor: "rgba(145, 179, 225, 0.08)",
+                              transition: "background-color 0.2s"
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "rgba(145, 179, 225, 0.15)"}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "rgba(145, 179, 225, 0.08)"}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>perm_media</span>
+                            Adicionar Mídia
+                          </label>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))}
+                          className="btn-primary"
+                          style={{
+                            padding: "8px 24px",
+                            fontSize: "11px",
+                            letterSpacing: "0.05em",
+                            opacity: (isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))) ? 0.5 : 1,
+                            cursor: (isSubmitting || (!newPostText.trim() && !selectedFile) || (postType === "reels" && (!selectedFile || mediaType !== "video"))) ? "not-allowed" : "pointer"
+                          }}
+                        >
+                          {isSubmitting ? "Publicando..." : "Publicar"}
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+                </form>
+              </div>
+
+              {/* Posts List */}
+              <div>
+                {posts.filter(p => !p.post_type || p.post_type === "standard").map((post) => {
+                  const userId = currentUser?.id || "mock-user-id";
+                  const isLiked = (post.liked_by_users || []).includes(userId);
+                  const isSaved = (post.saved_by_users || []).includes(userId);
+                  const isCommentsOpen = activeCommentPostId === post.id;
+
+                  // Lookup post author dynamically to show their current profile info
+                  const postAuthor = members.find(m => m.id === post.user_id);
+                  const authorAvatar = postAuthor?.img || post.author_avatar || "/magno.jpg";
+                  const authorName = postAuthor?.name || post.author_name;
+                  const authorRole = postAuthor?.role || post.author_role;
+
+                  return (
+                    <article key={post.id} className="feed-post-card">
+                      {/* Post Header */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "14px" }}>
+                        <div style={{ display: "flex", gap: "12px" }}>
+                          <MemberBadge
+                            name={authorName}
+                            img={authorAvatar}
+                            initials={postAuthor?.initials}
+                            memberType={postAuthor?.member_type}
+                            size={42}
+                          />
+                          <div>
+                            <h4 style={{ fontSize: "14px", color: "var(--color-on-surface)", fontWeight: 600 }}>{authorName}</h4>
+                            <span style={{ fontSize: "11px", color: "var(--color-secondary)", fontWeight: 600, display: "block" }}>{authorRole}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <span style={{ fontSize: "11px", color: "var(--color-outline)" }}>
+                            {formatPostTime(post.created_at)}
+                          </span>
+                          {currentUser && post.user_id === currentUser.id && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  setEditingPostId(post.id);
+                                  setEditingPostText(post.content);
+                                }}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  color: "var(--color-on-surface-variant)",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "2px",
+                                  opacity: 0.6,
+                                  transition: "opacity 0.2s, color 0.2s"
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.opacity = "1";
+                                  e.currentTarget.style.color = "var(--color-secondary)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.opacity = "0.6";
+                                  e.currentTarget.style.color = "var(--color-on-surface-variant)";
+                                }}
+                                title="Editar publicação"
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>edit</span>
+                              </button>
+
+                              <button
+                                onClick={() => handleDeletePost(post.id)}
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  color: "var(--color-on-surface-variant)",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "2px",
+                                  opacity: 0.6,
+                                  transition: "opacity 0.2s, color 0.2s"
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.opacity = "1";
+                                  e.currentTarget.style.color = "rgba(239, 68, 68, 0.9)";
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.opacity = "0.6";
+                                  e.currentTarget.style.color = "var(--color-on-surface-variant)";
+                                }}
+                                title="Excluir publicação"
+                              >
+                                <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Post Content */}
+                      {editingPostId === post.id ? (
+                        <div style={{ marginBottom: "14px" }}>
+                          <textarea
+                            value={editingPostText}
+                            onChange={(e) => setEditingPostText(e.target.value)}
+                            className="input-dark"
+                            style={{
+                              width: "100%",
+                              minHeight: "80px",
+                              padding: "10px",
+                              fontSize: "14px",
+                              borderRadius: "6px",
+                              backgroundColor: "rgba(0,0,0,0.2)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              color: "#fff",
+                              resize: "vertical",
+                              outline: "none"
+                            }}
+                          />
+                          <div style={{ display: "flex", gap: "8px", marginTop: "8px", justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => setEditingPostId(null)}
+                              style={{
+                                padding: "6px 16px",
+                                fontSize: "11px",
+                                borderRadius: "4px",
+                                background: "rgba(255,255,255,0.05)",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                color: "var(--color-outline)",
+                                cursor: "pointer",
+                                fontWeight: 600
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              onClick={() => handleUpdatePost(post.id, editingPostText)}
+                              style={{
+                                padding: "6px 16px",
+                                fontSize: "11px",
+                                borderRadius: "4px",
+                                background: "var(--color-secondary)",
+                                border: "none",
+                                color: "#000",
+                                fontWeight: "600",
+                                cursor: "pointer"
+                              }}
+                            >
+                              Salvar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <p style={{ fontSize: "14px", color: "var(--color-on-surface)", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "14px" }}>
+                            {post.content}
+                          </p>
+
+                          {/* Post Image */}
+                          {post.image_url && (
+                            <div
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                              style={{ width: "100%", maxHeight: "380px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
+                            >
+                              <img
+                                src={post.image_url}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                                style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "pointer" }}
+                                alt="Publicação Imagem"
+                              />
+                            </div>
+                          )}
+
+                          {/* Post Video */}
+                          {post.video_url && (
+                            <div
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
+                              style={{ width: "100%", maxHeight: "420px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
+                            >
+                              <video src={post.video_url} controls playsInline style={{ width: "100%", maxHeight: "420px", objectFit: "contain", display: "block" }} />
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Likes/Comments Counter statistics */}
+                      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "10px", marginBottom: "4px", fontSize: "11px", color: "var(--color-on-surface-variant)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("likes"); }}>
+                          {/* 3 mini avatars */}
+                          <div style={{ display: "flex", marginLeft: "2px", marginRight: "4px" }}>
+                            {(post.liked_by_users || []).slice(0, 3).map((userId, i) => {
+                              const liker = members.find(m => m.id === userId);
+                              return (
+                                <img
+                                  key={i}
+                                  src={liker?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"}
+                                  style={{ width: "16px", height: "16px", borderRadius: "50%", objectFit: "cover", border: "1px solid #1c1b1e", marginLeft: i > 0 ? "-6px" : "0", zIndex: 3 - i }}
+                                  alt="User"
+                                />
+                              );
+                            })}
+                          </div>
+
+                          <span className="material-symbols-outlined" style={{ fontSize: "14px", color: (post.liked_by_users || []).length > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${(post.liked_by_users || []).length > 0 ? 1 : 0}` }}>thumb_up</span>
+                          {(post.liked_by_users || []).length} curtidas
+                        </div>
+                        <div style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }} className="hover-gold-text">
+                          {post.comments?.length || 0} comentários
+                        </div>
+                      </div>
+
+                      {/* Actions buttons (Like, Comment, Save) strictly NO RED */}
+                      <div style={{ display: "flex", gap: "4px" }}>
+                        <button
+                          onClick={() => handleLikePost(post.id)}
+                          className={`post-action-btn ${isLiked ? 'active' : ''}`}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: ` 'FILL' ${isLiked ? 1 : 0} ` }}>
+                            thumb_up
+                          </span>
+                          Curtir
+                        </button>
+
+                        <button
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }}
+                          className={`post-action-btn`}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
+                            forum
+                          </span>
+                          Comentar
+                        </button>
+
+                        <button
+                          onClick={() => handleSavePost(post.id)}
+                          className={`post-action-btn ${isSaved ? 'active' : ''}`}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: ` 'FILL' ${isSaved ? 1 : 0} ` }}>
+                            bookmark
+                          </span>
                           Salvar
                         </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <p style={{ fontSize: "14px", color: "var(--color-on-surface)", lineHeight: "1.6", whiteSpace: "pre-wrap", marginBottom: "14px" }}>
-                        {post.content}
-                      </p>
 
-                      {/* Post Image */}
-                      {post.image_url && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }} 
-                          style={{ width: "100%", maxHeight: "380px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
-                        >
-                          <img 
-                            src={post.image_url} 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }}
-                            style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "pointer" }} 
-                            alt="Publicação Imagem" 
-                          />
-                        </div>
-                      )}
+                      {/* Comments section (collapsible panel) */}
+                      {isCommentsOpen && (
+                        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: "12px", paddingTop: "16px" }}>
+                          {/* Comments list */}
+                          <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "350px", overflowY: "auto", paddingRight: "4px", marginBottom: "16px" }} className="hide-scroll">
+                            {(post.comments || []).map((comment) => {
+                              const isCommentOwner = currentUser && (comment.user_id === currentUser.id || (!comment.user_id && comment.author_name === currentMemberInfo?.name));
+                              const isPostOwner = currentUser && post.user_id === currentUser.id;
+                              const isEditingComment = editingCommentId === comment.id;
+                              const isReplying = replyingCommentId === comment.id;
+                              const commentAuthor = members.find(m => m.id === comment.user_id);
 
-                      {/* Post Video */}
-                      {post.video_url && (
-                        <div 
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("content"); }} 
-                          style={{ width: "100%", maxHeight: "420px", borderRadius: "6px", overflow: "hidden", marginBottom: "14px", border: "1px solid rgba(255,255,255,0.05)", backgroundColor: "#000", cursor: "pointer" }}
-                        >
-                          <video src={post.video_url} controls playsInline style={{ width: "100%", maxHeight: "420px", objectFit: "contain", display: "block" }} />
-                        </div>
-                      )}
-                    </div>
-                  )}
+                              return (
+                                <div key={comment.id} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                  {/* Main Comment Row */}
+                                  <div className="comment-item" style={{ marginBottom: 0 }}>
+                                    <MemberBadge
+                                      name={comment.author_name}
+                                      img={comment.author_avatar}
+                                      initials={commentAuthor?.initials}
+                                      memberType={commentAuthor?.member_type}
+                                      size={30}
+                                    />
+                                    <div style={{ flex: 1 }}>
+                                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+                                        <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-on-surface)" }}>{comment.author_name}</span>
+                                        <span style={{ fontSize: "9px", color: "var(--color-outline)" }}>{formatPostTime(comment.created_at)}</span>
+                                      </div>
 
-                  {/* Likes/Comments Counter statistics */}
-                  <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "10px", marginBottom: "4px", fontSize: "11px", color: "var(--color-on-surface-variant)" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("likes"); }}>
-                      {/* 3 mini avatars */}
-                      <div style={{ display: "flex", marginLeft: "2px", marginRight: "4px" }}>
-                        {(post.liked_by_users || []).slice(0, 3).map((userId, i) => {
-                          const liker = members.find(m => m.id === userId);
-                          return (
-                            <img 
-                              key={i} 
-                              src={liker?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} 
-                              style={{ width: "16px", height: "16px", borderRadius: "50%", objectFit: "cover", border: "1px solid #1c1b1e", marginLeft: i > 0 ? "-6px" : "0", zIndex: 3 - i }} 
-                              alt="User" 
-                            />
-                          );
-                        })}
-                      </div>
+                                      {isEditingComment ? (
+                                        <div style={{ marginTop: "4px" }}>
+                                          <input
+                                            type="text"
+                                            value={editingCommentText}
+                                            onChange={(e) => setEditingCommentText(e.target.value)}
+                                            className="input-dark"
+                                            style={{
+                                              width: "100%",
+                                              padding: "6px 10px",
+                                              fontSize: "12px",
+                                              borderRadius: "4px",
+                                              backgroundColor: "rgba(0,0,0,0.2)",
+                                              border: "1px solid rgba(255,255,255,0.1)",
+                                              color: "#fff",
+                                              outline: "none"
+                                            }}
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter') handleSaveEditComment(post.id, comment.id);
+                                            }}
+                                          />
+                                          <div style={{ display: "flex", gap: "6px", marginTop: "4px", justifyContent: "flex-end" }}>
+                                            <button
+                                              onClick={() => setEditingCommentId(null)}
+                                              style={{ background: "transparent", border: "none", color: "var(--color-outline)", fontSize: "10px", cursor: "pointer" }}
+                                            >
+                                              Cancelar
+                                            </button>
+                                            <button
+                                              onClick={() => handleSaveEditComment(post.id, comment.id)}
+                                              style={{ background: "transparent", border: "none", color: "var(--color-secondary)", fontSize: "10px", fontWeight: "600", cursor: "pointer" }}
+                                            >
+                                              Salvar
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.4", margin: 0 }}>{comment.content}</p>
 
-                      <span className="material-symbols-outlined" style={{ fontSize: "14px", color: (post.liked_by_users || []).length > 0 ? "var(--color-secondary)" : "var(--color-outline)", fontVariationSettings: `'FILL' ${(post.liked_by_users || []).length > 0 ? 1 : 0}` }}>thumb_up</span>
-                      {(post.liked_by_users || []).length} curtidas
-                    </div>
-                    <div style={{ cursor: "pointer" }} onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }} className="hover-gold-text">
-                      {post.comments?.length || 0} comentários
-                    </div>
-                  </div>
+                                          {/* Comment Actions */}
+                                          <div style={{ display: "flex", gap: "12px", marginTop: "6px", alignItems: "center" }}>
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Mock the visual change locally until DB is connected
+                                                setPosts(prev => prev.map(p => {
+                                                  if (p.id === post.id) {
+                                                    return {
+                                                      ...p,
+                                                      comments: p.comments.map(c => {
+                                                        if (c.id === comment.id) {
+                                                          const hasLiked = (c.liked_by_users || []).includes(currentUser?.id || "mock");
+                                                          return {
+                                                            ...c,
+                                                            likes_count: (c.likes_count || 0) + (hasLiked ? -1 : 1),
+                                                            liked_by_users: hasLiked
+                                                              ? (c.liked_by_users || []).filter(id => id !== (currentUser?.id || "mock"))
+                                                              : [...(c.liked_by_users || []), currentUser?.id || "mock"]
+                                                          }
+                                                        }
+                                                        return c;
+                                                      })
+                                                    }
+                                                  }
+                                                  return p;
+                                                }));
+                                                showToast("Curtiu comentário", "success");
+                                              }}
+                                              style={{
+                                                background: "transparent",
+                                                border: "none",
+                                                color: (comment.liked_by_users || []).includes(currentUser?.id || "mock") ? "var(--color-secondary)" : "var(--color-outline)",
+                                                fontSize: "10px",
+                                                fontWeight: "600",
+                                                cursor: "pointer",
+                                                padding: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "2px"
+                                              }}
+                                              className="hover-opacity"
+                                            >
+                                              <span className="material-symbols-outlined" style={{ fontSize: "12px", fontVariationSettings: `'FILL' ${(comment.liked_by_users || []).includes(currentUser?.id || "mock") ? 1 : 0}` }}>thumb_up</span>
+                                              {comment.likes_count || 0}
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                setReplyingCommentId(isReplying ? null : comment.id);
+                                                setReplyTexts(prev => ({ ...prev, [comment.id]: "" }));
+                                              }}
+                                              style={{
+                                                background: "transparent",
+                                                border: "none",
+                                                color: "var(--color-outline)",
+                                                fontSize: "10px",
+                                                fontWeight: "600",
+                                                cursor: "pointer",
+                                                padding: 0,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                gap: "2px"
+                                              }}
+                                              className="hover-opacity"
+                                            >
+                                              <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>reply</span>
+                                              Responder
+                                            </button>
 
-                  {/* Actions buttons (Like, Comment, Save) strictly NO RED */}
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    <button
-                      onClick={() => handleLikePost(post.id)}
-                      className={`post-action-btn ${isLiked ? 'active' : ''}`}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: ` 'FILL' ${isLiked ? 1 : 0} ` }}>
-                        thumb_up
-                      </span>
-                      Curtir
-                    </button>
-                    
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setLightboxPostId(post.id); setLightboxTab("comments"); }}
-                      className={`post-action-btn`}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>
-                        forum
-                      </span>
-                      Comentar
-                    </button>
+                                            {isCommentOwner && (
+                                              <button
+                                                onClick={() => {
+                                                  setEditingCommentId(comment.id);
+                                                  setEditingCommentText(comment.content);
+                                                }}
+                                                style={{
+                                                  background: "transparent",
+                                                  border: "none",
+                                                  color: "var(--color-outline)",
+                                                  fontSize: "10px",
+                                                  fontWeight: "600",
+                                                  cursor: "pointer",
+                                                  padding: 0,
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "2px"
+                                                }}
+                                                className="hover-opacity"
+                                              >
+                                                <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>edit</span>
+                                                Editar
+                                              </button>
+                                            )}
 
-                    <button
-                      onClick={() => handleSavePost(post.id)}
-                      className={`post-action-btn ${isSaved ? 'active' : ''}`}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px", fontVariationSettings: ` 'FILL' ${isSaved ? 1 : 0} ` }}>
-                        bookmark
-                      </span>
-                      Salvar
-                    </button>
-                  </div>
-
-                  {/* Comments section (collapsible panel) */}
-                  {isCommentsOpen && (
-                    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: "12px", paddingTop: "16px" }}>
-                      {/* Comments list */}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "350px", overflowY: "auto", paddingRight: "4px", marginBottom: "16px" }} className="hide-scroll">
-                        {(post.comments || []).map((comment) => {
-                          const isCommentOwner = currentUser && (comment.user_id === currentUser.id || (!comment.user_id && comment.author_name === currentMemberInfo?.name));
-                          const isPostOwner = currentUser && post.user_id === currentUser.id;
-                          const isEditingComment = editingCommentId === comment.id;
-                          const isReplying = replyingCommentId === comment.id;
-                          const commentAuthor = members.find(m => m.id === comment.user_id);
-
-                          return (
-                            <div key={comment.id} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                              {/* Main Comment Row */}
-                              <div className="comment-item" style={{ marginBottom: 0 }}>
-                                <MemberBadge
-                                  name={comment.author_name}
-                                  img={comment.author_avatar}
-                                  initials={commentAuthor?.initials}
-                                  memberType={commentAuthor?.member_type}
-                                  size={30}
-                                />
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
-                                    <span style={{ fontSize: "12px", fontWeight: 700, color: "var(--color-on-surface)" }}>{comment.author_name}</span>
-                                    <span style={{ fontSize: "9px", color: "var(--color-outline)" }}>{formatPostTime(comment.created_at)}</span>
+                                            {(isCommentOwner || isPostOwner) && (
+                                              <button
+                                                onClick={() => handleDeleteComment(post.id, comment.id)}
+                                                style={{
+                                                  background: "transparent",
+                                                  border: "none",
+                                                  color: "rgba(239, 68, 68, 0.8)",
+                                                  fontSize: "10px",
+                                                  fontWeight: "600",
+                                                  cursor: "pointer",
+                                                  padding: 0,
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                  gap: "2px"
+                                                }}
+                                                className="hover-opacity"
+                                              >
+                                                <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>delete</span>
+                                                Excluir
+                                              </button>
+                                            )}
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
                                   </div>
 
-                                  {isEditingComment ? (
-                                    <div style={{ marginTop: "4px" }}>
+                                  {/* Nested Replies Rendering */}
+                                  {comment.replies && comment.replies.length > 0 && (
+                                    <div style={{ paddingLeft: "36px", marginTop: "2px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                      {comment.replies.map((reply: any) => {
+                                        const isReplyOwner = currentUser && (reply.user_id === currentUser.id || (!reply.user_id && reply.author_name === currentMemberInfo?.name));
+                                        const isEditingReply = editingCommentId === reply.id;
+                                        const replyAuthor = members.find(m => m.id === reply.user_id);
+
+                                        return (
+                                          <div key={reply.id} className="comment-item" style={{ margin: 0, padding: "8px", backgroundColor: "rgba(255, 255, 255, 0.01)" }}>
+                                            <MemberBadge
+                                              name={reply.author_name}
+                                              img={reply.author_avatar}
+                                              initials={replyAuthor?.initials}
+                                              memberType={replyAuthor?.member_type}
+                                              size={24}
+                                            />
+                                            <div style={{ flex: 1 }}>
+                                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+                                                <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-on-surface)" }}>{reply.author_name}</span>
+                                                <span style={{ fontSize: "8px", color: "var(--color-outline)" }}>{formatPostTime(reply.created_at)}</span>
+                                              </div>
+
+                                              {isEditingReply ? (
+                                                <div style={{ marginTop: "4px" }}>
+                                                  <input
+                                                    type="text"
+                                                    value={editingCommentText}
+                                                    onChange={(e) => setEditingCommentText(e.target.value)}
+                                                    className="input-dark"
+                                                    style={{
+                                                      width: "100%",
+                                                      padding: "4px 8px",
+                                                      fontSize: "11px",
+                                                      borderRadius: "4px",
+                                                      backgroundColor: "rgba(0,0,0,0.2)",
+                                                      border: "1px solid rgba(255,255,255,0.1)",
+                                                      color: "#fff",
+                                                      outline: "none"
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                      if (e.key === 'Enter') handleSaveEditReply(post.id, comment.id, reply.id);
+                                                    }}
+                                                  />
+                                                  <div style={{ display: "flex", gap: "6px", marginTop: "4px", justifyContent: "flex-end" }}>
+                                                    <button
+                                                      onClick={() => setEditingCommentId(null)}
+                                                      style={{ background: "transparent", border: "none", color: "var(--color-outline)", fontSize: "9px", cursor: "pointer" }}
+                                                    >
+                                                      Cancelar
+                                                    </button>
+                                                    <button
+                                                      onClick={() => handleSaveEditReply(post.id, comment.id, reply.id)}
+                                                      style={{ background: "transparent", border: "none", color: "var(--color-secondary)", fontSize: "9px", fontWeight: "600", cursor: "pointer" }}
+                                                    >
+                                                      Salvar
+                                                    </button>
+                                                  </div>
+                                                </div>
+                                              ) : (
+                                                <>
+                                                  <p style={{ fontSize: "11px", color: "var(--color-on-surface-variant)", lineHeight: "1.4", margin: 0 }}>{reply.content}</p>
+                                                  <div style={{ display: "flex", gap: "10px", marginTop: "4px", alignItems: "center" }}>
+                                                    {isReplyOwner && (
+                                                      <button
+                                                        onClick={() => {
+                                                          setEditingCommentId(reply.id);
+                                                          setEditingCommentText(reply.content);
+                                                        }}
+                                                        style={{
+                                                          background: "transparent",
+                                                          border: "none",
+                                                          color: "var(--color-outline)",
+                                                          fontSize: "9px",
+                                                          fontWeight: "600",
+                                                          cursor: "pointer",
+                                                          padding: 0,
+                                                          display: "flex",
+                                                          alignItems: "center",
+                                                          gap: "2px"
+                                                        }}
+                                                        className="hover-opacity"
+                                                      >
+                                                        Editar
+                                                      </button>
+                                                    )}
+                                                    {(isReplyOwner || isCommentOwner || isPostOwner) && (
+                                                      <button
+                                                        onClick={() => handleDeleteReply(post.id, comment.id, reply.id)}
+                                                        style={{
+                                                          background: "transparent",
+                                                          border: "none",
+                                                          color: "rgba(239, 68, 68, 0.8)",
+                                                          fontSize: "9px",
+                                                          fontWeight: "600",
+                                                          cursor: "pointer",
+                                                          padding: 0,
+                                                          display: "flex",
+                                                          alignItems: "center",
+                                                          gap: "2px"
+                                                        }}
+                                                        className="hover-opacity"
+                                                      >
+                                                        Excluir
+                                                      </button>
+                                                    )}
+                                                  </div>
+                                                </>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+
+                                  {/* Add nested reply form */}
+                                  {isReplying && (
+                                    <div style={{ paddingLeft: "36px", display: "flex", gap: "8px", alignItems: "center", marginTop: "4px", marginBottom: "8px" }}>
                                       <input
                                         type="text"
-                                        value={editingCommentText}
-                                        onChange={(e) => setEditingCommentText(e.target.value)}
+                                        placeholder="Escreva uma resposta..."
+                                        value={replyTexts[comment.id] || ""}
+                                        onChange={(e) => setReplyTexts(prev => ({ ...prev, [comment.id]: e.target.value }))}
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') handleAddReply(post.id, comment.id);
+                                        }}
                                         className="input-dark"
                                         style={{
-                                          width: "100%",
+                                          flex: 1,
                                           padding: "6px 10px",
-                                          fontSize: "12px",
-                                          borderRadius: "4px",
+                                          fontSize: "11px",
+                                          borderRadius: "100px",
                                           backgroundColor: "rgba(0,0,0,0.2)",
-                                          border: "1px solid rgba(255,255,255,0.1)",
-                                          color: "#fff",
                                           outline: "none"
                                         }}
-                                        onKeyDown={(e) => {
-                                          if (e.key === 'Enter') handleSaveEditComment(post.id, comment.id);
-                                        }}
                                       />
-                                      <div style={{ display: "flex", gap: "6px", marginTop: "4px", justifyContent: "flex-end" }}>
-                                        <button
-                                          onClick={() => setEditingCommentId(null)}
-                                          style={{ background: "transparent", border: "none", color: "var(--color-outline)", fontSize: "10px", cursor: "pointer" }}
-                                        >
-                                          Cancelar
-                                        </button>
-                                        <button
-                                          onClick={() => handleSaveEditComment(post.id, comment.id)}
-                                          style={{ background: "transparent", border: "none", color: "var(--color-secondary)", fontSize: "10px", fontWeight: "600", cursor: "pointer" }}
-                                        >
-                                          Salvar
-                                        </button>
-                                      </div>
+                                      <button
+                                        onClick={() => handleAddReply(post.id, comment.id)}
+                                        style={{
+                                          background: "transparent",
+                                          border: "none",
+                                          color: "var(--color-secondary)",
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center"
+                                        }}
+                                        className="hover-opacity"
+                                      >
+                                        <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>send</span>
+                                      </button>
                                     </div>
-                                  ) : (
-                                    <>
-                                      <p style={{ fontSize: "12px", color: "var(--color-on-surface-variant)", lineHeight: "1.4", margin: 0 }}>{comment.content}</p>
-                                      
-                                      {/* Comment Actions */}
-                                      <div style={{ display: "flex", gap: "12px", marginTop: "6px", alignItems: "center" }}>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            // Mock the visual change locally until DB is connected
-                                            setPosts(prev => prev.map(p => {
-                                              if (p.id === post.id) {
-                                                return {
-                                                  ...p,
-                                                  comments: p.comments.map(c => {
-                                                    if (c.id === comment.id) {
-                                                      const hasLiked = (c.liked_by_users || []).includes(currentUser?.id || "mock");
-                                                      return {
-                                                        ...c,
-                                                        likes_count: (c.likes_count || 0) + (hasLiked ? -1 : 1),
-                                                        liked_by_users: hasLiked 
-                                                          ? (c.liked_by_users || []).filter(id => id !== (currentUser?.id || "mock"))
-                                                          : [...(c.liked_by_users || []), currentUser?.id || "mock"]
-                                                      }
-                                                    }
-                                                    return c;
-                                                  })
-                                                }
-                                              }
-                                              return p;
-                                            }));
-                                            showToast("Curtiu comentário", "success");
-                                          }}
-                                          style={{
-                                            background: "transparent",
-                                            border: "none",
-                                            color: (comment.liked_by_users || []).includes(currentUser?.id || "mock") ? "var(--color-secondary)" : "var(--color-outline)",
-                                            fontSize: "10px",
-                                            fontWeight: "600",
-                                            cursor: "pointer",
-                                            padding: 0,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "2px"
-                                          }}
-                                          className="hover-opacity"
-                                        >
-                                          <span className="material-symbols-outlined" style={{ fontSize: "12px", fontVariationSettings: `'FILL' ${(comment.liked_by_users || []).includes(currentUser?.id || "mock") ? 1 : 0}` }}>thumb_up</span>
-                                          {comment.likes_count || 0}
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            setReplyingCommentId(isReplying ? null : comment.id);
-                                            setReplyTexts(prev => ({ ...prev, [comment.id]: "" }));
-                                          }}
-                                          style={{
-                                            background: "transparent",
-                                            border: "none",
-                                            color: "var(--color-outline)",
-                                            fontSize: "10px",
-                                            fontWeight: "600",
-                                            cursor: "pointer",
-                                            padding: 0,
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "2px"
-                                          }}
-                                          className="hover-opacity"
-                                        >
-                                          <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>reply</span>
-                                          Responder
-                                        </button>
-
-                                        {isCommentOwner && (
-                                          <button
-                                            onClick={() => {
-                                              setEditingCommentId(comment.id);
-                                              setEditingCommentText(comment.content);
-                                            }}
-                                            style={{
-                                              background: "transparent",
-                                              border: "none",
-                                              color: "var(--color-outline)",
-                                              fontSize: "10px",
-                                              fontWeight: "600",
-                                              cursor: "pointer",
-                                              padding: 0,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: "2px"
-                                            }}
-                                            className="hover-opacity"
-                                          >
-                                            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>edit</span>
-                                            Editar
-                                          </button>
-                                        )}
-
-                                        {(isCommentOwner || isPostOwner) && (
-                                          <button
-                                            onClick={() => handleDeleteComment(post.id, comment.id)}
-                                            style={{
-                                              background: "transparent",
-                                              border: "none",
-                                              color: "rgba(239, 68, 68, 0.8)",
-                                              fontSize: "10px",
-                                              fontWeight: "600",
-                                              cursor: "pointer",
-                                              padding: 0,
-                                              display: "flex",
-                                              alignItems: "center",
-                                              gap: "2px"
-                                            }}
-                                            className="hover-opacity"
-                                          >
-                                            <span className="material-symbols-outlined" style={{ fontSize: "12px" }}>delete</span>
-                                            Excluir
-                                          </button>
-                                        )}
-                                      </div>
-                                    </>
                                   )}
                                 </div>
-                              </div>
+                              );
+                            })}
+                          </div>
 
-                              {/* Nested Replies Rendering */}
-                              {comment.replies && comment.replies.length > 0 && (
-                                <div style={{ paddingLeft: "36px", marginTop: "2px", display: "flex", flexDirection: "column", gap: "6px" }}>
-                                  {comment.replies.map((reply: any) => {
-                                    const isReplyOwner = currentUser && (reply.user_id === currentUser.id || (!reply.user_id && reply.author_name === currentMemberInfo?.name));
-                                    const isEditingReply = editingCommentId === reply.id;
-                                    const replyAuthor = members.find(m => m.id === reply.user_id);
-
-                                    return (
-                                      <div key={reply.id} className="comment-item" style={{ margin: 0, padding: "8px", backgroundColor: "rgba(255, 255, 255, 0.01)" }}>
-                                        <MemberBadge
-                                          name={reply.author_name}
-                                          img={reply.author_avatar}
-                                          initials={replyAuthor?.initials}
-                                          memberType={replyAuthor?.member_type}
-                                          size={24}
-                                        />
-                                        <div style={{ flex: 1 }}>
-                                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
-                                            <span style={{ fontSize: "11px", fontWeight: 700, color: "var(--color-on-surface)" }}>{reply.author_name}</span>
-                                            <span style={{ fontSize: "8px", color: "var(--color-outline)" }}>{formatPostTime(reply.created_at)}</span>
-                                          </div>
-                                          
-                                          {isEditingReply ? (
-                                            <div style={{ marginTop: "4px" }}>
-                                              <input
-                                                type="text"
-                                                value={editingCommentText}
-                                                onChange={(e) => setEditingCommentText(e.target.value)}
-                                                className="input-dark"
-                                                style={{
-                                                  width: "100%",
-                                                  padding: "4px 8px",
-                                                  fontSize: "11px",
-                                                  borderRadius: "4px",
-                                                  backgroundColor: "rgba(0,0,0,0.2)",
-                                                  border: "1px solid rgba(255,255,255,0.1)",
-                                                  color: "#fff",
-                                                  outline: "none"
-                                                }}
-                                                onKeyDown={(e) => {
-                                                  if (e.key === 'Enter') handleSaveEditReply(post.id, comment.id, reply.id);
-                                                }}
-                                              />
-                                              <div style={{ display: "flex", gap: "6px", marginTop: "4px", justifyContent: "flex-end" }}>
-                                                <button
-                                                  onClick={() => setEditingCommentId(null)}
-                                                  style={{ background: "transparent", border: "none", color: "var(--color-outline)", fontSize: "9px", cursor: "pointer" }}
-                                                >
-                                                  Cancelar
-                                                </button>
-                                                <button
-                                                  onClick={() => handleSaveEditReply(post.id, comment.id, reply.id)}
-                                                  style={{ background: "transparent", border: "none", color: "var(--color-secondary)", fontSize: "9px", fontWeight: "600", cursor: "pointer" }}
-                                                >
-                                                  Salvar
-                                                </button>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <p style={{ fontSize: "11px", color: "var(--color-on-surface-variant)", lineHeight: "1.4", margin: 0 }}>{reply.content}</p>
-                                              <div style={{ display: "flex", gap: "10px", marginTop: "4px", alignItems: "center" }}>
-                                                {isReplyOwner && (
-                                                  <button
-                                                    onClick={() => {
-                                                      setEditingCommentId(reply.id);
-                                                      setEditingCommentText(reply.content);
-                                                    }}
-                                                    style={{
-                                                      background: "transparent",
-                                                      border: "none",
-                                                      color: "var(--color-outline)",
-                                                      fontSize: "9px",
-                                                      fontWeight: "600",
-                                                      cursor: "pointer",
-                                                      padding: 0,
-                                                      display: "flex",
-                                                      alignItems: "center",
-                                                      gap: "2px"
-                                                    }}
-                                                    className="hover-opacity"
-                                                  >
-                                                    Editar
-                                                  </button>
-                                                )}
-                                                {(isReplyOwner || isCommentOwner || isPostOwner) && (
-                                                  <button
-                                                    onClick={() => handleDeleteReply(post.id, comment.id, reply.id)}
-                                                    style={{
-                                                      background: "transparent",
-                                                      border: "none",
-                                                      color: "rgba(239, 68, 68, 0.8)",
-                                                      fontSize: "9px",
-                                                      fontWeight: "600",
-                                                      cursor: "pointer",
-                                                      padding: 0,
-                                                      display: "flex",
-                                                      alignItems: "center",
-                                                      gap: "2px"
-                                                    }}
-                                                    className="hover-opacity"
-                                                  >
-                                                    Excluir
-                                                  </button>
-                                                )}
-                                              </div>
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                              {/* Add nested reply form */}
-                              {isReplying && (
-                                <div style={{ paddingLeft: "36px", display: "flex", gap: "8px", alignItems: "center", marginTop: "4px", marginBottom: "8px" }}>
-                                  <input
-                                    type="text"
-                                    placeholder="Escreva uma resposta..."
-                                    value={replyTexts[comment.id] || ""}
-                                    onChange={(e) => setReplyTexts(prev => ({ ...prev, [comment.id]: e.target.value }))}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter') handleAddReply(post.id, comment.id);
-                                    }}
-                                    className="input-dark"
-                                    style={{
-                                      flex: 1,
-                                      padding: "6px 10px",
-                                      fontSize: "11px",
-                                      borderRadius: "100px",
-                                      backgroundColor: "rgba(0,0,0,0.2)",
-                                      outline: "none"
-                                    }}
-                                  />
-                                  <button
-                                    onClick={() => handleAddReply(post.id, comment.id)}
-                                    style={{
-                                      background: "transparent",
-                                      border: "none",
-                                      color: "var(--color-secondary)",
-                                      cursor: "pointer",
-                                      display: "flex",
-                                      alignItems: "center"
-                                    }}
-                                    className="hover-opacity"
-                                  >
-                                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>send</span>
-                                  </button>
-                                </div>
+                          {/* Add comment form */}
+                          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                            <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(145, 179, 225, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              {currentMemberInfo?.img ? (
+                                <img src={currentMemberInfo.img} alt="Você" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              ) : (
+                                <span style={{ color: "var(--color-secondary)", fontSize: "9px", fontWeight: "bold" }}>
+                                  {currentMemberInfo?.initials || "VC"}
+                                </span>
                               )}
                             </div>
-                          );
-                        })}
-                      </div>
+                            <input
+                              type="text"
+                              placeholder="Escreva um comentário..."
+                              value={commentTexts[post.id] || ""}
+                              onChange={(e) => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleAddComment(post.id);
+                              }}
+                              className="input-dark"
+                              style={{
+                                flex: 1,
+                                padding: "8px 12px",
+                                fontSize: "12px",
+                                borderRadius: "100px",
+                                backgroundColor: "rgba(0,0,0,0.2)"
+                              }}
+                            />
+                            <button
+                              onClick={() => handleAddComment(post.id)}
+                              style={{
+                                background: "transparent",
+                                border: "none",
+                                color: "var(--color-secondary)",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center"
+                              }}
+                              className="hover-opacity"
+                            >
+                              <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>send</span>
+                            </button>
+                          </div>
 
-                      {/* Add comment form */}
-                      <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                        <div style={{ width: "30px", height: "30px", borderRadius: "50%", overflow: "hidden", border: "1.5px solid var(--color-secondary)", backgroundColor: "rgba(145, 179, 225, 0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          {currentMemberInfo?.img ? (
-                            <img src={currentMemberInfo.img} alt="Você" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            <span style={{ color: "var(--color-secondary)", fontSize: "9px", fontWeight: "bold" }}>
-                              {currentMemberInfo?.initials || "VC"}
-                            </span>
-                          )}
                         </div>
-                        <input
-                          type="text"
-                          placeholder="Escreva um comentário..."
-                          value={commentTexts[post.id] || ""}
-                          onChange={(e) => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleAddComment(post.id);
-                          }}
-                          className="input-dark"
-                          style={{
-                            flex: 1,
-                            padding: "8px 12px",
-                            fontSize: "12px",
-                            borderRadius: "100px",
-                            backgroundColor: "rgba(0,0,0,0.2)"
-                          }}
-                        />
-                        <button
-                          onClick={() => handleAddComment(post.id)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            color: "var(--color-secondary)",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center"
-                          }}
-                          className="hover-opacity"
-                        >
-                          <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>send</span>
-                        </button>
-                      </div>
+                      )}
 
-                    </div>
-                  )}
-
-                </article>
-              );
-            })}
-          </div>
-          </>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
           ) : (
             /* Reels Feed */
             <div className="reels-feed-container">
@@ -2338,8 +2291,8 @@ export default function FeedComunidadePage() {
               ) : (
                 posts.filter(p => p.post_type === "reels").map((reel) => {
                   return (
-                    <ReelCard 
-                      key={reel.id} 
+                    <ReelCard
+                      key={reel.id}
                       reel={reel}
                       currentUser={currentUser}
                       onLike={handleLikePost}
@@ -2454,27 +2407,27 @@ export default function FeedComunidadePage() {
                       label = "CONECTADO";
                       isAccepted = true;
                     }
-                    
+
                     return (
                       <button
                         onClick={() => !isAccepted && !isPending && handleConnectAction(member.id, member.name)}
                         disabled={isPending || isAccepted}
                         style={{
-                          backgroundColor: isAccepted 
-                            ? "rgba(16, 185, 129, 0.1)" 
-                            : isPending 
-                              ? "rgba(255, 255, 255, 0.04)" 
+                          backgroundColor: isAccepted
+                            ? "rgba(16, 185, 129, 0.1)"
+                            : isPending
+                              ? "rgba(255, 255, 255, 0.04)"
                               : "rgba(145, 179, 225, 0.08)",
-                          border: isAccepted 
-                            ? "1px solid rgba(16, 185, 129, 0.3)" 
-                            : isPending 
-                              ? "1px solid rgba(255, 255, 255, 0.1)" 
+                          border: isAccepted
+                            ? "1px solid rgba(16, 185, 129, 0.3)"
+                            : isPending
+                              ? "1px solid rgba(255, 255, 255, 0.1)"
                               : "1px solid rgba(145, 179, 225, 0.25)",
                           borderRadius: "4px",
-                          color: isAccepted 
-                            ? "#10b981" 
-                            : isPending 
-                              ? "var(--color-outline)" 
+                          color: isAccepted
+                            ? "#10b981"
+                            : isPending
+                              ? "var(--color-outline)"
                               : "var(--color-secondary)",
                           fontSize: "10px",
                           fontWeight: 700,
@@ -2532,7 +2485,7 @@ export default function FeedComunidadePage() {
             {/* Centered Relative Wrapper */}
             <div className="story-viewer-wrapper" onClick={(e) => e.stopPropagation()}>
               {/* Prev Button (Desktop) */}
-              <button 
+              <button
                 type="button"
                 className="story-viewer-nav-btn story-viewer-nav-left"
                 onClick={(e) => {
@@ -2545,229 +2498,229 @@ export default function FeedComunidadePage() {
 
               {/* Main Container */}
               <div className="story-viewer-container">
-              {/* Progress Bars */}
-              <div className="story-viewer-progress-bar-row">
-                {authorStories.map((story, index) => {
-                  const isStoryPaused = (customDialog && customDialog.isOpen) || showViewersModal;
-                  let fillClass = "";
-                  let animStyle: any = {};
-                  if (index < activeStoryIndex) {
-                    fillClass = "completed";
-                  } else if (index === activeStoryIndex) {
-                    fillClass = "active-fill";
-                    animStyle = { 
-                      animationDuration: `${storyDuration / 1000}s`,
-                      animationPlayState: isStoryPaused ? "paused" : "running"
-                    };
-                  }
-                  return (
-                    <div key={story.id} className="story-viewer-progress-bar-bg">
-                      <div 
-                        key={`${story.id}-${storyDuration}`}
-                        className={`story-viewer-progress-bar-fill ${fillClass}`} 
-                        style={animStyle}
-                        onAnimationEnd={() => {
-                          if (index === activeStoryIndex) {
-                            handleNextStory();
-                          }
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+                {/* Progress Bars */}
+                <div className="story-viewer-progress-bar-row">
+                  {authorStories.map((story, index) => {
+                    const isStoryPaused = (customDialog && customDialog.isOpen) || showViewersModal;
+                    let fillClass = "";
+                    let animStyle: any = {};
+                    if (index < activeStoryIndex) {
+                      fillClass = "completed";
+                    } else if (index === activeStoryIndex) {
+                      fillClass = "active-fill";
+                      animStyle = {
+                        animationDuration: `${storyDuration / 1000}s`,
+                        animationPlayState: isStoryPaused ? "paused" : "running"
+                      };
+                    }
+                    return (
+                      <div key={story.id} className="story-viewer-progress-bar-bg">
+                        <div
+                          key={`${story.id}-${storyDuration}`}
+                          className={`story-viewer-progress-bar-fill ${fillClass}`}
+                          style={animStyle}
+                          onAnimationEnd={() => {
+                            if (index === activeStoryIndex) {
+                              handleNextStory();
+                            }
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
 
-              {/* Header */}
-              <div className="story-viewer-header">
-                <div className="story-viewer-author">
-                  <img src={storyAuthorAvatar} alt={storyAuthorName} />
-                  <div className="story-viewer-author-info">
-                    <h4>{storyAuthorName}</h4>
-                    <span>{formatPostTime(currentStory.created_at)}</span>
+                {/* Header */}
+                <div className="story-viewer-header">
+                  <div className="story-viewer-author">
+                    <img src={storyAuthorAvatar} alt={storyAuthorName} />
+                    <div className="story-viewer-author-info">
+                      <h4>{storyAuthorName}</h4>
+                      <span>{formatPostTime(currentStory.created_at)}</span>
+                    </div>
                   </div>
-                </div>
-                {currentUser && currentStory.user_id === currentUser.id && (
-                  <button
-                    type="button"
-                    className="story-viewer-delete"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteStory(currentStory.id);
-                    }}
-                    title="Excluir status"
-                    style={{
-                      background: "none",
-                      border: "none",
-                      color: "rgba(255, 255, 255, 0.75)",
-                      cursor: "pointer",
-                      padding: "4px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginRight: "8px",
-                      transition: "color 0.2s"
-                    }}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>delete</span>
-                  </button>
-                )}
-                <button 
-                  type="button"
-                  className="story-viewer-close"
-                  onClick={() => {
-                    setActiveStoryAuthor(null);
-                    setActiveStoryIndex(0);
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>close</span>
-                </button>
-              </div>
-
-              {/* Media content */}
-              {currentStory.video_url ? (
-                <video 
-                  ref={storyVideoRef}
-                  key={currentStory.id}
-                  src={currentStory.video_url} 
-                  autoPlay 
-                  muted={false}
-                  playsInline
-                  className="story-viewer-media"
-                  onLoadedMetadata={(e) => {
-                    const dur = e.currentTarget.duration * 1000;
-                    setStoryDuration(dur || 5000);
-                  }}
-                  onEnded={() => {
-                    handleNextStory();
-                  }}
-                />
-              ) : (
-                <img 
-                  key={currentStory.id}
-                  src={currentStory.image_url || ""} 
-                  className="story-viewer-media" 
-                  alt="Status"
-                  onLoad={() => {
-                    setStoryDuration(5000);
-                  }}
-                />
-              )}
-
-              {/* Caption */}
-              {currentStory.content && (
-                <div className="story-viewer-caption" style={{ bottom: currentUser && currentStory.user_id === currentUser.id ? "48px" : "0" }}>
-                  <p style={{ margin: 0 }}>{currentStory.content}</p>
-                </div>
-              )}
-
-              {/* Views Bar (Instagram style) */}
-              {currentUser && currentStory.user_id === currentUser.id && (
-                <div 
-                  className="story-viewer-views-bar"
-                  onClick={() => setShowViewersModal(true)}
-                  style={{
-                    position: "absolute",
-                    bottom: "16px",
-                    left: "16px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    cursor: "pointer",
-                    backgroundColor: "rgba(0, 0, 0, 0.6)",
-                    padding: "6px 12px",
-                    borderRadius: "20px",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    zIndex: 20,
-                    color: "#ffffff",
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    backdropFilter: "blur(4px)",
-                    transition: "background-color 0.2s"
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>visibility</span>
-                  <span>{storyViewers.length} {storyViewers.length === 1 ? "visualização" : "visualizações"}</span>
-                </div>
-              )}
-
-              {/* Story Viewers slide-up drawer */}
-              {showViewersModal && (
-                <div 
-                  className="story-viewers-drawer"
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: "60%",
-                    backgroundColor: "rgba(20, 20, 25, 0.95)",
-                    backdropFilter: "blur(12px)",
-                    borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-                    borderTopLeftRadius: "16px",
-                    borderTopRightRadius: "16px",
-                    zIndex: 30,
-                    display: "flex",
-                    flexDirection: "column",
-                    padding: "16px",
-                    animation: "slideUp 0.3s ease-out forwards"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "10px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--color-secondary)" }}>visibility</span>
-                      <span style={{ fontSize: "14px", fontWeight: 600, color: "#ffffff" }}>Visto por ({storyViewers.length})</span>
-                    </div>
+                  {currentUser && currentStory.user_id === currentUser.id && (
                     <button
                       type="button"
-                      onClick={() => setShowViewersModal(false)}
-                      style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center" }}
+                      className="story-viewer-delete"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteStory(currentStory.id);
+                      }}
+                      title="Excluir status"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "rgba(255, 255, 255, 0.75)",
+                        cursor: "pointer",
+                        padding: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginRight: "8px",
+                        transition: "color 0.2s"
+                      }}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+                      <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>delete</span>
                     </button>
-                  </div>
-
-                  <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }} className="custom-scrollbar">
-                    {storyViewers.length === 0 ? (
-                      <div style={{ textAlign: "center", color: "var(--color-on-surface-variant)", padding: "30px 10px", fontSize: "12px" }}>
-                        Nenhuma visualização ainda.
-                      </div>
-                    ) : (
-                      storyViewers.map((viewer) => (
-                        <div key={viewer.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-                          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                            <div style={{ width: "32px", height: "32px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
-                              <img src={viewer.img || "/magno.jpg"} alt={viewer.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            </div>
-                            <div style={{ textAlign: "left" }}>
-                              <h5 style={{ fontSize: "12px", color: "#ffffff", fontWeight: 600, margin: 0 }}>{viewer.name}</h5>
-                              <span style={{ fontSize: "10px", color: "var(--color-on-surface-variant)", display: "block" }}>{viewer.role}</span>
-                            </div>
-                          </div>
-                          <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>
-                            {formatPostTime(viewer.viewed_at)}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
+                  )}
+                  <button
+                    type="button"
+                    className="story-viewer-close"
+                    onClick={() => {
+                      setActiveStoryAuthor(null);
+                      setActiveStoryIndex(0);
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "24px" }}>close</span>
+                  </button>
                 </div>
-              )}
-            </div>
 
-            {/* Next Button (Desktop) */}
-            <button 
-              type="button"
-              className="story-viewer-nav-btn story-viewer-nav-right"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNextStory();
-              }}
-            >
-              <span className="material-symbols-outlined">arrow_forward</span>
-            </button>
+                {/* Media content */}
+                {currentStory.video_url ? (
+                  <video
+                    ref={storyVideoRef}
+                    key={currentStory.id}
+                    src={currentStory.video_url}
+                    autoPlay
+                    muted={false}
+                    playsInline
+                    className="story-viewer-media"
+                    onLoadedMetadata={(e) => {
+                      const dur = e.currentTarget.duration * 1000;
+                      setStoryDuration(dur || 5000);
+                    }}
+                    onEnded={() => {
+                      handleNextStory();
+                    }}
+                  />
+                ) : (
+                  <img
+                    key={currentStory.id}
+                    src={currentStory.image_url || ""}
+                    className="story-viewer-media"
+                    alt="Status"
+                    onLoad={() => {
+                      setStoryDuration(5000);
+                    }}
+                  />
+                )}
+
+                {/* Caption */}
+                {currentStory.content && (
+                  <div className="story-viewer-caption" style={{ bottom: currentUser && currentStory.user_id === currentUser.id ? "48px" : "0" }}>
+                    <p style={{ margin: 0 }}>{currentStory.content}</p>
+                  </div>
+                )}
+
+                {/* Views Bar (Instagram style) */}
+                {currentUser && currentStory.user_id === currentUser.id && (
+                  <div
+                    className="story-viewer-views-bar"
+                    onClick={() => setShowViewersModal(true)}
+                    style={{
+                      position: "absolute",
+                      bottom: "16px",
+                      left: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      cursor: "pointer",
+                      backgroundColor: "rgba(0, 0, 0, 0.6)",
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      zIndex: 20,
+                      color: "#ffffff",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      backdropFilter: "blur(4px)",
+                      transition: "background-color 0.2s"
+                    }}
+                  >
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>visibility</span>
+                    <span>{storyViewers.length} {storyViewers.length === 1 ? "visualização" : "visualizações"}</span>
+                  </div>
+                )}
+
+                {/* Story Viewers slide-up drawer */}
+                {showViewersModal && (
+                  <div
+                    className="story-viewers-drawer"
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: "60%",
+                      backgroundColor: "rgba(20, 20, 25, 0.95)",
+                      backdropFilter: "blur(12px)",
+                      borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderTopLeftRadius: "16px",
+                      borderTopRightRadius: "16px",
+                      zIndex: 30,
+                      display: "flex",
+                      flexDirection: "column",
+                      padding: "16px",
+                      animation: "slideUp 0.3s ease-out forwards"
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "10px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: "18px", color: "var(--color-secondary)" }}>visibility</span>
+                        <span style={{ fontSize: "14px", fontWeight: 600, color: "#ffffff" }}>Visto por ({storyViewers.length})</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowViewersModal(false)}
+                        style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", display: "flex", alignItems: "center" }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>close</span>
+                      </button>
+                    </div>
+
+                    <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }} className="custom-scrollbar">
+                      {storyViewers.length === 0 ? (
+                        <div style={{ textAlign: "center", color: "var(--color-on-surface-variant)", padding: "30px 10px", fontSize: "12px" }}>
+                          Nenhuma visualização ainda.
+                        </div>
+                      ) : (
+                        storyViewers.map((viewer) => (
+                          <div key={viewer.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
+                            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                              <div style={{ width: "32px", height: "32px", borderRadius: "50%", overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)" }}>
+                                <img src={viewer.img || "/magno.jpg"} alt={viewer.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              </div>
+                              <div style={{ textAlign: "left" }}>
+                                <h5 style={{ fontSize: "12px", color: "#ffffff", fontWeight: 600, margin: 0 }}>{viewer.name}</h5>
+                                <span style={{ fontSize: "10px", color: "var(--color-on-surface-variant)", display: "block" }}>{viewer.role}</span>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: "10px", color: "var(--color-outline)" }}>
+                              {formatPostTime(viewer.viewed_at)}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Next Button (Desktop) */}
+              <button
+                type="button"
+                className="story-viewer-nav-btn story-viewer-nav-right"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNextStory();
+                }}
+              >
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </button>
+            </div>
           </div>
-          </div>
-          );
+        );
       })()}
 
       {/* Toast Notification */}
@@ -2802,7 +2755,7 @@ export default function FeedComunidadePage() {
 
       {/* Custom Dialog Modal (Alert/Confirm) */}
       {customDialog && customDialog.isOpen && (
-        <div 
+        <div
           style={{
             position: "fixed",
             top: 0,
@@ -2823,7 +2776,7 @@ export default function FeedComunidadePage() {
             }
           }}
         >
-          <div 
+          <div
             style={{
               backgroundColor: "var(--color-surface-container-low)",
               border: "1px solid rgba(255, 255, 255, 0.08)",
@@ -2889,7 +2842,7 @@ export default function FeedComunidadePage() {
 
       {/* Lightbox Modal */}
       {lightboxPost && (
-        <div 
+        <div
           style={{
             position: "fixed",
             top: 0,
@@ -2906,7 +2859,7 @@ export default function FeedComunidadePage() {
           }}
           onClick={() => setLightboxPostId(null)}
         >
-          <div 
+          <div
             style={{
               width: "90%",
               maxWidth: "1000px",
@@ -3049,10 +3002,10 @@ export default function FeedComunidadePage() {
 
               {/* Input for new comment */}
               <div style={{ padding: "16px", borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: "10px", alignItems: "center" }}>
-                <img 
-                  src={currentMemberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} 
-                  alt="Você" 
-                  style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }} 
+                <img
+                  src={currentMemberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"}
+                  alt="Você"
+                  style={{ width: "32px", height: "32px", borderRadius: "50%", objectFit: "cover" }}
                 />
                 <input
                   type="text"
@@ -3284,7 +3237,7 @@ function ReelCard({
 
       {/* Comments Drawer Slide-Up overlay */}
       {commentsDrawerOpen && (
-        <div 
+        <div
           style={{
             position: "absolute",
             bottom: 0,
@@ -3307,7 +3260,7 @@ function ReelCard({
             <span style={{ fontSize: "12px", fontWeight: 700, color: "#ffffff" }}>
               Comentários ({reel.comments?.length || 0})
             </span>
-            <button 
+            <button
               style={{ background: "transparent", border: "none", color: "#ffffff", cursor: "pointer" }}
               onClick={() => setCommentsDrawerOpen(false)}
             >
@@ -3348,7 +3301,7 @@ function ReelCard({
                           <span style={{ fontSize: "11px", fontWeight: 700, color: "#ffffff" }}>{comment.author_name}</span>
                           <span style={{ fontSize: "8px", color: "var(--color-outline)" }}>{formatPostTime(comment.created_at)}</span>
                         </div>
-                        
+
                         {isEditingComment ? (
                           <div style={{ marginTop: "4px" }}>
                             <input
@@ -3389,7 +3342,7 @@ function ReelCard({
                             <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", margin: "2px 0 0 0", lineHeight: "1.4" }}>
                               {comment.content}
                             </p>
-                            
+
                             <div style={{ display: "flex", gap: "10px", marginTop: "4px", alignItems: "center" }}>
                               <button
                                 onClick={() => {
@@ -3480,7 +3433,7 @@ function ReelCard({
                                   <span style={{ fontSize: "10px", fontWeight: 700, color: "#ffffff" }}>{reply.author_name}</span>
                                   <span style={{ fontSize: "7px", color: "var(--color-outline)" }}>{formatPostTime(reply.created_at)}</span>
                                 </div>
-                                
+
                                 {isEditingReply ? (
                                   <div style={{ marginTop: "4px" }}>
                                     <input
@@ -3521,7 +3474,7 @@ function ReelCard({
                                     <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.7)", margin: "2px 0 0 0", lineHeight: "1.4" }}>
                                       {reply.content}
                                     </p>
-                                    
+
                                     <div style={{ display: "flex", gap: "8px", marginTop: "2px", alignItems: "center" }}>
                                       {isReplyOwner && (
                                         <button
@@ -3611,10 +3564,10 @@ function ReelCard({
 
           {/* Input */}
           <div style={{ padding: "12px 16px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: "10px", alignItems: "center" }}>
-            <img 
-              src={currentMemberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"} 
-              alt="Você" 
-              style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }} 
+            <img
+              src={currentMemberInfo?.img || "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=200"}
+              alt="Você"
+              style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover" }}
             />
             <input
               type="text"
@@ -3650,7 +3603,8 @@ function ReelCard({
         </div>
       )}
       {/* CSS injection for animations specifically within the card */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes slideUp {
           from { transform: translateY(100%); }
           to { transform: translateY(0); }

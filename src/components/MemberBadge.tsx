@@ -21,25 +21,25 @@ const MEMBER_CONFIG = {
     shadow: 'rgba(237, 192, 102, 0.45)',
   },
   mentor: {
-    color: '#B388FF',
-    label: 'Mentorado',
-    icon: '🎓',
-    gradient: 'linear-gradient(135deg, #7C4DFF, #B388FF, #651FFF)',
-    shadow: 'rgba(124, 77, 255, 0.45)',
+    color: '#EDC066',
+    label: 'Mentor',
+    icon: '★',
+    gradient: 'linear-gradient(135deg, #EDC066, #FCE8B2, #EDC066)',
+    shadow: 'rgba(237, 192, 102, 0.45)',
   },
   admin: {
-    color: '#91B3E1',
+    color: '#EDC066',
     label: 'Admin',
     icon: '✓',
-    gradient: 'linear-gradient(135deg, #91B3E1, #3B82F6, #1E40AF)',
-    shadow: 'rgba(145, 179, 225, 0.45)',
+    gradient: 'linear-gradient(135deg, #EDC066, #FCE8B2, #EDC066)',
+    shadow: 'rgba(237, 192, 102, 0.45)',
   },
   mentorado: {
-    color: '#B388FF',
+    color: '#91B3E1',
     label: 'Mentorado',
     icon: '🎓',
-    gradient: 'linear-gradient(135deg, #7C4DFF, #B388FF, #651FFF)',
-    shadow: 'rgba(124, 77, 255, 0.45)',
+    gradient: 'linear-gradient(135deg, #91B3E1, #3B82F6, #1E40AF)',
+    shadow: 'rgba(145, 179, 225, 0.45)',
   },
 } as const;
 
@@ -159,7 +159,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
   const badgeIconStyle: React.CSSProperties = {
     fontSize: badgeFontSize,
     lineHeight: 1,
-    color: resolvedType === 'mentor' || resolvedType === 'mentorado' ? '#fff' : '#111118',
+    color: resolvedType === 'mentorado' ? '#fff' : '#111118',
     fontWeight: 900,
     display: 'flex',
     alignItems: 'center',
@@ -225,7 +225,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
                     fill="#2a1f00"
                   />
                 </svg>
-              ) : resolvedType === 'mentor' ? (
+              ) : resolvedType === 'mentorado' ? (
                 <svg
                   width={badgeFontSize}
                   height={badgeFontSize}
@@ -238,7 +238,7 @@ const MemberBadge: React.FC<MemberBadgeProps> = ({
                     fill="#fff"
                   />
                 </svg>
-              ) : resolvedType === 'master' ? (
+              ) : (resolvedType === 'master' || resolvedType === 'mentor') ? (
                 <span style={{ fontSize: badgeFontSize, lineHeight: 1 }}>★</span>
               ) : (
                 <svg
