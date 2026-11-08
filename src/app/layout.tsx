@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://grupocls.com.br"),
   title: "CLUB PRO CLS",
   description: "Plataforma exclusiva de educação e mentoria para membros CLS",
   manifest: "/manifest.json",
@@ -78,7 +79,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@400;600;700;800&family=Sora:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
         <link
