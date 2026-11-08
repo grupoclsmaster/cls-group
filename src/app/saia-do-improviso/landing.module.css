@@ -65,8 +65,8 @@
   background-image: linear-gradient(rgba(158, 192, 216, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(158, 192, 216, 0.08) 1px, transparent 1px);
   background-size: 56px 56px;
-  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 75%);
-  mask-image: radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 75%);
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 75%);
 }
 
 /* ---------- Tipografia ---------- */
@@ -210,16 +210,8 @@
 }
 
 .reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
-  will-change: opacity, transform;
-}
-
-.reveal[data-visible] {
   opacity: 1;
   transform: none;
-  will-change: auto;
 }
 
 /* =========================================================
@@ -324,6 +316,9 @@
 }
 
 .heroPhoto {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center 15%;
 }
@@ -334,9 +329,7 @@
   bottom: 14px;
   right: 14px;
   z-index: 2;
-  background: rgba(9, 24, 38, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(9, 24, 38, 0.94);
   border: 1px solid rgba(158, 192, 216, 0.22);
   border-radius: 8px;
   padding: 12px 16px;
@@ -489,6 +482,9 @@
 }
 
 .mediaCover {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -702,6 +698,9 @@
 }
 
 .authorityImg {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center 35%;
 }
@@ -1088,11 +1087,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 90;
+    z-index: 999;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
     padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
-    background: rgba(9, 24, 38, 0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #091826;
     border-top: 1px solid rgba(158, 192, 216, 0.22);
   }
 

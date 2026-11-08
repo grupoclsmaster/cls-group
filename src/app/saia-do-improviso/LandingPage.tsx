@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Script from "next/script";
 import { useEffect, useState, type ReactNode } from "react";
 import styles from "./landing.module.css";
@@ -194,13 +193,12 @@ export default function LandingPage() {
 
               <div className={styles.heroPhotoWrap}>
                 <div className={styles.heroPhotoFrame}>
-                  <Image
+                  <img
                     className={styles.heroPhoto}
                     src={eventConfig.expertPhoto}
                     alt={eventConfig.expert}
-                    fill
-                    priority
-                    unoptimized
+                    loading="eager"
+                    decoding="async"
                   />
                   <div className={styles.heroPhotoTag}>
                     <strong>{eventConfig.expert}</strong>
@@ -290,11 +288,11 @@ export default function LandingPage() {
               </div>
 
               <div className={cx(styles.solutionMedia, styles.reveal)} data-reveal>
-                <Image
+                <img
                   src={images.houseConstruction}
                   alt="Obra residencial de alto padrão em execução organizada"
-                  fill
-                  unoptimized
+                  loading="lazy"
+                  decoding="async"
                   className={styles.mediaCover}
                 />
               </div>
@@ -307,11 +305,11 @@ export default function LandingPage() {
           <div className={styles.container}>
             <div className={styles.aiGrid}>
               <div className={cx(styles.aiMedia, styles.reveal)} data-reveal>
-                <Image
+                <img
                   src={images.aiTechnology}
                   alt="Magno Santos utilizando Inteligência Artificial na gestão de obras"
-                  fill
-                  unoptimized
+                  loading="lazy"
+                  decoding="async"
                   className={styles.mediaCover}
                 />
               </div>
@@ -386,11 +384,11 @@ export default function LandingPage() {
           <div className={styles.container}>
             <div className={styles.authority}>
               <div className={cx(styles.authorityPhoto, styles.reveal)} data-reveal>
-                <Image
+                <img
                   src={images.expertField}
                   alt={`${eventConfig.expert} no canteiro de obras`}
-                  fill
-                  unoptimized
+                  loading="lazy"
+                  decoding="async"
                   className={styles.authorityImg}
                 />
               </div>
