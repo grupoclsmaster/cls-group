@@ -183,6 +183,8 @@
 .section {
   position: relative;
   padding: 96px 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
 }
 
 .section--gray {
@@ -219,6 +221,7 @@
 .reveal[data-visible] {
   opacity: 1;
   transform: none;
+  will-change: auto;
 }
 
 /* =========================================================
@@ -312,6 +315,8 @@
 
 .heroPhotoFrame {
   position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.15;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(158, 192, 216, 0.22);
@@ -321,10 +326,6 @@
 }
 
 .heroPhoto {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1.12;
   object-fit: cover;
   object-position: center 15%;
 }
@@ -334,6 +335,7 @@
   left: 14px;
   bottom: 14px;
   right: 14px;
+  z-index: 2;
   background: rgba(9, 24, 38, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -488,11 +490,8 @@
   aspect-ratio: 4 / 3.3;
 }
 
-.solutionMedia img {
-  width: 100%;
-  height: 100%;
+.mediaCover {
   object-fit: cover;
-  display: block;
 }
 
 /* =========================================================
@@ -508,18 +507,12 @@
 }
 
 .aiMedia {
+  position: relative;
   border-radius: var(--r-media);
   overflow: hidden;
   border: 1px solid rgba(158, 192, 216, 0.26);
   box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.55);
   aspect-ratio: 1 / 1;
-}
-
-.aiMedia img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 .aiCardsGrid {
@@ -701,6 +694,7 @@
 }
 
 .authorityPhoto {
+  position: relative;
   border-radius: var(--r-media);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
@@ -709,12 +703,9 @@
   background: #091826;
 }
 
-.authorityPhoto img {
-  width: 100%;
-  height: 100%;
+.authorityImg {
   object-fit: cover;
   object-position: center 35%;
-  display: block;
 }
 
 .authorityIg {
@@ -967,7 +958,31 @@
   }
 
   .hero {
-    padding: 48px 0 68px;
+    padding: 44px 0 60px;
+  }
+
+  .heroTitle {
+    font-size: clamp(1.85rem, 7.8vw, 2.5rem);
+    line-height: 1.12;
+    margin-bottom: 16px;
+  }
+
+  .heroLead {
+    font-size: 1.02rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+
+  .heroMeta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 10px 14px;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 22px;
   }
 
   .heroCta,
@@ -979,16 +994,85 @@
     align-items: stretch;
   }
 
+  .heroSubNote {
+    text-align: center;
+  }
+
+  .heroPhotoWrap {
+    max-width: 330px;
+    margin: 0 auto;
+  }
+
+  .heroPhotoTag {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 10px 14px;
+  }
+
+  .heroPhotoTag strong {
+    font-size: 0.92rem;
+  }
+
+  .heroPhotoTag span {
+    font-size: 0.68rem;
+  }
+
+  .problemCard {
+    padding: 20px 18px;
+  }
+
+  .methodChecklist li {
+    font-size: 0.94rem;
+    gap: 10px;
+  }
+
   .aiCardsGrid {
     grid-template-columns: 1fr;
   }
 
+  .aiCard {
+    padding: 16px 14px;
+  }
+
+  .curriculumCard {
+    padding: 22px 18px;
+  }
+
+  .audienceCol {
+    padding: 24px 20px;
+  }
+
+  .authorityPhoto {
+    max-width: 310px;
+    margin: 0 auto 20px;
+  }
+
   .section {
-    padding: 60px 0;
+    padding: 56px 0;
   }
 
   .offerPrice {
-    padding: 28px 22px;
+    padding: 28px 18px;
+  }
+
+  .offerPriceValue {
+    font-size: clamp(2.4rem, 10vw, 3.2rem);
+  }
+
+  .addonNotice {
+    padding: 14px 12px;
+    font-size: 0.82rem;
+  }
+
+  .faqBtn {
+    padding: 18px 4px;
+    font-size: 1rem;
+  }
+
+  .faqPanelInner {
+    padding: 0 4px 18px;
+    font-size: 0.94rem;
   }
 
   .specRow {
@@ -1048,6 +1132,38 @@
 
   .main {
     padding-bottom: 84px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  .heroTitle {
+    font-size: 1.72rem;
+  }
+
+  .heroMeta {
+    font-size: 0.72rem;
+    padding: 8px 10px;
+  }
+
+  .offerPrice {
+    padding: 22px 14px;
+  }
+
+  .stickyInner {
+    gap: 10px;
+  }
+
+  .stickyPrice strong {
+    font-size: 1.1rem;
+  }
+
+  .stickyBar .cta {
+    padding: 11px 12px;
+    font-size: 0.82rem;
   }
 }
 

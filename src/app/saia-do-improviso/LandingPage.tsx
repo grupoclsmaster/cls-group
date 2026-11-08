@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Script from "next/script";
 import { useEffect, useState, type ReactNode } from "react";
 import styles from "./landing.module.css";
@@ -187,11 +188,14 @@ export default function LandingPage() {
 
               <div className={styles.heroPhotoWrap}>
                 <div className={styles.heroPhotoFrame}>
-                  <img
+                  <Image
                     className={styles.heroPhoto}
                     src={eventConfig.expertPhoto}
                     alt={eventConfig.expert}
-                    loading="eager"
+                    fill
+                    priority
+                    sizes="(max-width: 620px) 340px, (max-width: 960px) 380px, 430px"
+                    quality={85}
                   />
                   <div className={styles.heroPhotoTag}>
                     <strong>{eventConfig.expert}</strong>
@@ -281,10 +285,13 @@ export default function LandingPage() {
               </div>
 
               <div className={cx(styles.solutionMedia, styles.reveal)} data-reveal>
-                <img
+                <Image
                   src={images.houseConstruction}
                   alt="Obra residencial de alto padrão em execução organizada"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 960px) 100vw, 520px"
+                  quality={80}
+                  className={styles.mediaCover}
                 />
               </div>
             </div>
@@ -296,10 +303,13 @@ export default function LandingPage() {
           <div className={styles.container}>
             <div className={styles.aiGrid}>
               <div className={cx(styles.aiMedia, styles.reveal)} data-reveal>
-                <img
+                <Image
                   src={images.aiTechnology}
                   alt="Magno Santos utilizando Inteligência Artificial na gestão de obras"
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 960px) 100vw, 500px"
+                  quality={80}
+                  className={styles.mediaCover}
                 />
               </div>
               <div className={styles.reveal} data-reveal>
@@ -373,10 +383,13 @@ export default function LandingPage() {
           <div className={styles.container}>
             <div className={styles.authority}>
               <div className={cx(styles.authorityPhoto, styles.reveal)} data-reveal>
-                <img
+                <Image
                   src={images.expertField}
                   alt={`${eventConfig.expert} no canteiro de obras`}
-                  loading="lazy"
+                  fill
+                  sizes="(max-width: 620px) 320px, (max-width: 960px) 360px, 420px"
+                  quality={80}
+                  className={styles.authorityImg}
                 />
               </div>
               <div className={styles.reveal} data-reveal>

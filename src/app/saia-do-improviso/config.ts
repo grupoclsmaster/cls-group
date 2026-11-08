@@ -14,7 +14,7 @@ export const eventConfig = {
   ticketPrice: 47,
   recordingPrice: 27,
   checkoutUrl: "", // TODO: URL real do checkout
-  expertPhoto: "/magno-hero.jpg?v=2", // Foto oficial do Magno (alta definição)
+  expertPhoto: "/magno-hero.jpg", // Foto oficial do Magno (alta definição)
   eventAccessUrl: "", // TODO: link de acesso enviado após a confirmação
   // Rótulos derivados usados nos textos (ajuste junto com date/time acima)
   dateLabel: "20 de novembro de 2026",
@@ -41,11 +41,11 @@ export const siteConfig = {
 /** Imagens decorativas (obras/planejamento/tecnologia IA). A foto do expert vem de eventConfig.expertPhoto. */
 export const images = {
   /** Foto de obra de casa / construção residencial */
-  houseConstruction: "/obra-casa.jpg?v=2",
+  houseConstruction: "/obra-casa.jpg",
   /** Foto de Inteligência Artificial e ferramentas digitais aplicada à obra (Magno com holograma IA) */
-  aiTechnology: "/magno-ia.jpg?v=2",
+  aiTechnology: "/magno-ia.jpg",
   /** Foto do Magno no canteiro de obras real (Seu Mentor / Autoridade) */
-  expertField: "/magno-obra.jpg?v=2",
+  expertField: "/magno-obra.jpg",
 };
 
 /** Formata números em Real brasileiro de forma determinística (server/client). */
