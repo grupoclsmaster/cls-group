@@ -11,6 +11,13 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  const pathname = request.nextUrl.pathname;
+
+  // Rotas totalmente públicas não precisam aguardar/chamar o Supabase Auth (evita overhead e timeouts)
+  if (pathname === "/" || pathname.startsWith("/saia-do-improviso")) {
+    return supabaseResponse;
+  }
+
   // Verify that environment variables are present
   if (!supabaseUrl || !supabaseKey) {
     return supabaseResponse;

@@ -118,7 +118,13 @@ export default function LandingPage() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
+    // Fallback de segurança: torna tudo visível caso o IntersectionObserver falhe no mobile
+    const fallbackTimer = setTimeout(() => {
+      elements.forEach((el) => el.setAttribute("data-visible", "true"));
+    }, 1000);
+
     return () => {
+      clearTimeout(fallbackTimer);
       io.disconnect();
       window.removeEventListener("scroll", onScroll);
     };
@@ -194,8 +200,7 @@ export default function LandingPage() {
                     alt={eventConfig.expert}
                     fill
                     priority
-                    sizes="(max-width: 620px) 340px, (max-width: 960px) 380px, 430px"
-                    quality={85}
+                    unoptimized
                   />
                   <div className={styles.heroPhotoTag}>
                     <strong>{eventConfig.expert}</strong>
@@ -289,8 +294,7 @@ export default function LandingPage() {
                   src={images.houseConstruction}
                   alt="Obra residencial de alto padrão em execução organizada"
                   fill
-                  sizes="(max-width: 960px) 100vw, 520px"
-                  quality={80}
+                  unoptimized
                   className={styles.mediaCover}
                 />
               </div>
@@ -307,8 +311,7 @@ export default function LandingPage() {
                   src={images.aiTechnology}
                   alt="Magno Santos utilizando Inteligência Artificial na gestão de obras"
                   fill
-                  sizes="(max-width: 960px) 100vw, 500px"
-                  quality={80}
+                  unoptimized
                   className={styles.mediaCover}
                 />
               </div>
@@ -387,8 +390,7 @@ export default function LandingPage() {
                   src={images.expertField}
                   alt={`${eventConfig.expert} no canteiro de obras`}
                   fill
-                  sizes="(max-width: 620px) 320px, (max-width: 960px) 360px, 420px"
-                  quality={80}
+                  unoptimized
                   className={styles.authorityImg}
                 />
               </div>
