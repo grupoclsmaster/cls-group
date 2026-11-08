@@ -721,7 +721,7 @@ export function SkeletonEcossistema() {
                   display: "flex",
                   alignItems: "center",
                   gap: "14px",
-                  flexShrink: isDesktop ? 0 : "0 0 260px",
+                  flexShrink: 0,
                   width: isDesktop ? "100%" : "260px"
                 }}
               >

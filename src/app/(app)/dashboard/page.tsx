@@ -262,14 +262,19 @@ export default function DashboardPage() {
         const { data: dbMissions } = await supabase
           .from("missions")
           .select("id");
-        const { data: dbSubsubmissions } = await supabase
-          .from("mission_submissions")
-          .select("status")
-          .eq("student_id", user.id)
-          .eq("status", "approved");
 
         const totalM = dbMissions?.length || 0;
-        const approvedM = dbSubsubmissions?.length || 0;
+        let approvedM = 0;
+
+        if (user) {
+          const { data: dbSubsubmissions } = await supabase
+            .from("mission_submissions")
+            .select("status")
+            .eq("student_id", user.id)
+            .eq("status", "approved");
+          approvedM = dbSubsubmissions?.length || 0;
+        }
+
         setMissionsCount(totalM);
         setApprovedMissionsCount(approvedM);
         setMissionsProgress(totalM > 0 ? Math.round((approvedM / totalM) * 100) : 0);

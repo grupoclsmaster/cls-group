@@ -7,7 +7,7 @@ import { eventConfig, formatBRL, images, metaLine, siteConfig, trackingConfig } 
 import { track, trackPixel } from "./tracking";
 import {
   aiItems,
-  audienceItems,
+  audienceProfiles,
   faqItems,
   lessonCards,
   offerRows,
@@ -48,17 +48,16 @@ function TrackingScripts() {
   );
 }
 
-/* ---------- Botão de conversão reutilizável ---------- */
+/* ---------- Botão CTA reutilizável ---------- */
 interface CtaProps {
-  onClick: () => void;
   children: ReactNode;
   large?: boolean;
   full?: boolean;
   pulse?: boolean;
-  className?: string;
+  onClick: () => void;
 }
 
-function Cta({ onClick, children, large, full, pulse, className }: CtaProps) {
+function Cta({ children, large, full, pulse, onClick }: CtaProps) {
   return (
     <button
       type="button"
@@ -68,13 +67,10 @@ function Cta({ onClick, children, large, full, pulse, className }: CtaProps) {
         large && styles["cta--lg"],
         full && styles["cta--full"],
         pulse && styles["cta--pulse"],
-        className,
       )}
     >
       <span>{children}</span>
-      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-        arrow_forward
-      </span>
+      <span className={cx(styles.ctaArrow, "material-symbols-outlined")}>arrow_forward</span>
     </button>
   );
 }
@@ -82,39 +78,73 @@ function Cta({ onClick, children, large, full, pulse, className }: CtaProps) {
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  /* Reveal ao rolar + eventos de página e scroll depth */
   useEffect(() => {
-    // Evento de visualização da página
     track("page_view", { page: siteConfig.path, event: eventConfig.name });
     trackPixel("PageView");
+    trackPixel("ViewContent", {
+      content_name: eventConfig.name,
+      value: eventConfig.ticketPrice,
+      currency: "BRL",
+    });
 
-    // Revelação passiva ao rolar
-    const elements = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
-    if (!("IntersectionObserver" in window) || elements.length === 0) {
-      elements.forEach((el) => el.setAttribute("data-visible", ""));
-      return;
-    }
-    const observer = new IntersectionObserver(
+    const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
+    const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.setAttribute("data-visible", "");
-            observer.unobserve(entry.target);
+            entry.target.setAttribute("data-visible", "true");
+            io.unobserve(entry.target);
           }
         });
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    elements.forEach((el) => io.observe(el));
+
+    const firedDepths = new Set<number>();
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - doc.clientHeight;
+      if (max <= 0) return;
+      const pct = Math.round((window.scrollY / max) * 100);
+      for (const mark of [25, 50, 75, 90]) {
+        if (pct >= mark && !firedDepths.has(mark)) {
+          firedDepths.add(mark);
+          track("scroll_depth", { percent: mark });
+        }
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
-  /** Todos os CTAs apontam para o mesmo checkout. */
-  const handleCheckout = (location: string) => {
-    track("cta_click", { location, value: eventConfig.ticketPrice, currency: "BRL" });
+  /* Redireciona para o checkout (ou rola para a oferta se URL ainda vazia) */
+  const handleCheckout = (origin: string) => {
+    track("cta_click", {
+      origin,
+      event: eventConfig.name,
+      value: eventConfig.ticketPrice,
+      currency: "BRL",
+    });
+    trackPixel("InitiateCheckout", {
+      content_name: eventConfig.name,
+      value: eventConfig.ticketPrice,
+      currency: "BRL",
+    });
+
     if (eventConfig.checkoutUrl) {
-      track("begin_checkout", { value: eventConfig.ticketPrice, currency: "BRL" });
-      trackPixel("InitiateCheckout", { value: eventConfig.ticketPrice, currency: "BRL" });
       window.location.href = eventConfig.checkoutUrl;
+      return;
+    }
+
+    const offerEl = document.getElementById("inscricao");
+    if (offerEl) {
+      offerEl.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -128,25 +158,18 @@ export default function LandingPage() {
       />
 
       <main className={styles.main}>
-        {/* ================= DOBRA 01 — HERO ================= */}
+        {/* ================= DOBRA 01: HERO ================= */}
         <section className={styles.hero}>
-          <div className={styles.heroBg} style={{ backgroundImage: `url('${images.heroBg}')` }} />
           <div className={styles.heroOverlay} />
           <div className={styles.blueprint} />
           <div className={styles.container}>
             <div className={styles.heroInner}>
               <div>
-                <span className={styles.badge}>
-                  Aula especial para profissionais da construção civil
-                </span>
                 <h1 className={styles.heroTitle}>
-                  Chega de improvisar na obra.
+                  Pare de tocar obra apagando incêndio e perdendo margem.
                 </h1>
                 <p className={styles.heroLead}>
-                  Aprenda a trabalhar com organização, método e inteligência artificial na construção civil.
-                </p>
-                <p className={styles.heroSub}>
-                  Aula online e ao vivo com o {eventConfig.expert}.
+                  O método prático para <strong>engenheiros que precisam estruturar seu negócio</strong> e <strong>mestres de obras que querem organizar o canteiro</strong> e blindar o lucro que realmente sobra no bolso.
                 </p>
                 <div className={styles.heroMeta}>
                   <span className="material-symbols-outlined">calendar_month</span>
@@ -156,6 +179,9 @@ export default function LandingPage() {
                   <Cta large pulse onClick={() => handleCheckout("hero")}>
                     Quero sair do improviso
                   </Cta>
+                  <span className={styles.heroSubNote}>
+                    Encontro prático e ao vivo. Acesso imediato ao link após confirmação.
+                  </span>
                 </div>
               </div>
 
@@ -169,7 +195,7 @@ export default function LandingPage() {
                   />
                   <div className={styles.heroPhotoTag}>
                     <strong>{eventConfig.expert}</strong>
-                    <span>Engenharia • Infraestrutura • Projetos</span>
+                    <span>Engenharia Civil • Infraestrutura • Gestão de Obras</span>
                     <a
                       href={eventConfig.expertInstagram}
                       target="_blank"
@@ -185,207 +211,177 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ================= DOBRA 02 — IDENTIFICAÇÃO COM O PROBLEMA ================= */}
+        {/* ================= DOBRA 02: REALIDADE DO CANTEIRO ================= */}
         <section className={cx(styles.section, styles["section--gray"])}>
           <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
+            <div className={cx(styles.sectionHeader, styles.reveal)} data-reveal>
+              <span className={styles.eyebrow}>A realidade do campo</span>
               <h2 className={styles.h2}>
-                Você trabalha muito, mas sente que poderia trabalhar melhor?
+                O improviso custa caro. E quase sempre sai do seu bolso.
               </h2>
-              <p className={styles.text} style={{ marginTop: 22 }}>
-                Na construção civil, muitos profissionais acabam perdendo tempo com problemas que
-                poderiam ser evitados.
-              </p>
-              <p className={styles.text} style={{ marginTop: 14 }}>
-                Falta de planejamento, informações desorganizadas, retrabalho, atrasos e dificuldade
-                para acompanhar atividades fazem parte da rotina de muita gente.
-              </p>
-              <p className={styles.h3} style={{ marginTop: 26 }}>
-                Veja se você se identifica:
+              <p className={styles.text} style={{ marginTop: 16 }}>
+                Quem vive rotina de obra sabe que trabalhar sem processo transforma qualquer projeto em dor de cabeça diária:
               </p>
             </div>
 
-            <div className={styles.diagnostics}>
-              {problemCards.map((item, index) => (
-                <article key={item.title} className={styles.diagItem}>
-                  <span className={styles.diagIndex}>{String(index + 1).padStart(2, "0")}</span>
-                  <div className={styles.diagBody}>
+            <div className={styles.problemGrid}>
+              {problemCards.map((item) => (
+                <article key={item.title} className={cx(styles.problemCard, styles.reveal)} data-reveal>
+                  <div className={styles.problemIconWrap}>
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </div>
+                  <div>
+                    <span className={styles.problemTag}>{item.tag}</span>
                     <h3 className={styles.diagTitle}>{item.title}</h3>
                     <p className={styles.diagText}>{item.text}</p>
                   </div>
-                  <span className="material-symbols-outlined">{item.icon}</span>
                 </article>
               ))}
             </div>
-
-            <p className={cx(styles.closing, styles.reveal)} data-reveal>
-              O problema nem sempre é falta de conhecimento. Muitas vezes, é falta de método.
-            </p>
           </div>
         </section>
 
-        {/* ================= DOBRA 03 — QUEBRA DE CRENÇA ================= */}
+        {/* ================= DOBRA 03: O MÉTODO NA PRÁTICA ================= */}
         <section className={styles.section}>
-          <div className={styles.container}>
-            <div className={styles.split}>
-              <div className={styles.reveal} data-reveal>
-                <h2 className={styles.h2}>Não é sobre trabalhar mais. É sobre trabalhar melhor.</h2>
-                <p className={styles.text} style={{ marginTop: 22 }}>
-                  Existe uma diferença entre simplesmente executar uma atividade e saber planejar,
-                  organizar e acompanhar todo o processo.
-                </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  O profissional que evolui não depende exclusivamente da experiência ou do
-                  improviso. Ele desenvolve métodos, utiliza ferramentas, acompanha resultados e
-                  busca melhorar continuamente sua maneira de trabalhar.
-                </p>
-              </div>
-              <div className={cx(styles.highlight, styles.reveal)} data-reveal>
-                Profissionalismo não acontece por acaso. É construído com{" "}
-                <span>conhecimento, organização e método.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= DOBRA 04 — APRESENTAÇÃO DA SOLUÇÃO ================= */}
-        <section className={cx(styles.section, styles["section--gray"])}>
           <div className={styles.container}>
             <div className={styles.solution}>
               <div className={styles.reveal} data-reveal>
-                <span className={styles.eyebrow}>A solução</span>
-                <h2 className={styles.h2}>Conheça o SAIA DO IMPROVISO.</h2>
-                <p className={styles.text} style={{ marginTop: 22 }}>
-                  Uma aula prática para profissionais da construção civil que desejam abandonar a
-                  desorganização e desenvolver uma maneira mais profissional de trabalhar.
+                <span className={styles.eyebrow}>Saia do Improviso</span>
+                <h2 className={styles.h2}>
+                  O que muda quando você implanta processo na sua rotina.
+                </h2>
+                <p className={styles.text} style={{ marginTop: 20 }}>
+                  Não é teoria de faculdade nem planilha impossível de preencher. Na aula do dia 20 de novembro, {eventConfig.expert} vai mostrar na tela como organiza suas próprias obras na Coliseu Arquitetura e Engenharia.
                 </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Com o {eventConfig.expert}, você vai conhecer métodos, ferramentas e tecnologias
-                  que podem ajudar a transformar sua rotina profissional.
-                </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Não importa se você é engenheiro, arquiteto, mestre de obras, técnico ou
-                  empreiteiro. <strong>O importante é querer evoluir.</strong>
-                </p>
+
+                <ul className={styles.methodChecklist}>
+                  <li>
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <div>
+                      <strong>Previsibilidade de compras e suprimentos:</strong> saiba exatamente o que entra na obra na semana seguinte antes de faltar no canteiro.
+                    </div>
+                  </li>
+                  <li>
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <div>
+                      <strong>Conferência padronizada de execução:</strong> checklists diretos de campo para blindar sua obra contra erros de alvenaria, fôrma e instalações.
+                    </div>
+                  </li>
+                  <li>
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <div>
+                      <strong>Alinhamento claro com clientes e empreiteiros:</strong> registros objetivos de avanço físico e financeiro que evitam discussões e prejuízos.
+                    </div>
+                  </li>
+                </ul>
+
                 <div className={styles.ctaRow}>
-                  <Cta onClick={() => handleCheckout("solucao")}>Quero participar da aula</Cta>
+                  <Cta onClick={() => handleCheckout("solucao")}>Quero aplicar esse método</Cta>
                 </div>
               </div>
 
               <div className={cx(styles.solutionMedia, styles.reveal)} data-reveal>
-                <img src={images.heroBg} alt="Obra em execução" loading="lazy" />
+                <img
+                  src={images.houseConstruction}
+                  alt="Obra residencial de alto padrão em execução organizada"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* ================= DOBRA 05 — CONTEÚDO DA AULA ================= */}
-        <section className={styles.section}>
-          <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
-              <span className={styles.eyebrow}>Conteúdo</span>
-              <h2 className={styles.h2}>O que você vai aprender?</h2>
-            </div>
-
-            <ol className={styles.timeline}>
-              {lessonCards.map((lesson) => (
-                <li key={lesson.number} className={styles.tlItem}>
-                  <span className={styles.tlNode}>{lesson.number}</span>
-                  <div className={styles.tlBody}>
-                    <h3 className={styles.tlTitle}>{lesson.title}</h3>
-                    <p className={styles.tlText}>{lesson.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-
-            <div className={cx(styles.center, styles.reveal)} data-reveal style={{ marginTop: 44 }}>
-              <Cta onClick={() => handleCheckout("conteudo")}>Quero participar da aula</Cta>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= DOBRA 06 — INTELIGÊNCIA ARTIFICIAL NA PRÁTICA ================= */}
+        {/* ================= DOBRA 04: INTELIGÊNCIA ARTIFICIAL NA OBRA ================= */}
         <section className={cx(styles.section, styles["section--dark"])}>
           <div className={styles.container}>
             <div className={styles.aiGrid}>
               <div className={cx(styles.aiMedia, styles.reveal)} data-reveal>
-                <img src={images.aiVisual} alt="Engenheiro usando ferramentas digitais" loading="lazy" />
+                <img
+                  src={images.aiTechnology}
+                  alt="Magno Santos utilizando Inteligência Artificial na gestão de obras"
+                  loading="lazy"
+                />
               </div>
               <div className={styles.reveal} data-reveal>
-                <span className={styles.eyebrow}>Tecnologia na prática</span>
+                <span className={styles.eyebrow}>Inteligência Artificial Aplicada</span>
                 <h2 className={styles.h2}>
-                  A inteligência artificial pode transformar a maneira como você trabalha.
+                  Faça em 5 minutos o que antes tomava a sua noite inteira no computador.
                 </h2>
-                <p className={styles.text} style={{ marginTop: 20 }}>
-                  Você não precisa ser especialista em tecnologia para começar a utilizar
-                  inteligência artificial na sua rotina.
-                </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Durante a aula, Magno Santos demonstrará aplicações práticas de ferramentas como
-                  ChatGPT para ajudar profissionais da construção civil a organizar melhor suas
-                  atividades.
+                <p className={styles.text} style={{ marginTop: 18 }}>
+                  Esqueça textos robóticos. Durante a aula, você vai ver ao vivo como configurar o ChatGPT para trabalhar como seu assistente técnico de engenharia e gestão:
                 </p>
 
-                <div className={styles.aiList}>
+                <div className={styles.aiCardsGrid}>
                   {aiItems.map((item) => (
-                    <div key={item.label} className={styles.aiItem}>
-                      <span className="material-symbols-outlined">{item.icon}</span>
-                      {item.label}
+                    <div key={item.title} className={styles.aiCard}>
+                      <div className={styles.aiCardHeader}>
+                        <span className="material-symbols-outlined">{item.icon}</span>
+                        <strong>{item.title}</strong>
+                      </div>
+                      <p>{item.desc}</p>
                     </div>
                   ))}
                 </div>
-
-                <p className={styles.aiClosing}>
-                  Não fique apenas ouvindo sobre tecnologia. Veja como começar a utilizar essas
-                  ferramentas na prática.
-                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ================= DOBRA 07 — PARA QUEM É A AULA ================= */}
+        {/* ================= DOBRA 05: ROTEIRO DA AULA ================= */}
         <section className={cx(styles.section, styles["section--gray"])}>
           <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
-              <h2 className={styles.h2}>
-                Se você trabalha com construção civil, essa aula é para você.
-              </h2>
+            <div className={cx(styles.sectionHeader, styles.reveal)} data-reveal>
+              <span className={styles.eyebrow}>Conteúdo Programático</span>
+              <h2 className={styles.h2}>O que será aberto ao vivo no dia 20/11</h2>
             </div>
 
-            <div className={styles.chips}>
-              {audienceItems.map((item) => (
-                <span key={item.label} className={styles.chip}>
-                  <span className="material-symbols-outlined">{item.icon}</span>
-                  {item.label}
-                </span>
+            <div className={styles.curriculumGrid}>
+              {lessonCards.map((lesson) => (
+                <div key={lesson.title} className={cx(styles.curriculumCard, styles.reveal)} data-reveal>
+                  <span className={styles.curriculumTag}>{lesson.tag}</span>
+                  <h3 className={styles.tlTitle}>{lesson.title}</h3>
+                  <p className={styles.tlText}>{lesson.text}</p>
+                </div>
               ))}
             </div>
 
-            <p className={cx(styles.closing, styles.reveal)} data-reveal style={{ fontWeight: 500 }}>
-              Independentemente da sua experiência, se você quer melhorar sua maneira de trabalhar,
-              desenvolver organização e utilizar ferramentas modernas, essa experiência foi pensada
-              para você.
-            </p>
-
-            <div className={cx(styles.center, styles.reveal)} data-reveal style={{ marginTop: 40 }}>
-              <Cta onClick={() => handleCheckout("publico")}>Quero garantir minha vaga</Cta>
+            <div className={styles.audienceSection}>
+              <h3 className={styles.audienceTitle}>Para quem este encontro foi desenhado:</h3>
+              <div className={styles.audienceGrid}>
+                {audienceProfiles.map((profile) => (
+                  <div key={profile.role} className={styles.audienceCol}>
+                    <h4>{profile.role}</h4>
+                    <span className={styles.audienceSubtitle}>{profile.subtitle}</span>
+                    <p>{profile.description}</p>
+                    <ul className={styles.audienceBenefits}>
+                      {profile.benefits.map((benefit) => (
+                        <li key={benefit}>
+                          <span className="material-symbols-outlined">check_circle</span>
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ================= DOBRA 08 — AUTORIDADE DO EXPERT ================= */}
-        <section className={cx(styles.section, styles["section--ice"])}>
+        {/* ================= DOBRA 06: QUEM CONDUZ A AULA ================= */}
+        <section className={styles.section}>
           <div className={styles.container}>
             <div className={styles.authority}>
               <div className={cx(styles.authorityPhoto, styles.reveal)} data-reveal>
-                <img src={eventConfig.expertPhoto} alt={eventConfig.expert} loading="lazy" />
+                <img
+                  src={images.expertField}
+                  alt={`${eventConfig.expert} no canteiro de obras`}
+                  loading="lazy"
+                />
               </div>
               <div className={styles.reveal} data-reveal>
-                <span className={styles.eyebrow}>Quem conduz a aula</span>
-                <h2 className={styles.h2}>Aprenda com quem conhece os desafios do mercado.</h2>
-                <p className={styles.authorityName}>{eventConfig.expert}</p>
+                <span className={styles.eyebrow}>Seu Mentor</span>
+                <h2 className={styles.h2}>{eventConfig.expert}</h2>
                 <a
                   href={eventConfig.expertInstagram}
                   target="_blank"
@@ -395,99 +391,67 @@ export default function LandingPage() {
                   @engenheiro.magno
                 </a>
                 <p className={styles.text}>
-                  Engenheiro com experiência em grandes projetos de engenharia e infraestrutura,
-                  Magno Santos construiu sua trajetória profissional participando de operações e
-                  projetos de grande complexidade.
+                  Engenheiro civil com experiência prática em grandes operações de engenharia e infraestrutura pesada, com atuação nas linhas do <strong>Metrô de São Paulo (Linha 1-Azul, Linha 2-Verde, Linha 3-Vermelha, Linha 4-Amarela, Linha 5-Lilás, Linha 6-Laranja, Linha 15-Prata e Linha 17-Ouro Monotrilho)</strong>, além de fundador à frente da <strong>Coliseu Arquitetura e Engenharia</strong>.
                 </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Sua experiência inclui atuação em projetos relacionados ao Metrô de São Paulo e ao
-                  setor de infraestrutura, além de sua atuação à frente da Coliseu Arquitetura e
-                  Engenharia.
-                </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Agora, compartilha conhecimentos e experiências para ajudar outros profissionais a
-                  desenvolverem uma atuação mais organizada, preparada e profissional.
+                <p className={styles.text} style={{ marginTop: 16 }}>
+                  Depois de anos no campo vendo onde os projetos travam e onde o dinheiro é desperdiçado por falta de método, reuniu as ferramentas de planejamento, controle de canteiro e Inteligência Artificial que usa todos os dias para ensinar profissionais a trabalharem com organização e previsibilidade.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ================= DOBRA 09 — RESUMO DA EXPERIÊNCIA E OFERTA ================= */}
-        <section className={styles.section}>
+        {/* ================= DOBRA 07: INSCRIÇÃO E OFERTA ================= */}
+        <section id="inscricao" className={cx(styles.section, styles["section--dark"])}>
+          <div className={styles.blueprint} />
           <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
-              <h2 className={styles.h2}>
-                Um encontro para começar a mudar sua maneira de trabalhar.
-              </h2>
-            </div>
-
             <div className={styles.offer}>
-              <div className={styles.specSheet}>
-                {offerRows.map((row) => (
-                  <div key={row.label} className={styles.specRow}>
-                    <span className={styles.specLabel}>{row.label}</span>
-                    <span className={styles.specValue}>{row.value}</span>
-                  </div>
-                ))}
+              <div className={styles.reveal} data-reveal>
+                <span className={styles.eyebrow}>Passaporte de Acesso</span>
+                <h2 className={styles.h2}>
+                  Garanta seu lugar na transmissão ao vivo.
+                </h2>
+                <p className={styles.text} style={{ marginTop: 16 }}>
+                  Um investimento simbólico para organizar seu método de trabalho antes do próximo ano começar.
+                </p>
+
+                <div className={styles.specSheet}>
+                  {offerRows.map((row) => (
+                    <div key={row.label} className={styles.specRow}>
+                      <span className={styles.specLabel}>{row.label}</span>
+                      <span className={styles.specValue}>{row.value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div>
+              <div className={styles.reveal} data-reveal>
                 <div className={styles.offerPrice}>
-                  <div className={styles.offerPriceLabel}>Investimento</div>
+                  <div className={styles.offerPriceLabel}>Ingresso Individual • Lote Atual</div>
                   <div className={styles.offerPriceValue}>{formatBRL(eventConfig.ticketPrice)}</div>
-                  <Cta full onClick={() => handleCheckout("oferta")}>
-                    Garantir minha vaga
+                  <p className={styles.offerPriceSub}>
+                    Pagamento único via PIX ou cartão.
+                  </p>
+                  <Cta full pulse onClick={() => handleCheckout("oferta")}>
+                    Garantir minha vaga agora
                   </Cta>
-                </div>
-                <p className={styles.offerNote}>
-                  Pagamento único. Acesso à aula ao vivo mediante confirmação da inscrição.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ================= DOBRA 10 — APRESENTAÇÃO DO ADICIONAL ================= */}
-        <section className={cx(styles.section, styles["section--gray"])}>
-          <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
-              <h2 className={styles.h2}>Quer rever a aula depois?</h2>
-            </div>
-
-            <div className={cx(styles.addon, styles.reveal)} data-reveal>
-              <div>
-                <p className={styles.text}>
-                  A participação ao vivo está garantida com seu ingresso.
-                </p>
-                <p className={styles.text} style={{ marginTop: 14 }}>
-                  Mas, se você também quiser assistir novamente às explicações e consultar as
-                  demonstrações realizadas durante a aula, poderá adicionar a gravação à sua
-                  inscrição.
-                </p>
-                <p className={styles.addonNote}>
-                  Importante: a gravação não está incluída no ingresso principal. Ela será oferecida
-                  como adicional no checkout.
-                </p>
-              </div>
-              <div className={styles.addonPrice}>
-                <div className={styles.addonPriceLabel}>Adicional</div>
-                <div className={styles.addonPriceValue}>
-                  {formatBRL(eventConfig.recordingPrice)}
-                </div>
-                <div className={styles.addonPriceLabel} style={{ marginTop: 8 }}>
-                  Gravação da aula
+                  <div className={styles.addonNotice}>
+                    <span className="material-symbols-outlined">videocam</span>
+                    <span>
+                      <strong>Quer rever depois?</strong> No checkout você poderá incluir o acesso vitalício à gravação da aula por apenas +{formatBRL(eventConfig.recordingPrice)}.
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ================= DOBRA 11 — PERGUNTAS FREQUENTES ================= */}
+        {/* ================= DOBRA 08: PERGUNTAS FREQUENTES ================= */}
         <section className={styles.section}>
           <div className={styles.container}>
-            <div className={cx(styles.center, styles.reveal)} data-reveal>
-              <span className={styles.eyebrow}>Dúvidas frequentes</span>
+            <div className={cx(styles.sectionHeader, styles.faqHeader, styles.reveal)} data-reveal>
+              <span className={styles.eyebrow}>Tire suas dúvidas</span>
               <h2 className={styles.h2}>Perguntas frequentes</h2>
             </div>
 
@@ -518,49 +482,23 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-
-        {/* ================= DOBRA 12 — CTA FINAL ================= */}
-        <section className={styles.finalCta}>
-          <div className={styles.blueprint} />
-          <div className={styles.container}>
-            <div className={styles.finalInner}>
-              <h2 className={styles.finalTitle}>
-                A construção civil está evoluindo.{" "}
-                <span className={styles.finalHighlight}>
-                  Sua maneira de trabalhar também precisa evoluir.
-                </span>
-              </h2>
-              <p className={styles.text} style={{ fontSize: "1.1rem" }}>
-                Chega de depender do improviso. Comece a desenvolver uma maneira mais organizada,
-                produtiva e profissional de trabalhar.
-              </p>
-              <div className={styles.finalBrand}>SAIA DO IMPROVISO</div>
-              <p className={styles.finalMeta}>Com {eventConfig.expert}</p>
-              <p className={styles.finalMeta}>{metaLine}</p>
-              <div className={styles.finalPrice}>{formatBRL(eventConfig.ticketPrice)}</div>
-              <Cta large pulse onClick={() => handleCheckout("cta-final")}>
-                Quero garantir minha vaga
-              </Cta>
-            </div>
-          </div>
-        </section>
       </main>
 
       {/* Barra fixa de compra (mobile) */}
       <div className={styles.stickyBar}>
         <div className={styles.stickyInner}>
           <div className={styles.stickyPrice}>
-            <span>Ingresso</span>
-            <strong>{formatBRL(eventConfig.ticketPrice)}</strong>
+            <span>Aula ao vivo</span>
+            <strong>20/11 às 19h</strong>
           </div>
-          <Cta onClick={() => handleCheckout("barra-fixa")}>Garantir minha vaga</Cta>
+          <Cta onClick={() => handleCheckout("barra-fixa")}>Garantir vaga</Cta>
         </div>
       </div>
 
       <footer className={styles.footer}>
         <div className={styles.container}>
-          <strong>GRUPO CLS</strong>
-          &copy; {new Date().getFullYear()} Grupo CLS. Todos os direitos reservados.
+          <strong>GRUPO CLS • COLISEU ARQUITETURA E ENGENHARIA</strong>
+          &copy; {new Date().getFullYear()} Todos os direitos reservados.
         </div>
       </footer>
     </div>

@@ -187,7 +187,7 @@ export default function MasterclassesPage() {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media (max-width: 767px) {
           .masterclasses-header-row {
             flex-direction: column !important;
@@ -203,7 +203,7 @@ export default function MasterclassesPage() {
             width: 220px !important;
           }
         }
-      `}</style>
+      `}} />
 
       {/* COURSES GRID VIEW */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "28px", marginTop: "20px" }}>
