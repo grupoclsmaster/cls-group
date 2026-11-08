@@ -58,8 +58,6 @@ export async function middleware(request: NextRequest) {
     "/admin"
   ];
 
-  const pathname = request.nextUrl.pathname;
-
   const requiresAuth = protectedRoutes.some(route => 
     pathname === route || pathname.startsWith(route + "/")
   );
