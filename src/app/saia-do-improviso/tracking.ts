@@ -8,7 +8,9 @@ export type TrackingEventName =
   | "cta_click"
   | "begin_checkout"
   | "purchase"
-  | "order_bump_added";
+  | "order_bump_added"
+  | "scroll_depth"
+  | string;
 
 declare global {
   interface Window {
