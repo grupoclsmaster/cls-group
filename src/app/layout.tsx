@@ -88,7 +88,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/icons/favicon.png" type="image/png" />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
