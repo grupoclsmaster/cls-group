@@ -3,6 +3,14 @@
     "supabase": {
       "type": "sse",
       "url": "https://mcp.supabase.com/mcp"
+    },
+    "obs": {
+      "command": "npx",
+      "args": ["-y", "obs-mcp@latest"],
+      "env": {
+        "OBS_WEBSOCKET_PASSWORD": "MoOUaWeKb9jBWdjp",
+        "OBS_WEBSOCKET_URL": "ws://localhost:4455"
+      }
     }
   }
 }
