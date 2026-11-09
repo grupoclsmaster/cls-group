@@ -297,7 +297,7 @@ export default function LandingPage() {
             </div>
 
             <div className={styles.narrativeBridge}>
-              <strong>A verdade nua e crua:</strong> trabalhar 14 horas por dia não vai resolver isso. Você não precisa de mais esforço braçal — precisa de um método testado na trincheira.
+              <strong>A verdade nua e crua:</strong> trabalhar 14 horas por dia não vai resolver isso. Você não precisa de mais esforço braçal: precisa de um método testado na trincheira.
             </div>
           </div>
         </section>
@@ -326,7 +326,7 @@ export default function LandingPage() {
                   @engenheiro.magno
                 </a>
                 <p className={styles.text}>
-                  Pisei na lama, passei anos de bota suja no canteiro e senti na pele a pressão de ter que resolver tudo ao mesmo tempo. Atuei nas maiores operações de engenharia pesada do país — <strong>em todas as linhas do Metrô de São Paulo</strong> — e hoje estou à frente da <strong>Coliseu Arquitetura e Engenharia</strong>.
+                  Pisei na lama, passei anos de bota suja no canteiro e senti na pele a pressão de ter que resolver tudo ao mesmo tempo. Atuei nas maiores operações de engenharia pesada do país, incluindo <strong>todas as linhas do Metrô de São Paulo</strong>, e hoje estou à frente da <strong>Coliseu Arquitetura e Engenharia</strong>.
                 </p>
 
                 <div className={styles.metro}>
