@@ -1,11 +1,12 @@
 /**
  * Conteúdo textual da página "Saia do Improviso".
  * Copywriting humanizado baseado na Jornada do Herói:
- * - O Herói: O profissional da construção que ama o canteiro, mas vive sufocado pelo improviso.
- * - O Vilão: O improviso diário que devora o lucro e rouba o tempo com a família.
- * - O Guia: Magno Santos (experiência real do Metrô de SP à Coliseu Engenharia).
- * - O Plano: Método de 3 engrenagens + IA prática no celular.
- * - A Transformação: Sair de apagador de incêndio para dono de uma operação organizada e lucrativa.
+ * - O Herói: Qualquer pessoa (empresário, empreendedor, autônomo, engenheiro, prestador de serviço)
+ *   que trabalha muito, mas vive sufocado pelo improviso diário.
+ * - O Vilão: A cultura do improviso que rouba o lucro, a previsibilidade e a paz com a família.
+ * - O Guia: Magno Santos (método testado desde o rigor do Metrô de SP até a gestão de negócios na Coliseu).
+ * - O Plano: Método de 3 engrenagens práticas + IA no bolso pelo celular.
+ * - A Transformação: Sair de apagador de incêndio para líder de uma operação organizada, previsível e lucrativa.
  */
 
 export interface ProblemCard {
@@ -18,27 +19,27 @@ export interface ProblemCard {
 export const problemCards: ProblemCard[] = [
   {
     icon: "warning",
-    tag: "Mestres e Empreiteiros",
-    title: "O material que acaba às 10h da manhã",
-    text: "Equipe parada de braço cruzado esperando areia ou cimento chegar. O frete emergencial custa o dobro e sai direto da sua comissão.",
+    tag: "Rotina Sobrecarregada",
+    title: "O dia engolido por apagar incêndios",
+    text: "Você acorda com metas claras, mas passa o dia inteiro respondendo urgências, resolvendo desespero dos outros e travado no que não traz dinheiro.",
   },
   {
     icon: "trending_down",
-    tag: "Engenheiros e Arquitetos",
-    title: "O orçamento dado 'no feeling'",
-    text: "Você fecha a obra por um valor, os imprevistos aparecem e a conta não fecha. No fim, trabalhou meses para pagar conta e ficar no zero a zero.",
+    tag: "Finanças e Preços",
+    title: "Orçamentos e propostas no 'feeling'",
+    text: "Cobrar pelo que acha que vai custar sem ter margem real. Os imprevistos aparecem, o lucro evapora e você trabalha meses para empatar no zero a zero.",
   },
   {
     icon: "forum",
-    tag: "Ambos os perfis",
-    title: "A gestão perdida em áudios de WhatsApp",
-    text: "Combinados de boca, fotos soltas e comprovantes sumidos. Na hora de acertar medição ou pedir pagamento, sobram discussões e prejuízos.",
+    tag: "Comunicação e Equipe",
+    title: "Gestão e combinados perdidos no WhatsApp",
+    text: "Áudios longos, tarefas de boca e comprovantes espalhados. Na hora de cobrar ou entregar, sobram desculpas, retrabalho e desgaste com o cliente.",
   },
   {
     icon: "nightlight_round",
-    tag: "Ambos os perfis",
-    title: "A noite em família engolida pelo computador",
-    text: "Passar o dia inteiro correndo atrás de pepino no canteiro e chegar em casa exausto tendo que digitar relatório e cronograma até meia-noite.",
+    tag: "Vida e Família",
+    title: "A noite de descanso roubada pelo computador",
+    text: "Chegar em casa sem energia para a família e ter que abrir o notebook até meia-noite para colocar relatórios, propostas e planilhas em dia.",
   },
 ];
 
@@ -51,23 +52,23 @@ export interface LessonCard {
 export const lessonCards: LessonCard[] = [
   {
     tag: "Passo 1 • Blindagem Financeira",
-    title: "Onde o Dinheiro Realmente Foge na sua Obra",
-    text: "Como enxergar os ralos invisíveis de material, horas ociosas e retrabalho antes que eles comam a sua margem.",
+    title: "Onde o Dinheiro Realmente Foge no seu Negócio",
+    text: "Como mapear e estancar os ralos invisíveis de retrabalho, horas perdidas e custos emergenciais antes que eles destruam o seu lucro.",
   },
   {
-    tag: "Passo 2 • Campo sem Surpresa",
+    tag: "Passo 2 • Rotina sem Surpresas",
     title: "Planejamento Semanal em 15 Minutos",
-    text: "O método prático para pedir na quarta o que roda na semana que vem. Nunca mais pague frete caro nem pare pedreiro.",
+    text: "O método prático para antecipar compras, entregas e demandas da semana inteira. Nunca mais dependa da sorte nem viva no desespero.",
   },
   {
     tag: "Passo 3 • Padrão de Execução",
-    title: "Checklists de 3 Minutos que Evitam Quebra-Quebra",
-    text: "O que bater o olho em armadura, fôrma, elétrica e alvenaria antes que o erro seja concretado.",
+    title: "Checklists de 3 Minutos que Zeram Erros",
+    text: "Roteiros rápidos de conferência para você ou sua equipe executarem com perfeição sem você precisar ficar em cima o tempo todo.",
   },
   {
-    tag: "Passo 4 • O Seu Assistente no Bolso",
-    title: "ChatGPT e IA na Tela: Do Celular para a Obra",
-    text: "Como gerar cronograma, memorial de contrato e relatório semanal para cliente em 3 minutos usando Inteligência Artificial.",
+    tag: "Passo 4 • O Assistente no Bolso",
+    title: "ChatGPT e IA na Prática: Do Celular para a Rotina",
+    text: "Como gerar cronogramas, propostas comerciais blindadas e relatórios profissionais em 3 minutos usando Inteligência Artificial pelo smartphone.",
   },
 ];
 
@@ -80,23 +81,23 @@ export interface AiItem {
 export const aiItems: AiItem[] = [
   {
     icon: "calendar_month",
-    title: "Cronograma Completo em 3 Minutos",
-    desc: "Sequência lógica de fundação ao acabamento sem quebrar a cabeça no Excel.",
+    title: "Cronograma e Planejamento em 3 Minutos",
+    desc: "Sequência lógica de tarefas, compras e entregas sem complicação e sem depender de softwares caros.",
   },
   {
     icon: "description",
-    title: "Escopos e Contratos sem Brecha",
-    desc: "Memoriais claros para fechar com equipe e cliente sem espaço para aditivos de prejuízo.",
+    title: "Contratos e Propostas sem Brechas",
+    desc: "Escopos claros para fechar com clientes e parceiros sem surpresas ou prejuízos imprevistos.",
   },
   {
     icon: "fact_check",
-    title: "Checklist de Inspeção Instantâneo",
-    desc: "Listas rápidas para checar ferragem, fôrma e tubulação direto no canteiro pelo celular.",
+    title: "Checklists de Conferência Instantâneos",
+    desc: "Roteiros objetivos para inspecionar qualidade, serviços e entregas direto pelo celular.",
   },
   {
     icon: "summarize",
-    title: "Relatório de Obra que Transmite Respeito",
-    desc: "Transforme fotos soltas em um PDF executivo que deixa o cliente seguro e cala qualquer reclamação.",
+    title: "Relatórios Executivos que Geram Respeito",
+    desc: "Transforme fotos e anotações soltas em um documento de alto padrão que cala qualquer reclamação.",
   },
 ];
 
@@ -109,25 +110,36 @@ export interface AudienceProfile {
 
 export const audienceProfiles: AudienceProfile[] = [
   {
-    role: "Engenheiros Civis e Arquitetos",
-    subtitle: "Para quem quer sair do operacional sufocante e ter uma empresa respeitada",
+    role: "Empresários e Empreendedores",
+    subtitle: "Para quem quer processos que rodam sozinhos e lucro de verdade no bolso",
     description:
-      "A faculdade ensinou a calcular viga, mas não ensinou a cobrar, fechar contrato seguro e liderar canteiro. Pare de ser refém da insegurança e estruture processos para ter previsibilidade financeira.",
+      "Você não criou o seu negócio para ser o funcionário mais sobrecarregado da empresa. Descubra como estruturar processos simples para a operação rodar com qualidade mesmo quando você não estiver presente.",
     benefits: [
-      "Processos padronizados para orçar e fechar obras com margem no bolso",
-      "Como apresentar memoriais e relatórios de alto padrão usando IA",
-      "Postura de empresário da engenharia, não de apagador de incêndio",
+      "Fim da dependência total da sua presença física em tudo",
+      "Previsibilidade de prazos, equipe e custos operacionais",
+      "Margem de lucro protegida no fechamento de cada mês",
     ],
   },
   {
-    role: "Mestres de Obras e Empreiteiros",
-    subtitle: "Para quem domina a colher de pedreiro, mas perde o lucro na desorganização",
+    role: "Engenheiros, Arquitetos e Técnicos",
+    subtitle: "Para quem domina a técnica, mas quer parar de apagar incêndios",
     description:
-      "Você sabe construir melhor do que qualquer um de terno. Mas se o material falta e a conferência falha, o prejuízo sobra para você pagar. Aprenda a planejar a semana para ver o dinheiro render.",
+      "A faculdade ensinou a calcular e desenhar, mas não ensinou a orçar com segurança, liderar equipes e negociar contratos. Transforme seu conhecimento técnico em uma operação lucrativa e respeitada.",
     benefits: [
-      "Planejamento simples de compras para nunca faltar insumo na obra",
-      "Checklists fáceis para zerar retrabalho e quebra-quebra",
-      "Medições formais e comprovantes claros para receber sem discussões",
+      "Processos padronizados para orçar e fechar sem levar calote",
+      "Relatórios executivos e memoriais de alto padrão usando IA",
+      "Postura de empresário respeitado, não de apagador de incêndio",
+    ],
+  },
+  {
+    role: "Autônomos e Prestadores de Serviços",
+    subtitle: "Para quem quer ser valorizado e parar de trabalhar de graça",
+    description:
+      "Seja na obra, no comércio, na consultoria ou em serviços: sem método o seu esforço vira prejuízo. Aprenda a organizar a semana, passar segurança para o cliente e usar a IA como seu braço direito.",
+    benefits: [
+      "Checklists rápidos para zerar retrabalho e queixas",
+      "Propostas claras que eliminam discussões na hora do pagamento",
+      "Mais tempo com a família sem abrir mão de faturamento",
     ],
   },
 ];
@@ -139,19 +151,19 @@ export interface FaqItem {
 
 export const faqItems: FaqItem[] = [
   {
-    question: "A aula serve para quem trabalha com obras residenciais e reformas pequenas?",
+    question: "Eu não sou da construção civil nem sou engenheiro. Essa aula serve para mim?",
     answer:
-      "Com certeza. É exatamente na obra residencial de R$ 50 mil a R$ 1 milhão que o improviso mais machuca, porque o dinheiro sai direto do seu bolso. O método funciona para reforma de apartamento, casa térrea, sobrado ou condomínio.",
+      "Com certeza. O improviso machuca qualquer setor: falta de processos, urgências engolindo o dia e dinheiro que escorre pelo ralo. As ferramentas de planejamento semanal, checklists de conferência e inteligência artificial funcionam para empresários, comerciantes, autônomos e prestadores de qualquer tipo de serviço.",
   },
   {
-    question: "Sou recém-formado e ainda não peguei minha primeira obra. Devo participar?",
+    question: "Não entendo nada de tecnologia e uso mal o celular. Vou conseguir acompanhar?",
     answer:
-      "Sem dúvida. Começar sem método custa muito caro: um erro de armadura ou uma compra errada já comem todo o seu lucro. Você vai entrar no mercado com a postura e as ferramentas de quem tem 10 anos de experiência.",
+      "100%. A aula é em linguagem simples, prática e direta ao ponto. Tudo o que será demonstrado pode ser aplicado direto no seu WhatsApp e celular, sem a necessidade de programas caros ou complicados.",
   },
   {
-    question: "Não entendo nada de computador e uso mal o celular. Vou conseguir aplicar?",
+    question: "Minha empresa é pequena ou trabalho sozinho. Vale a pena participar?",
     answer:
-      "100%. A aula é em português simples, de quem pisa na terra com bota suja. Tudo que será mostrado você consegue usar pelo próprio WhatsApp e celular, sem precisar de programas caros ou complicados.",
+      "É exatamente quem tem operação enxuta que mais precisa deste método. Sem processos e sem ferramentas inteligentes, você vira escravo de cada detalhe. O método te dá a produtividade equivalente a ter uma equipe inteira no seu bolso.",
   },
   {
     question: "Como funciona a transmissão ao vivo?",
@@ -161,7 +173,7 @@ export const faqItems: FaqItem[] = [
   {
     question: "E se eu não puder assistir ao vivo ou quiser rever depois?",
     answer:
-      "O ingresso garante sua vaga na transmissão interativa. No momento do checkout, você pode incluir o acesso vitalício à gravação e aos modelos de checklists por apenas +R$ 27,00.",
+      "O ingresso garante sua vaga na transmissão interativa. No momento do checkout, você pode incluir o acesso vitalício à gravação e aos modelos de checklists e prompts por apenas +R$ 27,00.",
   },
 ];
 
@@ -173,6 +185,6 @@ export interface OfferRow {
 export const offerRows: OfferRow[] = [
   { label: "Data e Horário", value: "20 de novembro de 2026, às 19h (Horário de Brasília)" },
   { label: "Formato", value: "Transmissão 100% ao vivo via Zoom" },
-  { label: "Instrutor", value: "Magno Santos (Engenheiro Civil & Fundador da Coliseu)" },
-  { label: "Acesso aos Materiais", value: "Demonstrações práticas e prompts de IA na tela" },
+  { label: "Mentor", value: "Magno Santos (Engenheiro & Fundador da Coliseu)" },
+  { label: "Acesso aos Materiais", value: "Demonstrações práticas e modelos de IA na tela" },
 ];

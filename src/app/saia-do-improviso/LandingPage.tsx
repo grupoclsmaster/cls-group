@@ -37,8 +37,8 @@ const metroLines = [
 
 const includedItems = [
   `Aula ao vivo pelo ${eventConfig.platform} com ${eventConfig.expert}`,
-  "Planejamento semanal, checklists de campo e controle de medições",
-  "Demonstração de IA aplicada à obra, na tela",
+  "Planejamento semanal, checklists práticos e controle de rotina",
+  "Demonstração de IA aplicada ao seu dia a dia, na tela",
   "Link de acesso enviado por WhatsApp e e-mail",
 ];
 
@@ -199,10 +199,10 @@ export default function LandingPage() {
                   Aula ao vivo · 20 de Novembro às 19h
                 </span>
                 <h1 className={styles.heroTitle}>
-                  Pare de tocar obra apagando incêndio e perdendo margem.
+                  Pare de viver apagando incêndio e perdendo dinheiro no improviso.
                 </h1>
                 <p className={styles.heroLead}>
-                  Você não estudou anos nem passa o dia no sol quente para viver de resolver pepino e fechar o mês no zero a zero. O método prático para <strong>estruturar o seu negócio</strong> e <strong>fazer o lucro sobrar no seu bolso</strong>.
+                  Seja você empresário, empreendedor, autônomo ou engenheiro: trabalhar duro sem método é uma armadilha. Conheça as 3 engrenagens práticas para <strong>organizar a sua rotina</strong>, <strong>estruturar processos</strong> e <strong>fazer o lucro sobrar no seu bolso</strong>.
                 </p>
 
                 <dl className={styles.heroFacts}>
@@ -238,7 +238,7 @@ export default function LandingPage() {
                   <img src={eventConfig.expertPhoto} alt="" width={48} height={48} />
                   <div>
                     <strong>Com {eventConfig.expert}</strong>
-                    <span>Engenheiro civil · Coliseu Arquitetura e Engenharia</span>
+                    <span>Engenheiro civil · Fundador da Coliseu</span>
                   </div>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function LandingPage() {
                   <div className={styles.heroPhotoTag}>
                     <div>
                       <strong>{eventConfig.expert}</strong>
-                      <span>Engenharia civil · Infraestrutura · Gestão de obras</span>
+                      <span>Engenharia · Gestão de Operações · Inteligência Artificial</span>
                     </div>
                     <a
                       href={eventConfig.expertInstagram}
@@ -272,14 +272,14 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ================= ATO 1: A REALIDADE DO CAMPO ================= */}
+        {/* ================= ATO 1: O DIAGNÓSTICO ================= */}
         <section className={cx(styles.section, styles["section--gray"])}>
           <div className={styles.container}>
             <div className={styles.sectionHeader}>
-              <span className={styles.eyebrow}>Ato 1 · A Realidade do Campo</span>
-              <h2 className={styles.h2}>O problema nunca foi a sua dedicação. É o improviso comendo seu lucro.</h2>
+              <span className={styles.eyebrow}>Ato 1 · O Diagnóstico</span>
+              <h2 className={styles.h2}>O problema nunca foi a sua dedicação. É o improviso devorando seu tempo e seu lucro.</h2>
               <p className={styles.text}>
-                Ninguém te ensinou isso na faculdade e nem no dia a dia da obra: trabalhar duro sem processo é uma armadilha. Todo santo dia você se desdobra para entregar, mas o dinheiro vai embora nos mesmos ralos:
+                Ninguém te ensinou a estruturar processos: nem na faculdade, nem no início do negócio. Trabalhar 14 horas por dia sem método é uma armadilha. Todo santo dia você se desdobra para entregar, mas o retorno vai embora nos mesmos ralos:
               </p>
             </div>
 
@@ -316,7 +316,7 @@ export default function LandingPage() {
               </figure>
               <div>
                 <span className={styles.eyebrow}>Ato 2 · O Mentor</span>
-                <h2 className={styles.h2}>Eu já estive exatamente no seu lugar. E aprendi do jeito mais difícil.</h2>
+                <h2 className={styles.h2}>Eu já estive exatamente no seu lugar. E aprendi a criar processos no ambiente mais exigente do país.</h2>
                 <a
                   href={eventConfig.expertInstagram}
                   target="_blank"
@@ -326,7 +326,7 @@ export default function LandingPage() {
                   @engenheiro.magno
                 </a>
                 <p className={styles.text}>
-                  Pisei na lama, passei anos de bota suja no canteiro e senti na pele a pressão de ter que resolver tudo ao mesmo tempo. Atuei nas maiores operações de engenharia pesada do país, incluindo <strong>todas as linhas do Metrô de São Paulo</strong>, e hoje estou à frente da <strong>Coliseu Arquitetura e Engenharia</strong>.
+                  Sei na pele o que é passar o dia inteiro resolvendo urgências e sentir que a operação depende 100% da sua presença. Atuei nas maiores operações de engenharia e infraestrutura pesada do país, incluindo <strong>todas as linhas do Metrô de São Paulo</strong>, e hoje estou à frente da <strong>Coliseu Arquitetura e Engenharia</strong>.
                 </p>
 
                 <div className={styles.metro}>
@@ -339,7 +339,7 @@ export default function LandingPage() {
                 </div>
 
                 <p className={styles.text}>
-                  Na grande infraestrutura, 1 dia de improviso gera multa milionária e demissão. No canteiro residencial, custa o seu lucro suado e a sua paz. O que aprendi nas maiores obras do país foi transformado em <strong>3 engrenagens simples</strong> para blindar a sua obra.
+                  Na grande infraestrutura, 1 dia de improviso gera prejuízo milionário. Em qualquer empresa ou profissão, custa a sua paz e a margem do seu negócio. O método rigoroso que usei para coordenar operações gigantescas foi transformado em <strong>3 engrenagens simples</strong> para qualquer pessoa aplicar no seu negócio ou carreira.
                 </p>
               </div>
             </div>
@@ -351,29 +351,29 @@ export default function LandingPage() {
           <div className={styles.container}>
             <div className={styles.split}>
               <div>
-                <span className={styles.eyebrow}>Ato 3 · O Método</span>
-                <h2 className={styles.h2}>As 3 engrenagens para a sua obra rodar sem surpresa.</h2>
+                <span className={styles.eyebrow}>Ato 3 · As 3 Engrenagens</span>
+                <h2 className={styles.h2}>O método prático para o seu negócio rodar sem surpresas.</h2>
                 <p className={styles.text}>
-                  Esqueça teoria acadêmica e planilhas gigantes que ninguém preenche. No dia {eventConfig.dateShort}, você vai ver na prática como organizo cada etapa na Coliseu:
+                  Esqueça teoria acadêmica e planilhas gigantes que ninguém preenche. No dia {eventConfig.dateShort}, você vai ver na prática como estruturo cada etapa na Coliseu:
                 </p>
 
                 <ul className={styles.checklist}>
                   <li>
                     <Icon name="check" />
                     <div>
-                      <strong>Previsibilidade de compras:</strong> pedir na quarta o que roda na semana seguinte. Nunca mais pague frete emergencial nem veja pedreiro parado.
+                      <strong>Previsibilidade de demandas:</strong> antecipar o que a sua operação vai precisar na semana seguinte. Nunca mais corra atrás de urgências nem perca dinheiro com atrasos.
                     </div>
                   </li>
                   <li>
                     <Icon name="check" />
                     <div>
-                      <strong>Checklist visual de 3 minutos:</strong> como inspecionar fôrma, armadura e tubulações no canteiro antes que o erro vire quebra-quebra.
+                      <strong>Checklists rápidos de 3 minutos:</strong> como criar padrões de conferência para garantir qualidade máxima sem precisar fazer tudo com as próprias mãos.
                     </div>
                   </li>
                   <li>
                     <Icon name="check" />
                     <div>
-                      <strong>Comunicação blindada com clientes:</strong> relatórios objetivos que transmitem autoridade, eliminam desconfiança e garantem medições pagas em dia.
+                      <strong>Comunicação blindada com clientes:</strong> relatórios e escopos claros que transmitem autoridade, eliminam desconfiança e garantem pagamentos em dia.
                     </div>
                   </li>
                 </ul>
@@ -386,7 +386,7 @@ export default function LandingPage() {
               <figure className={styles.media}>
                 <img
                   src={images.houseConstruction}
-                  alt="Obra residencial em execução organizada"
+                  alt="Operação organizada e profissional em execução"
                   loading="lazy"
                   decoding="async"
                 />
@@ -405,7 +405,7 @@ export default function LandingPage() {
                   Faça em 3 minutos pelo celular o que antes tomava a sua noite inteira.
                 </h2>
                 <p className={styles.text}>
-                  Esqueça textos robóticos ou teoria de TI. Na aula, eu vou abrir a tela do celular e te mostrar como transformar o ChatGPT no seu assistente técnico de obra:
+                  Esqueça termos técnicos ou teoria de TI. Na aula, eu vou abrir a tela do celular e te mostrar como transformar a Inteligência Artificial no seu assistente mais ágil de gestão:
                 </p>
 
                 <ul className={styles.aiList}>
@@ -424,7 +424,7 @@ export default function LandingPage() {
               <figure className={cx(styles.media, styles["media--dark"], styles["media--square"])}>
                 <img
                   src={images.aiTechnology}
-                  alt={`${eventConfig.expert} usando inteligência artificial na gestão de obras`}
+                  alt={`${eventConfig.expert} demonstrando inteligência artificial aplicada à gestão e processos`}
                   loading="lazy"
                   decoding="async"
                 />
@@ -440,7 +440,7 @@ export default function LandingPage() {
               <span className={styles.eyebrow}>Ato 5 · O Treinamento</span>
               <h2 className={styles.h2}>O que nós vamos abrir juntos na tela no dia {eventConfig.dateShort}:</h2>
               <p className={styles.text}>
-                Direto ao ponto, com casos reais de canteiro e modelos prontos para você copiar e usar no dia seguinte.
+                Direto ao ponto, com exemplos práticos da rotina e modelos prontos para você copiar e usar no seu negócio já no dia seguinte.
               </p>
             </div>
 
@@ -468,10 +468,10 @@ export default function LandingPage() {
         <section className={cx(styles.section, styles["section--gray"])}>
           <div className={styles.container}>
             <div className={styles.sectionHeader}>
-              <span className={styles.eyebrow}>Ato 6 · A Sua Cadeira na Mesa</span>
-              <h2 className={styles.h2}>Dois perfis diferentes. O mesmo alívio no fim do mês.</h2>
+              <span className={styles.eyebrow}>Ato 6 · Para Quem É</span>
+              <h2 className={styles.h2}>Perfis diferentes. O mesmo alívio no fim do mês.</h2>
               <p className={styles.text}>
-                Não importa se você comanda da prancheta ou do andaime: sem processo você perde dinheiro.
+                Qualquer pessoa pode sair do improviso: não importa o tamanho da sua empresa ou a sua área de atuação, sem processos claros você trabalha muito e vê pouco retorno.
               </p>
             </div>
 
@@ -508,7 +508,7 @@ export default function LandingPage() {
                 <span className={styles.eyebrow}>Ato 7 · A Escolha</span>
                 <h2 className={styles.h2}>Mais um ano apagando incêndio ou uma noite para virar a chave?</h2>
                 <p className={styles.text}>
-                  Continuar no improviso custa caro: um único frete emergencial ou meio dia de equipe parada já custa mais do que este encontro.
+                  Continuar no improviso custa caro: um único retrabalho, erro de orçamento ou cliente insatisfeito já custa muito mais do que o valor simbólico deste encontro.
                 </p>
 
                 <dl className={styles.specSheet}>

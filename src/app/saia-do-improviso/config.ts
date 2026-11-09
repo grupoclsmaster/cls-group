@@ -35,7 +35,7 @@ export const siteConfig = {
   path: "/saia-do-improviso",
   title: "Saia do Improviso | Aula com Magno Santos",
   description:
-    "Participe da aula Saia do Improviso com Magno Santos. Aprenda sobre planejamento, organização, processos e inteligência artificial na construção civil.",
+    "Participe da aula Saia do Improviso com Magno Santos. O método prático para empresários, empreendedores, engenheiros e qualquer profissional estruturar processos, organizar a rotina e usar inteligência artificial no celular.",
 };
 
 /** Imagens decorativas (obras/planejamento/tecnologia IA). A foto do expert vem de eventConfig.expertPhoto. */
