@@ -199,7 +199,7 @@ export default function LandingPage() {
                   Aula ao vivo · 20 de Novembro às 19h
                 </span>
                 <h1 className={styles.heroTitle}>
-                  Pare de viver apagando incêndio e perdendo dinheiro no improviso.
+                  Chega de viver apagando incêndio e perdendo dinheiro no improviso.
                 </h1>
                 <p className={styles.heroLead}>
                   Seja você empresário, empreendedor, autônomo ou engenheiro: trabalhar duro sem método é uma armadilha. Conheça as 3 engrenagens práticas para <strong>organizar a sua rotina</strong>, <strong>estruturar processos</strong> e <strong>fazer o lucro sobrar no seu bolso</strong>.
