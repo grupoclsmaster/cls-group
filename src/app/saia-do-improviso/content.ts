@@ -1,8 +1,11 @@
 /**
  * Conteúdo textual da página "Saia do Improviso".
- * Copywriting direcionado para os 2 ICPs centrais:
- * 1. Engenheiros (recém-formados ou no mercado) que precisam estruturar seu negócio.
- * 2. Mestres de obras e empreiteiros que sofrem com desorganização e perdem margem de lucro.
+ * Copywriting humanizado baseado na Jornada do Herói:
+ * - O Herói: O profissional da construção que ama o canteiro, mas vive sufocado pelo improviso.
+ * - O Vilão: O improviso diário que devora o lucro e rouba o tempo com a família.
+ * - O Guia: Magno Santos (experiência real do Metrô de SP à Coliseu Engenharia).
+ * - O Plano: Método de 3 engrenagens + IA prática no celular.
+ * - A Transformação: Sair de apagador de incêndio para dono de uma operação organizada e lucrativa.
  */
 
 export interface ProblemCard {
@@ -14,28 +17,28 @@ export interface ProblemCard {
 
 export const problemCards: ProblemCard[] = [
   {
-    icon: "business_center",
-    tag: "Engenheiros",
-    title: "Sabe a técnica, mas não tem o negócio estruturado",
-    text: "A faculdade ensinou a calcular, mas não ensinou a gerenciar obra. Você pega serviços sem processo comercial claro, sofre para orçar com segurança e vive sobrecarregado no operacional sem saber se a conta vai fechar.",
+    icon: "warning",
+    tag: "Mestres e Empreiteiros",
+    title: "O material que acaba às 10h da manhã",
+    text: "Equipe parada de braço cruzado esperando areia ou cimento chegar. O frete emergencial custa o dobro e sai direto da sua comissão.",
   },
   {
     icon: "trending_down",
-    tag: "Mestres de Obras",
-    title: "O canteiro desorganizado que come o seu lucro",
-    text: "Material pedido em cima da hora com frete caro, equipe parada esperando cimento chegar e quebra-quebra por falta de alinhamento. No fim da obra, o dinheiro que deveria ser o seu lucro escorre pelo ralo.",
+    tag: "Engenheiros e Arquitetos",
+    title: "O orçamento dado 'no feeling'",
+    text: "Você fecha a obra por um valor, os imprevistos aparecem e a conta não fecha. No fim, trabalhou meses para pagar conta e ficar no zero a zero.",
   },
   {
-    icon: "chat_bubble_outline",
+    icon: "forum",
     tag: "Ambos os perfis",
-    title: "Gestão perdida no WhatsApp e combinados de boca",
-    text: "Medições, recibos, pedidos de alteração e comprovantes espalhados em conversas de celular. Na hora de prestar contas ou acertar pagamentos, sobram discussões e faltam comprovantes formais.",
+    title: "A gestão perdida em áudios de WhatsApp",
+    text: "Combinados de boca, fotos soltas e comprovantes sumidos. Na hora de acertar medição ou pedir pagamento, sobram discussões e prejuízos.",
   },
   {
-    icon: "schedule",
+    icon: "nightlight_round",
     tag: "Ambos os perfis",
-    title: "O ciclo do apagador de incêndio",
-    text: "Passar o dia inteiro correndo atrás de pepino no canteiro e chegar em casa exausto tendo que orçar, montar diário de obra e responder cliente até tarde da noite no computador.",
+    title: "A noite em família engolida pelo computador",
+    text: "Passar o dia inteiro correndo atrás de pepino no canteiro e chegar em casa exausto tendo que digitar relatório e cronograma até meia-noite.",
   },
 ];
 
@@ -47,24 +50,24 @@ export interface LessonCard {
 
 export const lessonCards: LessonCard[] = [
   {
-    tag: "Módulo 1 • Visão de Negócio",
-    title: "Estruturação de Processos e Blindagem de Margem",
-    text: "Como estruturar sua prestação de serviço como um negócio de verdade: definição de escopo, orçamentação segura e identificação imediata de onde o dinheiro vaza no canteiro.",
+    tag: "Passo 1 • Blindagem Financeira",
+    title: "Onde o Dinheiro Realmente Foge na sua Obra",
+    text: "Como enxergar os ralos invisíveis de material, horas ociosas e retrabalho antes que eles comam a sua margem.",
   },
   {
-    tag: "Módulo 2 • Campo e Suprimentos",
-    title: "Planejamento Semanal de Obras sem Teoria Inútil",
-    text: "O método de programação semanal de compras e equipes: saiba o que pedir com antecedência para nunca ter profissional parado nem pagar frete emergencial.",
+    tag: "Passo 2 • Campo sem Surpresa",
+    title: "Planejamento Semanal em 15 Minutos",
+    text: "O método prático para pedir na quarta o que roda na semana que vem. Nunca mais pague frete caro nem pare pedreiro.",
   },
   {
-    tag: "Módulo 3 • Controle e Qualidade",
-    title: "Padrões de Conferência e Medição de Serviços",
-    text: "Checklists objetivos de campo para fôrma, armadura, instalações e alvenaria: como inspecionar antes de fechar e registrar medições que eliminam retrabalho e discussões.",
+    tag: "Passo 3 • Padrão de Execução",
+    title: "Checklists de 3 Minutos que Evitam Quebra-Quebra",
+    text: "O que bater o olho em armadura, fôrma, elétrica e alvenaria antes que o erro seja concretado.",
   },
   {
-    tag: "Módulo 4 • Tecnologia na Prática",
-    title: "IA e ChatGPT Aplicados à Rotina da Construção",
-    text: "Na tela ao vivo: como usar Inteligência Artificial para gerar cronogramas, memoriais descritivos, listas de compras e relatórios para clientes em menos de 5 minutos.",
+    tag: "Passo 4 • O Seu Assistente no Bolso",
+    title: "ChatGPT e IA na Tela: Do Celular para a Obra",
+    text: "Como gerar cronograma, memorial de contrato e relatório semanal para cliente em 3 minutos usando Inteligência Artificial.",
   },
 ];
 
@@ -77,23 +80,23 @@ export interface AiItem {
 export const aiItems: AiItem[] = [
   {
     icon: "calendar_month",
-    title: "Cronogramas de Execução",
-    desc: "Gere o sequenciamento lógico de fundação a acabamento em minutos para apresentar prazos reais a clientes e equipes.",
+    title: "Cronograma Completo em 3 Minutos",
+    desc: "Sequência lógica de fundação ao acabamento sem quebrar a cabeça no Excel.",
   },
   {
     icon: "description",
-    title: "Memoriais e Escopos de Contrato",
-    desc: "Elabore especificações técnicas claras para fechar com empreiteiros sem deixar pontas soltas nem margem para aditivos surpresa.",
+    title: "Escopos e Contratos sem Brecha",
+    desc: "Memoriais claros para fechar com equipe e cliente sem espaço para aditivos de prejuízo.",
   },
   {
     icon: "fact_check",
-    title: "Checklists de Fiscalização de Campo",
-    desc: "Listas práticas para checar armaduras, concretagem, impermeabilização e tubulações antes que o erro seja concretado.",
+    title: "Checklist de Inspeção Instantâneo",
+    desc: "Listas rápidas para checar ferragem, fôrma e tubulação direto no canteiro pelo celular.",
   },
   {
     icon: "summarize",
-    title: "Relatórios de Obra para Clientes",
-    desc: "Transforme fotos e anotações do dia a dia em relatórios formais e organizados que transmitem autoridade imediata.",
+    title: "Relatório de Obra que Transmite Respeito",
+    desc: "Transforme fotos soltas em um PDF executivo que deixa o cliente seguro e cala qualquer reclamação.",
   },
 ];
 
@@ -107,24 +110,24 @@ export interface AudienceProfile {
 export const audienceProfiles: AudienceProfile[] = [
   {
     role: "Engenheiros Civis e Arquitetos",
-    subtitle: "Recém-formados ou no mercado que precisam estruturar seu negócio",
+    subtitle: "Para quem quer sair do operacional sufocante e ter uma empresa respeitada",
     description:
-      "Para quem domina o conhecimento técnico, mas nunca aprendeu a gerenciar o negócio: sofre para orçar com segurança, não tem processos padronizados de contrato e escopo, e vive sobrecarregado no operacional sem previsibilidade financeira.",
+      "A faculdade ensinou a calcular viga, mas não ensinou a cobrar, fechar contrato seguro e liderar canteiro. Pare de ser refém da insegurança e estruture processos para ter previsibilidade financeira.",
     benefits: [
-      "Processos claros para orçar e fechar serviços com margem de lucro garantida",
-      "Como gerar memoriais, cronogramas e relatórios técnicos usando IA em 5 minutos",
-      "Sair do operacional sufocante para se posicionar como um profissional/empresa estruturada",
+      "Processos padronizados para orçar e fechar obras com margem no bolso",
+      "Como apresentar memoriais e relatórios de alto padrão usando IA",
+      "Postura de empresário da engenharia, não de apagador de incêndio",
     ],
   },
   {
     role: "Mestres de Obras e Empreiteiros",
-    subtitle: "Quem domina o canteiro, mas perde a margem de lucro por desorganização",
+    subtitle: "Para quem domina a colher de pedreiro, mas perde o lucro na desorganização",
     description:
-      "Para quem sabe executar como ninguém, mas sofre no dia a dia com pedidos de material de última hora, equipe parada por falta de insumo e retrabalho que devora o lucro suado do mês.",
+      "Você sabe construir melhor do que qualquer um de terno. Mas se o material falta e a conferência falha, o prejuízo sobra para você pagar. Aprenda a planejar a semana para ver o dinheiro render.",
     benefits: [
-      "Planejamento semanal de compras para nunca pagar frete caro nem parar equipe",
-      "Checklists práticos de conferência de campo para zerar erros e retrabalho",
-      "Controle de medições e avanço de obra para blindar o dinheiro que sobra no seu bolso",
+      "Planejamento simples de compras para nunca faltar insumo na obra",
+      "Checklists fáceis para zerar retrabalho e quebra-quebra",
+      "Medições formais e comprovantes claros para receber sem discussões",
     ],
   },
 ];
@@ -136,29 +139,29 @@ export interface FaqItem {
 
 export const faqItems: FaqItem[] = [
   {
-    question: "A aula serve tanto para engenheiros quanto para mestres de obras?",
+    question: "A aula serve para quem trabalha com obras residenciais e reformas pequenas?",
     answer:
-      "Exatamente. O método conecta as duas pontas essenciais da construção: a gestão e estruturação do negócio (que o engenheiro precisa) e a organização prática do canteiro e proteção de margem (que o mestre de obras precisa).",
+      "Com certeza. É exatamente na obra residencial de R$ 50 mil a R$ 1 milhão que o improviso mais machuca, porque o dinheiro sai direto do seu bolso. O método funciona para reforma de apartamento, casa térrea, sobrado ou condomínio.",
   },
   {
-    question: "Sou engenheiro recém-formado ou estou no mercado há algum tempo sem empresa estruturada. Devo participar?",
+    question: "Sou recém-formado e ainda não peguei minha primeira obra. Devo participar?",
     answer:
-      "Sim. É justamente para você estruturar seu negócio antes de continuar perdendo tempo e dinheiro. Entrar em projetos sem método comercial, orçamentação segura e processos claros queima a sua margem e a sua reputação com os clientes.",
+      "Sem dúvida. Começar sem método custa muito caro: um erro de armadura ou uma compra errada já comem todo o seu lucro. Você vai entrar no mercado com a postura e as ferramentas de quem tem 10 anos de experiência.",
   },
   {
-    question: "Sou mestre de obras ou empreiteiro e não domino tecnologia. Vou conseguir aplicar?",
+    question: "Não entendo nada de computador e uso mal o celular. Vou conseguir aplicar?",
     answer:
-      "Com certeza. A aula é 100% prática, sem enrolação teórica, falando a linguagem do canteiro. Você vai aprender a organizar sua semana de compras, usar listas simples de conferência e até usar o celular com Inteligência Artificial para fazer relatórios em minutos.",
+      "100%. A aula é em português simples, de quem pisa na terra com bota suja. Tudo que será mostrado você consegue usar pelo próprio WhatsApp e celular, sem precisar de programas caros ou complicados.",
   },
   {
     question: "Como funciona a transmissão ao vivo?",
     answer:
-      "A aula acontece no dia 20 de novembro de 2026, às 19h (horário de Brasília), ao vivo pelo Zoom. O link de acesso exclusivo é enviado imediatamente após a confirmação da sua inscrição.",
+      "Acontece no dia 20 de novembro de 2026, às 19h (horário de Brasília), ao vivo pelo Zoom. O link de acesso exclusivo é enviado para seu WhatsApp e e-mail imediatamente após a confirmação.",
   },
   {
-    question: "E se eu quiser rever o conteúdo depois?",
+    question: "E se eu não puder assistir ao vivo ou quiser rever depois?",
     answer:
-      "O ingresso garante sua participação ao vivo. Caso queira acesso vitalício à gravação e aos materiais demonstrados, você pode adicionar a gravação no checkout por apenas R$ 27,00.",
+      "O ingresso garante sua vaga na transmissão interativa. No momento do checkout, você pode incluir o acesso vitalício à gravação e aos modelos de checklists por apenas +R$ 27,00.",
   },
 ];
 
@@ -168,8 +171,8 @@ export interface OfferRow {
 }
 
 export const offerRows: OfferRow[] = [
-  { label: "Data e Horário", value: "20 de novembro de 2026, às 19h (BRT)" },
-  { label: "Transmissão", value: "Ao vivo via Zoom (link no WhatsApp e e-mail)" },
-  { label: "Condução", value: "Magno Santos" },
-  { label: "Opcional no Checkout", value: "Acesso à gravação completa (+ R$ 27,00)" },
+  { label: "Data e Horário", value: "20 de novembro de 2026, às 19h (Horário de Brasília)" },
+  { label: "Formato", value: "Transmissão 100% ao vivo via Zoom" },
+  { label: "Instrutor", value: "Magno Santos (Engenheiro Civil & Fundador da Coliseu)" },
+  { label: "Acesso aos Materiais", value: "Demonstrações práticas e prompts de IA na tela" },
 ];

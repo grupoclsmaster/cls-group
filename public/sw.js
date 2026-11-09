@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cls-pro-v1';
+const CACHE_NAME = 'cls-pro-v2';
 const STATIC_ASSETS = [
   '/',
   '/dashboard',
@@ -55,10 +55,12 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request)
         .then((response) => {
           // Cache a copy of the response
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, cloned);
-          });
+          if (response.ok) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, cloned);
+            });
+          }
           return response;
         })
         .catch(() => {
@@ -79,10 +81,14 @@ self.addEventListener('fetch', (event) => {
       caches.match(event.request).then((cached) => {
         if (cached) return cached;
         return fetch(event.request).then((response) => {
-          const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, cloned);
-          });
+          // Só guarda respostas válidas: um erro em cache deixaria o asset quebrado para sempre
+          const type = response.headers.get('content-type') || '';
+          if (response.ok && !type.includes('text/html')) {
+            const cloned = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, cloned);
+            });
+          }
           return response;
         });
       })
